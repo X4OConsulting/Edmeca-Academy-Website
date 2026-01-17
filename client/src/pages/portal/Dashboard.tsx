@@ -19,6 +19,7 @@ import {
   LogOut,
 } from "lucide-react";
 import type { Artifact } from "@shared/schema";
+import logoImage from "@assets/EdMeCa_LOGO.png";
 
 const tools = [
   {
@@ -106,11 +107,11 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-4 h-16">
             <Link href="/" className="flex items-center gap-3" data-testid="link-portal-home">
-              <span className="font-serif text-2xl font-bold tracking-tight">
-                <span className="text-primary">Ed</span>
-                <span className="text-accent">Me</span>
-                <span className="text-primary">Ca</span>
-              </span>
+              <img 
+                src={logoImage} 
+                alt="EdMeCa" 
+                className="h-10 w-auto dark:brightness-0 dark:invert"
+              />
               <div className="hidden sm:block h-6 w-px bg-border" />
               <span className="hidden sm:block text-xs font-medium text-muted-foreground uppercase tracking-widest">
                 Portal

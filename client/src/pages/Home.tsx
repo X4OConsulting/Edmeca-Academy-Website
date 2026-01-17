@@ -277,7 +277,7 @@ export default function Home() {
               Ready to Transform Your Ideas?
             </h2>
             <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
-              Join hundreds of entrepreneurs and programmes using EDMECA to turn 
+              Join hundreds of entrepreneurs and programmes using EdMeCa to turn 
               frameworks into action, prototypes into products.
             </p>
             

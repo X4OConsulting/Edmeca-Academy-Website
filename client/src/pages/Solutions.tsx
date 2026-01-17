@@ -165,7 +165,7 @@ export default function Solutions() {
               Scale Impact, Measure Outcomes
             </h2>
             <p className="mt-4 text-muted-foreground leading-relaxed">
-              Enterprise development programmes, incubators, and accelerators trust EDMECA 
+              Enterprise development programmes, incubators, and accelerators trust EdMeCa 
               to deliver consistent interventions and demonstrate measurable impact.
             </p>
             

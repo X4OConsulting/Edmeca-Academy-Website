@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import logoImage from "@assets/EdMeCa_LOGO.png";
 
 const navLinks = [
   { href: "/about", label: "About" },
@@ -20,17 +21,11 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-4 h-16">
           <Link href="/" className="flex items-center gap-3" data-testid="link-home">
-            <div className="flex items-center">
-              <span className="font-serif text-2xl font-bold tracking-tight">
-                <span className="text-primary">Ed</span>
-                <span className="text-accent">Me</span>
-                <span className="text-primary">Ca</span>
-              </span>
-            </div>
-            <div className="hidden sm:block h-6 w-px bg-border" />
-            <span className="hidden sm:block text-xs font-medium text-muted-foreground uppercase tracking-widest">
-              Digital Academy
-            </span>
+            <img 
+              src={logoImage} 
+              alt="EdMeCa" 
+              className="h-10 w-auto dark:brightness-0 dark:invert"
+            />
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">
