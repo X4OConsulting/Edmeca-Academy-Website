@@ -105,13 +105,16 @@ export default function Dashboard() {
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-4 h-16">
-            <Link href="/">
-              <a className="flex items-center gap-2" data-testid="link-portal-home">
-                <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-lg">E</span>
-                </div>
-                <span className="font-serif text-xl font-semibold tracking-tight">EDMECA</span>
-              </a>
+            <Link href="/" className="flex items-center gap-3" data-testid="link-portal-home">
+              <span className="font-serif text-2xl font-bold tracking-tight">
+                <span className="text-primary">Ed</span>
+                <span className="text-accent">Me</span>
+                <span className="text-primary">Ca</span>
+              </span>
+              <div className="hidden sm:block h-6 w-px bg-border" />
+              <span className="hidden sm:block text-xs font-medium text-muted-foreground uppercase tracking-widest">
+                Portal
+              </span>
             </Link>
 
             <div className="flex items-center gap-4">

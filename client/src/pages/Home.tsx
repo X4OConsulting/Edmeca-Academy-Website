@@ -79,7 +79,7 @@ const audienceTracks = [
 
 const testimonials = [
   {
-    quote: "EDMECA transformed how we deliver our accelerator program. The tools made complex frameworks accessible to all participants.",
+    quote: "EdMeCa transformed how we deliver our accelerator program. The tools made complex frameworks accessible to all participants.",
     author: "Sarah Chen",
     role: "Programme Director",
     company: "Startup Incubator",

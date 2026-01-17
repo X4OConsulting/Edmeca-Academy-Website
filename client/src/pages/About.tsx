@@ -58,7 +58,7 @@ export default function About() {
               Making Business Frameworks Work for Everyone
             </h1>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-              EDMECA bridges the gap between MBA-level business theory and entrepreneurial execution. 
+              EdMeCa bridges the gap between MBA-level business theory and entrepreneurial execution. 
               We believe the best frameworks shouldn't be locked behind expensive consulting fees or 
               inaccessible education.
             </p>
@@ -74,7 +74,7 @@ export default function About() {
               <h2 className="font-serif text-3xl sm:text-4xl font-bold">Our Story</h2>
               <div className="mt-6 space-y-4 text-muted-foreground leading-relaxed">
                 <p>
-                  EDMECA was born from a simple observation: entrepreneurs across Africa and emerging 
+                  EdMeCa was born from a simple observation: entrepreneurs across Africa and emerging 
                   markets have extraordinary ideas but often lack access to the strategic tools that 
                   help businesses succeed.
                 </p>
@@ -84,7 +84,7 @@ export default function About() {
                   figuring out what established frameworks could teach them in days.
                 </p>
                 <p>
-                  So we built EDMECA—a platform that combines the rigor of management consulting 
+                  So we built EdMeCa—a platform that combines the rigor of management consulting 
                   frameworks with the accessibility of modern technology and AI. From Framework 
                   to Execution to Evidence.
                 </p>

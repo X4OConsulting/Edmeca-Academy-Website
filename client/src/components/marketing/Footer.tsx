@@ -19,11 +19,18 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
           <div className="md:col-span-2">
-            <Link href="/" className="flex items-center gap-2" data-testid="link-footer-home">
-              <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">E</span>
+            <Link href="/" className="flex items-center gap-3" data-testid="link-footer-home">
+              <div className="flex items-center">
+                <span className="font-serif text-2xl font-bold tracking-tight">
+                  <span className="text-primary">Ed</span>
+                  <span className="text-accent">Me</span>
+                  <span className="text-primary">Ca</span>
+                </span>
               </div>
-              <span className="font-serif text-xl font-semibold tracking-tight">EDMECA</span>
+              <div className="h-6 w-px bg-border" />
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
+                Digital Academy
+              </span>
             </Link>
             <p className="mt-4 text-muted-foreground max-w-md text-sm leading-relaxed">
               From Framework to Execution to Evidence. MBA-level business frameworks 
@@ -72,7 +79,7 @@ export function Footer() {
         <div className="border-t mt-12 pt-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} EDMECA. All rights reserved.
+              &copy; {new Date().getFullYear()} EdMeCa Digital Academy. All rights reserved.
             </p>
             <div className="flex gap-6">
               <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer">

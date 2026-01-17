@@ -71,7 +71,7 @@ export default function Solutions() {
             </h1>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
               Whether you're an individual entrepreneur or leading a development programme, 
-              EDMECA provides the tools and frameworks you need to succeed.
+              EdMeCa provides the tools and frameworks you need to succeed.
             </p>
           </div>
         </div>

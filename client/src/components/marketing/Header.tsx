@@ -19,11 +19,18 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-4 h-16">
-          <Link href="/" className="flex items-center gap-2" data-testid="link-home">
-            <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">E</span>
+          <Link href="/" className="flex items-center gap-3" data-testid="link-home">
+            <div className="flex items-center">
+              <span className="font-serif text-2xl font-bold tracking-tight">
+                <span className="text-primary">Ed</span>
+                <span className="text-accent">Me</span>
+                <span className="text-primary">Ca</span>
+              </span>
             </div>
-            <span className="font-serif text-xl font-semibold tracking-tight">EDMECA</span>
+            <div className="hidden sm:block h-6 w-px bg-border" />
+            <span className="hidden sm:block text-xs font-medium text-muted-foreground uppercase tracking-widest">
+              Digital Academy
+            </span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">

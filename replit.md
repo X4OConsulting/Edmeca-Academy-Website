@@ -1,10 +1,16 @@
-# EDMECA - Business Framework Platform
+# EdMeCa Digital Academy - Business Framework Platform
 
 ## Overview
 
-EDMECA is a web application combining a public marketing website with an authenticated client portal. The platform makes MBA-level business frameworks accessible to entrepreneurs through hands-on delivery and AI-enabled tooling. The tagline is "From Framework to Execution to Evidence."
+EdMeCa is a web application combining a public marketing website with an authenticated client portal. The platform makes MBA-level business frameworks accessible to entrepreneurs through hands-on delivery and AI-enabled tooling. The tagline is "From Framework to Execution to Evidence."
+
+## Branding
+- Logo: "EdMeCa" with alternating color styling (Ed=primary, Me=accent, Ca=primary)
+- Tagline: "Digital Academy"
+- Full brand: "EdMeCa Digital Academy"
 
 ## Recent Changes (January 2026)
+- Updated branding to match design concept: EdMeCa with "Digital Academy" tagline
 - Fixed nested anchor tag warnings by using `asChild` prop on Link components wrapping Buttons
 - Improved auth guard in ProtectedRoute to show loading states during redirect
 - Fixed BMCTool to handle new users (no existing artifact) gracefully - API returns null instead of 404
