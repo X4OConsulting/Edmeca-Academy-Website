@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated, registerAuthRoutes } from "./replit_integrations/auth";
 import { insertArtifactSchema, insertContactSubmissionSchema, insertProgressEntrySchema } from "@shared/schema";
 import { z } from "zod";
+import { sendContactEmail } from "./gmail";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -17,7 +18,25 @@ export async function registerRoutes(
   app.post("/api/contact", async (req, res) => {
     try {
       const validated = insertContactSubmissionSchema.parse(req.body);
+      
+      // Save to database
       const submission = await storage.createContactSubmission(validated);
+      
+      // Send email notification to info@edmeca.co.za
+      try {
+        await sendContactEmail({
+          name: validated.name,
+          email: validated.email,
+          company: validated.company || undefined,
+          audienceType: validated.audienceType,
+          message: validated.message,
+        });
+        console.log("Contact email sent successfully to info@edmeca.co.za");
+      } catch (emailError) {
+        console.error("Failed to send email notification:", emailError);
+        // Don't fail the request if email fails - submission is still saved
+      }
+      
       res.status(201).json(submission);
     } catch (error) {
       if (error instanceof z.ZodError) {
