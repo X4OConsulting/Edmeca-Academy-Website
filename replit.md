@@ -10,7 +10,7 @@ EdMeCa is a web application combining a public marketing website with an authent
 - Full brand: "EdMeCa Digital Academy"
 
 ## Recent Changes (January 2026)
-- Integrated Gmail for contact form email notifications - sends to info@edmeca.co.za
+- Integrated Gmail for contact form email notifications - sends to Info@edmeca.co.za
 - Updated header to use EdMeCa logo image from attached_assets/EdMeCa_LOGO.png
 - Updated branding to match design concept: EdMeCa with "Digital Academy" tagline
 - Fixed nested anchor tag warnings by using `asChild` prop on Link components wrapping Buttons
@@ -21,7 +21,7 @@ EdMeCa is a web application combining a public marketing website with an authent
 
 ## Email Integration
 - Uses Gmail connector via Replit integrations
-- Contact form submissions are sent to info@edmeca.co.za
+- Contact form submissions are sent to Info@edmeca.co.za
 - Implementation in server/gmail.ts
 
 **Target Audiences:**

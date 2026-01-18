@@ -243,7 +243,7 @@ export default function Contact() {
                   <div>
                     <h3 className="font-semibold">Email</h3>
                     <p className="text-sm text-muted-foreground mt-1">
-                      hello@edmeca.com
+                      Info@edmeca.co.za
                     </p>
                   </div>
                 </div>

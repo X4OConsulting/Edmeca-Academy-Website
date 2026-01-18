@@ -109,7 +109,7 @@ ${sanitizedMessage}
 This message was sent via the EdMeCa website contact form.
 `;
 
-  const recipientEmail = 'info@edmeca.co.za';
+  const recipientEmail = 'Info@edmeca.co.za';
   const subject = `[EdMeCa Contact] New inquiry from ${sanitizedName}`;
 
   // Create the email in base64url format

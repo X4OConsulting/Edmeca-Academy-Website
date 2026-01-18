@@ -22,7 +22,7 @@ export async function registerRoutes(
       // Save to database
       const submission = await storage.createContactSubmission(validated);
       
-      // Send email notification to info@edmeca.co.za
+      // Send email notification to Info@edmeca.co.za
       try {
         await sendContactEmail({
           name: validated.name,
@@ -31,7 +31,7 @@ export async function registerRoutes(
           audienceType: validated.audienceType,
           message: validated.message,
         });
-        console.log("Contact email sent successfully to info@edmeca.co.za");
+        console.log("Contact email sent successfully to Info@edmeca.co.za");
       } catch (emailError) {
         console.error("Failed to send email notification:", emailError);
         // Don't fail the request if email fails - submission is still saved
