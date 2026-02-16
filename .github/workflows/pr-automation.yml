@@ -1,0 +1,317 @@
+name: PR Automation & Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, staging, development]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: write
+  issues: write
+
+jobs:
+  # Job 1: Code Quality & Analysis
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+    outputs:
+      typescript-passed: ${{ steps.typescript.outcome == 'success' }}
+      build-passed: ${{ steps.build.outcome == 'success' }}
+      has-errors: ${{ steps.analyze.outputs.has-errors }}
+      
+    steps:
+    - name: Checkout PR Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Get full history for better analysis
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install Dependencies
+      run: npm ci
+      
+    - name: TypeScript Type Check
+      id: typescript
+      run: |
+        echo "Running TypeScript check..."
+        npm run check 2>&1 | tee typescript-output.txt
+        echo "typescript_output<<EOF" >> $GITHUB_OUTPUT
+        cat typescript-output.txt >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+      continue-on-error: true
+      
+    - name: Build Application
+      id: build
+      run: |
+        echo "Building application..."
+        npm run build 2>&1 | tee build-output.txt
+        echo "build_output<<EOF" >> $GITHUB_OUTPUT
+        cat build-output.txt >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+      env:
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      continue-on-error: true
+      
+    - name: Analyze Code Changes
+      id: analyze
+      run: |
+        echo "Analyzing code changes..."
+        git diff ${{ github.event.pull_request.base.sha }} ${{ github.sha }} --stat > changes-summary.txt
+        git diff ${{ github.event.pull_request.base.sha }} ${{ github.sha }} --numstat > changes-detailed.txt
+        
+        # Count changes
+        ADDED=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.sha }} --numstat | awk '{sum+=$1} END {print sum}')
+        REMOVED=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.sha }} --numstat | awk '{sum+=$2} END {print sum}')
+        FILES=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.sha }} --numstat | wc -l)
+        
+        echo "files_changed=$FILES" >> $GITHUB_OUTPUT
+        echo "lines_added=$ADDED" >> $GITHUB_OUTPUT
+        echo "lines_removed=$REMOVED" >> $GITHUB_OUTPUT
+        
+        # Check for critical files
+        CRITICAL_CHANGED=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.sha }} --name-only | grep -E '(package\.json|tsconfig\.json|vite\.config\.ts|\.env|supabase/)' | wc -l)
+        echo "critical_files=$CRITICAL_CHANGED" >> $GITHUB_OUTPUT
+        
+        # Determine if there are errors
+        if [ "${{ steps.typescript.outcome }}" != "success" ] || [ "${{ steps.build.outcome }}" != "success" ]; then
+          echo "has-errors=true" >> $GITHUB_OUTPUT
+        else
+          echo "has-errors=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Upload Analysis Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: analysis-results
+        path: |
+          typescript-output.txt
+          build-output.txt
+          changes-summary.txt
+          changes-detailed.txt
+        retention-days: 7
+
+  # Job 2: Generate PR Analysis Report
+  generate-report:
+    name: Generate PR Analysis Report
+    runs-on: ubuntu-latest
+    needs: code-quality
+    if: always()
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Download Analysis Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: analysis-results
+        
+    - name: Generate Detailed Analysis
+      id: detailed-analysis
+      run: |
+        echo "# 🔍 PR Analysis Report" > pr-analysis.md
+        echo "" >> pr-analysis.md
+        echo "**PR #${{ github.event.pull_request.number }}**: ${{ github.event.pull_request.title }}" >> pr-analysis.md
+        echo "" >> pr-analysis.md
+        
+        # Status badges
+        if [ "${{ needs.code-quality.outputs.typescript-passed }}" == "true" ]; then
+          echo "✅ **TypeScript Check**: Passed" >> pr-analysis.md
+        else
+          echo "❌ **TypeScript Check**: Failed" >> pr-analysis.md
+        fi
+        
+        if [ "${{ needs.code-quality.outputs.build-passed }}" == "true" ]; then
+          echo "✅ **Build**: Passed" >> pr-analysis.md
+        else
+          echo "❌ **Build**: Failed" >> pr-analysis.md
+        fi
+        
+        echo "" >> pr-analysis.md
+        echo "## 📊 Change Statistics" >> pr-analysis.md
+        echo "" >> pr-analysis.md
+        echo "- **Files Changed**: ${{ needs.code-quality.outputs.files_changed }}" >> pr-analysis.md
+        echo "- **Lines Added**: +${{ needs.code-quality.outputs.lines_added }}" >> pr-analysis.md
+        echo "- **Lines Removed**: -${{ needs.code-quality.outputs.lines_removed }}" >> pr-analysis.md
+        echo "- **Critical Files Modified**: ${{ needs.code-quality.outputs.critical_files }}" >> pr-analysis.md
+        
+        echo "" >> pr-analysis.md
+        echo "## 📝 Files Changed" >> pr-analysis.md
+        echo "" >> pr-analysis.md
+        echo '```' >> pr-analysis.md
+        cat changes-summary.txt >> pr-analysis.md
+        echo '```' >> pr-analysis.md
+        
+        # Add TypeScript errors if any
+        if [ "${{ needs.code-quality.outputs.typescript-passed }}" != "true" ]; then
+          echo "" >> pr-analysis.md
+          echo "## ⚠️ TypeScript Issues" >> pr-analysis.md
+          echo "" >> pr-analysis.md
+          echo '```' >> pr-analysis.md
+          cat typescript-output.txt | tail -n 50 >> pr-analysis.md
+          echo '```' >> pr-analysis.md
+        fi
+        
+        # Add build errors if any
+        if [ "${{ needs.code-quality.outputs.build-passed }}" != "true" ]; then
+          echo "" >> pr-analysis.md
+          echo "## ⚠️ Build Issues" >> pr-analysis.md
+          echo "" >> pr-analysis.md
+          echo '```' >> pr-analysis.md
+          cat build-output.txt | tail -n 50 >> pr-analysis.md
+          echo '```' >> pr-analysis.md
+        fi
+        
+        # Recommendations
+        echo "" >> pr-analysis.md
+        echo "## 💡 Recommendations" >> pr-analysis.md
+        echo "" >> pr-analysis.md
+        
+        if [ "${{ needs.code-quality.outputs.critical_files }}" -gt "0" ]; then
+          echo "⚠️ **Critical files were modified**. Please ensure:" >> pr-analysis.md
+          echo "- Database migrations are tested" >> pr-analysis.md
+          echo "- Environment variables are documented" >> pr-analysis.md
+          echo "- Dependencies are compatible" >> pr-analysis.md
+          echo "" >> pr-analysis.md
+        fi
+        
+        if [ "${{ needs.code-quality.outputs.has-errors }}" == "true" ]; then
+          echo "❌ **Fix errors before merging**" >> pr-analysis.md
+          echo "- Review TypeScript type errors" >> pr-analysis.md
+          echo "- Ensure build completes successfully" >> pr-analysis.md
+          echo "- Test changes locally" >> pr-analysis.md
+        else
+          echo "✅ **All checks passed!**" >> pr-analysis.md
+          echo "- Code quality checks passed" >> pr-analysis.md
+          echo "- Build successful" >> pr-analysis.md
+          echo "- Ready for review" >> pr-analysis.md
+        fi
+        
+    - name: Post PR Comment
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync('pr-analysis.md', 'utf8');
+          
+          // Find existing comment
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          
+          const botComment = comments.find(comment => 
+            comment.user.type === 'Bot' && 
+            comment.body.includes('🔍 PR Analysis Report')
+          );
+          
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: report
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: report
+            });
+          }
+
+  # Job 3: Auto-Approve if All Checks Pass
+  auto-approve:
+    name: Auto-Approve PR
+    runs-on: ubuntu-latest
+    needs: [code-quality, generate-report]
+    if: |
+      always() &&
+      needs.code-quality.outputs.has-errors == 'false' &&
+      needs.code-quality.outputs.typescript-passed == 'true' &&
+      needs.code-quality.outputs.build-passed == 'true'
+    
+    steps:
+    - name: Auto-Approve PR
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          await github.rest.pulls.createReview({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number,
+            event: 'APPROVE',
+            body: '✅ **Automated Approval**\n\nAll quality checks passed:\n- TypeScript compilation successful\n- Build completed without errors\n- Code analysis completed\n\nThis PR is ready to merge! 🚀'
+          });
+          
+    - name: Add Success Label
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          await github.rest.issues.addLabels({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            labels: ['auto-approved', 'ready-to-merge']
+          });
+          
+    - name: Post Success Comment
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body: '🎉 **All checks passed!** This PR has been automatically approved and is ready to merge.\n\n**Next Steps:**\n- Review the changes one final time\n- Merge when ready\n- Monitor deployment for any issues'
+          });
+
+  # Job 4: Request Changes if Errors Found
+  request-changes:
+    name: Request Changes
+    runs-on: ubuntu-latest
+    needs: [code-quality, generate-report]
+    if: |
+      always() &&
+      needs.code-quality.outputs.has-errors == 'true'
+    
+    steps:
+    - name: Request Changes
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          await github.rest.pulls.createReview({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number,
+            event: 'REQUEST_CHANGES',
+            body: '❌ **Changes Requested**\n\nAutomated checks found issues that need to be resolved:\n- Review the analysis report above\n- Fix TypeScript errors\n- Ensure build completes successfully\n- Push fixes to update this PR'
+          });
+          
+    - name: Add Needs Work Label
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          await github.rest.issues.addLabels({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            labels: ['needs-work', 'failing-checks']
+          });

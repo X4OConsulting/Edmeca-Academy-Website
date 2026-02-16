@@ -1,0 +1,189 @@
+name: Auto-Generate PR Description
+
+on:
+  pull_request:
+    types: [opened]
+    branches: [main, staging, development]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  generate-description:
+    name: Generate PR Description
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Analyze Changes
+      id: analyze
+      run: |
+        # Get changed files by category
+        git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} > all-changes.txt
+        
+        # Categorize changes
+        grep -E '^client/src/components/' all-changes.txt > components.txt || touch components.txt
+        grep -E '^client/src/pages/' all-changes.txt > pages.txt || touch pages.txt
+        grep -E '^server/' all-changes.txt > backend.txt || touch backend.txt
+        grep -E '^shared/' all-changes.txt > shared.txt || touch shared.txt
+        grep -E '^\.github/workflows/' all-changes.txt > workflows.txt || touch workflows.txt
+        grep -E '\.(ts|tsx|js|jsx)$' all-changes.txt > code-files.txt || touch code-files.txt
+        grep -E '\.(css|scss)$' all-changes.txt > styles.txt || touch styles.txt
+        grep -E '^(package\.json|package-lock\.json)$' all-changes.txt > deps.txt || touch deps.txt
+        grep -E '^(supabase/)' all-changes.txt > database.txt || touch database.txt
+        
+        # Count each category
+        echo "components=$(wc -l < components.txt)" >> $GITHUB_OUTPUT
+        echo "pages=$(wc -l < pages.txt)" >> $GITHUB_OUTPUT
+        echo "backend=$(wc -l < backend.txt)" >> $GITHUB_OUTPUT
+        echo "shared=$(wc -l < shared.txt)" >> $GITHUB_OUTPUT
+        echo "workflows=$(wc -l < workflows.txt)" >> $GITHUB_OUTPUT
+        echo "styles=$(wc -l < styles.txt)" >> $GITHUB_OUTPUT
+        echo "deps=$(wc -l < deps.txt)" >> $GITHUB_OUTPUT
+        echo "database=$(wc -l < database.txt)" >> $GITHUB_OUTPUT
+        
+    - name: Generate Description
+      id: description
+      run: |
+        # Check if PR description is empty or minimal
+        CURRENT_DESC="${{ github.event.pull_request.body }}"
+        DESC_LENGTH=${#CURRENT_DESC}
+        
+        if [ $DESC_LENGTH -lt 50 ]; then
+          echo "Generating enhanced PR description..."
+          
+          cat > pr-description.md << 'EOF'
+        ## 📋 Description
+        
+        This PR includes changes to the EDMECA Academy project.
+        
+        EOF
+          
+          # Add change categories
+          if [ ${{ steps.analyze.outputs.components }} -gt 0 ]; then
+            echo "### 🎨 Component Changes" >> pr-description.md
+            echo "Updated ${{ steps.analyze.outputs.components }} component file(s)" >> pr-description.md
+            echo '```' >> pr-description.md
+            cat components.txt >> pr-description.md
+            echo '```' >> pr-description.md
+            echo "" >> pr-description.md
+          fi
+          
+          if [ ${{ steps.analyze.outputs.pages }} -gt 0 ]; then
+            echo "### 📄 Page Changes" >> pr-description.md
+            echo "Modified ${{ steps.analyze.outputs.pages }} page file(s)" >> pr-description.md
+            echo '```' >> pr-description.md
+            cat pages.txt >> pr-description.md
+            echo '```' >> pr-description.md
+            echo "" >> pr-description.md
+          fi
+          
+          if [ ${{ steps.analyze.outputs.backend }} -gt 0 ]; then
+            echo "### ⚙️ Backend Changes" >> pr-description.md
+            echo "Updated ${{ steps.analyze.outputs.backend }} backend file(s)" >> pr-description.md
+            echo '```' >> pr-description.md
+            cat backend.txt >> pr-description.md
+            echo '```' >> pr-description.md
+            echo "" >> pr-description.md
+          fi
+          
+          if [ ${{ steps.analyze.outputs.database }} -gt 0 ]; then
+            echo "### 🗄️ Database Changes" >> pr-description.md
+            echo "⚠️ **Database migrations detected** - Review carefully!" >> pr-description.md
+            echo '```' >> pr-description.md
+            cat database.txt >> pr-description.md
+            echo '```' >> pr-description.md
+            echo "" >> pr-description.md
+          fi
+          
+          if [ ${{ steps.analyze.outputs.workflows }} -gt 0 ]; then
+            echo "### 🔄 CI/CD Changes" >> pr-description.md
+            echo "Modified ${{ steps.analyze.outputs.workflows }} workflow file(s)" >> pr-description.md
+            echo '```' >> pr-description.md
+            cat workflows.txt >> pr-description.md
+            echo '```' >> pr-description.md
+            echo "" >> pr-description.md
+          fi
+          
+          if [ ${{ steps.analyze.outputs.deps }} -gt 0 ]; then
+            echo "### 📦 Dependency Changes" >> pr-description.md
+            echo "Updated project dependencies" >> pr-description.md
+            echo "" >> pr-description.md
+          fi
+          
+          # Add commit analysis
+          echo "## 📝 Commits" >> pr-description.md
+          echo "" >> pr-description.md
+          git log --oneline ${{ github.event.pull_request.base.sha }}..${{ github.sha }} >> pr-description.md
+          echo "" >> pr-description.md
+          
+          # Add statistics
+          echo "## 📊 Change Statistics" >> pr-description.md
+          echo "" >> pr-description.md
+          git diff --stat ${{ github.event.pull_request.base.sha }} ${{ github.sha }} >> pr-description.md
+          echo "" >> pr-description.md
+          
+          # Add checklist
+          cat >> pr-description.md << 'CHECKLIST'
+        ## ✅ Checklist
+        
+        - [ ] Code follows project conventions
+        - [ ] TypeScript compilation passes
+        - [ ] Build completes successfully
+        - [ ] Changes tested locally
+        - [ ] Documentation updated (if needed)
+        - [ ] No sensitive data exposed
+        
+        ## 🧪 Testing
+        
+        Describe how you tested these changes:
+        - [ ] Manual testing
+        - [ ] Automated tests
+        - [ ] Visual inspection
+        
+        ## 📸 Screenshots (if applicable)
+        
+        Add screenshots here if UI changes were made.
+        
+        ## 🔗 Related Issues
+        
+        Closes #
+        
+        ---
+        *This description was auto-generated by GitHub Actions. Please update with specific details.*
+        CHECKLIST
+          
+          echo "should-update=true" >> $GITHUB_OUTPUT
+        else
+          echo "PR description is sufficient"
+          echo "should-update=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Update PR Description
+      if: steps.description.outputs.should-update == 'true'
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs');
+          const description = fs.readFileSync('pr-description.md', 'utf8');
+          
+          await github.rest.pulls.update({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number,
+            body: description
+          });
+          
+          // Add a comment notifying about the auto-generation
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body: '📝 **Auto-Generated Description**\n\nI noticed this PR had a minimal description, so I generated one based on the code changes.\n\nPlease review and update it with specific details about:\n- What problem this solves\n- How to test the changes\n- Any breaking changes or migration steps\n\nYou can edit the PR description above! ✏️'
+          });
