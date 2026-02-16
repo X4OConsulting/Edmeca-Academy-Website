@@ -14,7 +14,7 @@ export function TestSmartsheetIntegration() {
     <div>
       <h1>Smartsheet Integration Test</h1>
       <p>Save this file to trigger automatic task updates!</p>
-      <!-- COMPLETE: 6.1 -->
+      {/* COMPLETE: 6.1 */}
     </div>
   );
 }

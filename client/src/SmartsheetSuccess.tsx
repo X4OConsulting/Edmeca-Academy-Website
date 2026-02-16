@@ -21,8 +21,8 @@ export function SmartsheetIntegrationSuccess() {
       <h2>Next Steps:</h2>
       <p>The system is now ready for production use!</p>
       
-      <!-- COMPLETE: 6.2 -->
-      {/* This HTML comment will complete task 6.2 when saved */}
+      {/* COMPLETE: 6.2 */}
+      {/* This JSX comment will complete task 6.2 when saved */}
     </div>
   );
 }
