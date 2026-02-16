@@ -1,6 +1,5 @@
 import { sql, relations } from "drizzle-orm";
 import { pgTable, text, varchar, timestamp, jsonb, integer, pgEnum } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // Re-export auth models
@@ -118,59 +117,24 @@ export const progressEntriesRelations = relations(progressEntries, ({ one }) => 
   }),
 }));
 
-// Insert schemas
-export const insertOrganizationSchema = createInsertSchema(organizations).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const insertCohortSchema = createInsertSchema(cohorts).omit({
-  id: true,
-  inviteCode: true,
-  createdAt: true,
-});
-
-export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertArtifactSchema = createInsertSchema(artifacts).omit({
-  id: true,
-  version: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertProgressEntrySchema = createInsertSchema(progressEntries).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const insertContactSubmissionSchema = createInsertSchema(contactSubmissions).omit({
-  id: true,
-  createdAt: true,
-});
-
-// Types
-export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
+// Types - using drizzle inference
 export type Organization = typeof organizations.$inferSelect;
+export type InsertOrganization = typeof organizations.$inferInsert;
 
-export type InsertCohort = z.infer<typeof insertCohortSchema>;
 export type Cohort = typeof cohorts.$inferSelect;
+export type InsertCohort = typeof cohorts.$inferInsert;
 
-export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
 export type UserProfile = typeof userProfiles.$inferSelect;
+export type InsertUserProfile = typeof userProfiles.$inferInsert;
 
-export type InsertArtifact = z.infer<typeof insertArtifactSchema>;
 export type Artifact = typeof artifacts.$inferSelect;
+export type InsertArtifact = typeof artifacts.$inferInsert;
 
-export type InsertProgressEntry = z.infer<typeof insertProgressEntrySchema>;
 export type ProgressEntry = typeof progressEntries.$inferSelect;
+export type InsertProgressEntry = typeof progressEntries.$inferInsert;
 
-export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
+export type InsertContactSubmission = typeof contactSubmissions.$inferInsert;
 
 // BMC Canvas content type
 export const bmcCanvasSchema = z.object({
