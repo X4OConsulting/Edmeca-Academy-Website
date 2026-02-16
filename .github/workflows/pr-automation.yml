@@ -315,3 +315,102 @@ jobs:
             issue_number: context.issue.number,
             labels: ['needs-work', 'failing-checks']
           });
+  # Job 5: Auto-Merge to Staging (only for staging branch)
+  auto-merge:
+    name: Auto-Merge to Staging
+    runs-on: ubuntu-latest
+    needs: [code-quality, auto-approve]
+    if: |
+      always() &&
+      needs.code-quality.outputs.has-errors == 'false' &&
+      needs.auto-approve.result == 'success' &&
+      github.event.pull_request.base.ref == 'staging'
+    
+    steps:
+    - name: Wait for Status Checks
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { owner, repo } = context.repo;
+          const pull_number = context.issue.number;
+          
+          // Wait up to 5 minutes for all checks to complete
+          const maxAttempts = 60;
+          let attempt = 0;
+          
+          while (attempt < maxAttempts) {
+            const { data: pr } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number
+            });
+            
+            const { data: statuses } = await github.rest.repos.getCombinedStatusForRef({
+              owner,
+              repo,
+              ref: pr.head.sha
+            });
+            
+            const { data: checks } = await github.rest.checks.listForRef({
+              owner,
+              repo,
+              ref: pr.head.sha
+            });
+            
+            const allChecksComplete = checks.check_runs.every(
+              check => check.status === 'completed'
+            );
+            
+            const statusOk = statuses.state === 'success' || statuses.state === 'pending';
+            
+            if (allChecksComplete && (statusOk || statuses.state === 'success')) {
+              console.log('✅ All checks complete and successful');
+              break;
+            }
+            
+            console.log(`⏳ Waiting for checks... (${attempt + 1}/${maxAttempts})`);
+            await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+            attempt++;
+          }
+          
+    - name: Merge Pull Request
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { owner, repo } = context.repo;
+          const pull_number = context.issue.number;
+          
+          try {
+            await github.rest.pulls.merge({
+              owner,
+              repo,
+              pull_number,
+              merge_method: 'merge',
+              commit_title: `Merge PR #${pull_number}: ${context.payload.pull_request.title}`,
+              commit_message: 'Auto-merged by CI/CD after passing all checks ✅'
+            });
+            
+            console.log('✅ PR successfully merged to staging!');
+            
+            // Post success comment
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: pull_number,
+              body: '🎉 **Auto-Merged to Staging!**\n\nThis PR has been automatically merged after passing all checks.\n\n✅ All quality checks passed\n✅ Automatically approved\n✅ Merged to `staging` branch\n\nThe changes are now live on the staging environment!'
+            });
+            
+          } catch (error) {
+            console.error('❌ Failed to merge PR:', error.message);
+            
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: pull_number,
+              body: `⚠️ **Auto-Merge Failed**\n\nCould not automatically merge this PR. This might be due to:\n- Merge conflicts\n- Branch protection rules\n- Required checks still pending\n\nPlease merge manually.\n\nError: ${error.message}`
+            });
+            
+            throw error;
+          }
