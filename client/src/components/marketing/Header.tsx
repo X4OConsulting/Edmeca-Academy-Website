@@ -49,8 +49,7 @@ export function Header() {
                 <Button data-testid="button-portal">Portal</Button>
               </Link>
             ) : (
-              <>
-                <a href="/api/login">
+              <>                <a href="/login">
                   <Button variant="ghost" className="hidden sm:inline-flex" data-testid="button-login">
                     Log In
                   </Button>
@@ -85,7 +84,7 @@ export function Header() {
                     </Link>
                   ) : (
                     <>
-                      <a href="/api/login">
+                      <a href="/login">
                         <Button variant="outline" className="w-full" data-testid="button-login-mobile">
                           Log In
                         </Button>

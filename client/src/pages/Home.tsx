@@ -288,7 +288,7 @@ export default function Home() {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-              <a href="/api/login">
+              <a href="/login">
                 <Button variant="outline" size="lg" data-testid="button-final-register">
                   Register Free
                 </Button>

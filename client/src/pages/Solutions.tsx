@@ -109,7 +109,7 @@ export default function Solutions() {
               </div>
               
               <div className="mt-8">
-                <Link href="/api/login" asChild>
+                <Link href="/login" asChild>
                   <Button size="lg" data-testid="button-entrepreneur-start">
                     Start Free
                     <ArrowRight className="ml-2 h-4 w-4" />
