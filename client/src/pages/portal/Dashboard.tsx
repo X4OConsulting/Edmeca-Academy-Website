@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { artifactsService } from "@/lib/services";
@@ -67,6 +67,12 @@ const tools = [
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
+  const [, navigate] = useLocation();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
 
   const { data: artifacts, isLoading: artifactsLoading } = useQuery<Artifact[]>({
     queryKey: ["artifacts"],
@@ -136,11 +142,9 @@ export default function Dashboard() {
                   <p className="text-xs text-muted-foreground">{user?.email}</p>
                 </div>
               </div>
-              <a href="/api/logout">
-                <Button variant="ghost" size="icon" data-testid="button-logout">
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </a>
+              <Button variant="ghost" size="icon" data-testid="button-logout" onClick={handleLogout}>
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>
