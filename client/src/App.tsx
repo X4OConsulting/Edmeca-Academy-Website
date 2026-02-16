@@ -18,6 +18,8 @@ import Dashboard from "@/pages/portal/Dashboard";
 import BMCTool from "@/pages/portal/BMCTool";
 import NotFound from "@/pages/not-found";
 
+// CI/CD Automation Test - This PR will be auto-reviewed and approved if all checks pass
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
 
