@@ -28,7 +28,7 @@ export async function registerRoutes(
           name: validated.name,
           email: validated.email,
           company: validated.company || undefined,
-          audienceType: validated.audienceType,
+          audienceType: validated.audienceType || 'other',
           message: validated.message,
         });
         console.log("Contact email sent successfully to Info@edmeca.co.za");

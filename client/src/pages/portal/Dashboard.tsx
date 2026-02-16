@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
+import { artifactsService } from "@/lib/services";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -68,7 +69,9 @@ export default function Dashboard() {
   const { user, logout } = useAuth();
 
   const { data: artifacts, isLoading: artifactsLoading } = useQuery<Artifact[]>({
-    queryKey: ["/api/artifacts"],
+    queryKey: ["artifacts"],
+    queryFn: () => artifactsService.getArtifacts(),
+    enabled: !!user,
   });
 
   const recentArtifacts = artifacts?.slice(0, 3) || [];
@@ -121,14 +124,14 @@ export default function Dashboard() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src={user?.profileImageUrl || undefined} />
+                  <AvatarImage src={user?.user_metadata?.avatar_url || undefined} />
                   <AvatarFallback className="text-sm">
-                    {getInitials(user?.firstName || user?.email)}
+                    {getInitials(user?.user_metadata?.full_name || user?.email)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="hidden sm:block">
                   <p className="text-sm font-medium" data-testid="text-user-name">
-                    {user?.firstName ? `${user.firstName} ${user.lastName || ""}`.trim() : "Welcome"}
+                    {user?.user_metadata?.full_name || "Welcome"}
                   </p>
                   <p className="text-xs text-muted-foreground">{user?.email}</p>
                 </div>
@@ -147,7 +150,7 @@ export default function Dashboard() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="font-serif text-3xl font-bold">
-            Welcome back{user?.firstName ? `, ${user.firstName}` : ""}!
+            Welcome back{user?.user_metadata?.full_name ? `, ${user.user_metadata.full_name}` : ""}!
           </h1>
           <p className="text-muted-foreground mt-1">
             Continue building your business with AI-powered frameworks.

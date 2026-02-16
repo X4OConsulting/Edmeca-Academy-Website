@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/form";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import { Mail, Phone, MapPin, Calendar, Loader2, CheckCircle2 } from "lucide-react";
 
 const contactFormSchema = z.object({
@@ -49,7 +48,20 @@ export default function Contact() {
 
   const mutation = useMutation({
     mutationFn: async (data: ContactFormValues) => {
-      const response = await apiRequest("POST", "/api/contact", data);
+      // Use the Netlify function endpoint directly
+      const response = await fetch('/.netlify/functions/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to submit form');
+      }
+
       return response.json();
     },
     onSuccess: () => {

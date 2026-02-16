@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { artifactsService } from "@/lib/services";
 import {
   ArrowLeft,
   Save,
@@ -127,7 +127,8 @@ export default function BMCTool() {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   const { data: artifact, isLoading: artifactLoading } = useQuery<Artifact | null>({
-    queryKey: ["/api/artifacts", "bmc", "latest"],
+    queryKey: ["artifacts", "bmc", "latest"],
+    queryFn: () => artifactsService.getLatestArtifactByType("bmc"),
     enabled: !!user,
   });
 
@@ -149,23 +150,22 @@ export default function BMCTool() {
   const saveMutation = useMutation({
     mutationFn: async () => {
       const payload = {
-        toolType: "bmc" as const,
+        tool_type: "bmc" as const,
         title,
         content: canvas,
         status: "in_progress" as const,
       };
       
       if (artifactId) {
-        return apiRequest("PATCH", `/api/artifacts/${artifactId}`, payload);
+        return await artifactsService.updateArtifact(artifactId, payload);
       }
-      const response = await apiRequest("POST", "/api/artifacts", payload);
-      const newArtifact = await response.json();
+      const newArtifact = await artifactsService.createArtifact(payload);
       setArtifactId(newArtifact.id);
-      return response;
+      return newArtifact;
     },
     onSuccess: () => {
       setLastSaved(new Date());
-      queryClient.invalidateQueries({ queryKey: ["/api/artifacts"] });
+      queryClient.invalidateQueries({ queryKey: ["artifacts"] });
       toast({
         title: "Saved!",
         description: "Your canvas has been saved.",
