@@ -13,6 +13,7 @@ import Solutions from "@/pages/Solutions";
 import Frameworks from "@/pages/Frameworks";
 import Engagement from "@/pages/Engagement";
 import Contact from "@/pages/Contact";
+import Login from "@/pages/Login";
 import Dashboard from "@/pages/portal/Dashboard";
 import BMCTool from "@/pages/portal/BMCTool";
 import NotFound from "@/pages/not-found";
@@ -32,7 +33,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) {
-    window.location.href = "/api/login";
+    window.location.href = "/login";
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -58,6 +59,7 @@ function Router() {
       <Route path="/frameworks" component={Frameworks} />
       <Route path="/engagement" component={Engagement} />
       <Route path="/contact" component={Contact} />
+      <Route path="/login" component={Login} />
 
       {/* Portal Routes (Protected) */}
       <Route path="/portal">
