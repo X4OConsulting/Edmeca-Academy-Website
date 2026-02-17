@@ -80,21 +80,21 @@ const audienceTracks = [
 const testimonials = [
   {
     quote: "EdMeCa transformed how we deliver our accelerator program. The tools made complex frameworks accessible to all participants.",
-    author: "Sarah Chen",
+    author: "Naledi Mokoena",
     role: "Programme Director",
-    company: "Startup Incubator",
+    company: "Tech Incubation",
   },
   {
     quote: "Within 3 weeks, I went from a vague idea to a structured business model and a pitch deck that landed my first meeting with investors.",
-    author: "Marcus Johnson",
+    author: "Sipho Ndlovu",
     role: "Founder",
-    company: "TechStart",
+    company: "AgriTech",
   },
   {
     quote: "The progress tracking and M&E reporting saved our team hundreds of hours. We can now demonstrate impact with real evidence.",
-    author: "Dr. Amara Okafor",
+    author: "Dr. Zanele Mthembu",
     role: "Development Lead",
-    company: "Enterprise Africa",
+    company: "Social Enterprise",
   },
 ];
 
@@ -109,20 +109,19 @@ export default function Home() {
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-[#f7ede4] text-gray-800 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+            <div className="inline-flex items-center gap-2 bg-[#f7ede4] text-black px-4 py-1.5 rounded-full text-sm font-medium mb-6">
               <Sparkles className="w-4 h-4" />
               AI-Powered Business Tools
             </div>
             
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-              From Framework to{" "}
+              Turning Strategy into{" "}
               <span className="text-primary dark:text-accent">Execution</span>{" "}
-              to Evidence
+              - Backed by Evidence
             </h1>
             
             <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              MBA-level business frameworks made accessible to entrepreneurs through 
-              hands-on delivery and AI-enabled tooling. Turn ideas into investor-ready pitches.
+              Practical, MBA-grade frameworks delivered through AI-powered tools to support enterprise strategy, innovation, and capability development. From leadership alignment and operational clarity to impact reporting and execution readiness.
             </p>
             
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -159,7 +158,7 @@ export default function Home() {
           <div className="text-center mb-12">
             <h2 className="font-serif text-3xl sm:text-4xl font-bold">Who We Serve</h2>
             <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-              Tailored solutions for individual entrepreneurs and enterprise development programmes alike.
+              From bold entrepreneurs to enterprise leaders with a founder's mindset; we craft solutions that match your ambition.
             </p>
           </div>
           
