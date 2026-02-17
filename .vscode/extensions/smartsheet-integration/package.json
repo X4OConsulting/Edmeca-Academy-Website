@@ -1,0 +1,88 @@
+{
+  "name": "smartsheet-vscode-integration",
+  "displayName": "EDMECA Smartsheet Tracker",
+  "description": "Real-time Smartsheet integration for EDMECA Academy project tracking",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "edmeca.pushToSmartsheet",
+        "title": "Push Changes to Smartsheet",
+        "category": "EDMECA"
+      },
+      {
+        "command": "edmeca.markTaskComplete",
+        "title": "Mark Task Complete",
+        "category": "EDMECA"
+      },
+      {
+        "command": "edmeca.updateTaskStatus",
+        "title": "Update Task Status",
+        "category": "EDMECA"
+      },
+      {
+        "command": "edmeca.syncSmartsheet",
+        "title": "Sync All Changes to Smartsheet",
+        "category": "EDMECA"
+      }
+    ],
+    "configuration": {
+      "title": "EDMECA Smartsheet Integration",
+      "properties": {
+        "edmeca.smartsheet.apiToken": {
+          "type": "string",
+          "default": "",
+          "description": "Smartsheet API Token"
+        },
+        "edmeca.smartsheet.sheetId": {
+          "type": "string", 
+          "default": "",
+          "description": "EDMECA SDLC Tracker Sheet ID"
+        },
+        "edmeca.smartsheet.autoSync": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically sync changes to Smartsheet"
+        },
+        "edmeca.smartsheet.syncOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Sync to Smartsheet on file save"
+        },
+        "edmeca.smartsheet.syncOnCommit": {
+          "type": "boolean",
+          "default": true,
+          "description": "Sync to Smartsheet on git commit"
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "edmeca.pushToSmartsheet",
+        "key": "ctrl+shift+s",
+        "mac": "cmd+shift+s"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "16.x",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
