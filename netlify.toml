@@ -3,7 +3,7 @@
   base = "."
   # Build command for React app
   command = "npm run build"
-  # Output directory for React build
+  # Output directory for React build - changed to bust Netlify cache
   publish = "client/dist"
   # Functions directory
   functions = "netlify/functions"

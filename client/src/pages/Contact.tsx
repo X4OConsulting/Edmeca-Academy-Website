@@ -48,21 +48,26 @@ export default function Contact() {
 
   const mutation = useMutation({
     mutationFn: async (data: ContactFormValues) => {
-      // Use the Netlify function endpoint directly
-      const response = await fetch('/.netlify/functions/contact', {
+      // Submit to Netlify Forms
+      const formData = new FormData();
+      formData.append('form-name', 'contact');
+      formData.append('name', data.name);
+      formData.append('email', data.email);
+      formData.append('company', data.company || '');
+      formData.append('audienceType', data.audienceType);
+      formData.append('message', data.message);
+
+      const response = await fetch('/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formData as any).toString(),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to submit form');
+        throw new Error('Failed to submit form');
       }
 
-      return response.json();
+      return response;
     },
     onSuccess: () => {
       setSubmitted(true);

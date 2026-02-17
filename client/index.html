@@ -8,13 +8,33 @@
     <meta property="og:title" content="EdMeCa Digital Academy - From Framework to Execution to Evidence" />
     <meta property="og:description" content="Turn frameworks into action, prototypes into products, ideas into investor-ready pitches." />
     <meta property="og:type" content="website" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    
+    <!-- Favicon - Multiple formats for browser compatibility -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
+    <link rel="shortcut icon" href="/favicon.png" />
+    <meta name="theme-color" content="#1a365d" />
+    
     <title>EdMeCa Digital Academy - From Framework to Execution to Evidence</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   </head>
   <body>
+    <!-- Hidden form for Netlify Forms detection -->
+    <form name="contact" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="text" name="company" />
+      <select name="audienceType">
+        <option value="entrepreneur">An Entrepreneur</option>
+        <option value="programme">A Programme / Incubator</option>
+        <option value="other">Other</option>
+      </select>
+      <textarea name="message"></textarea>
+    </form>
+    
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

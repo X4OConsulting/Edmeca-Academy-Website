@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDMECA.CO.ZA - Browser Compatibility Check</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .status {
+            font-size: 18px;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .loading {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        .error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        .browser-info {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🌐 EDMECA.CO.ZA Browser Check</h1>
+        <p>This page checks if your browser can access the migrated website.</p>
+        
+        <div class="browser-info">
+            <strong>Your Browser:</strong> <span id="browserName">Detecting...</span><br>
+            <strong>User Agent:</strong> <span id="userAgent">Detecting...</span>
+        </div>
+
+        <div id="status" class="status loading">
+            <div class="spinner"></div> Testing connection to https://edmeca.co.za...
+        </div>
+
+        <div id="results"></div>
+
+        <button onclick="runTest()">🔄 Re-test</button>
+
+        <div class="info">
+            <strong>Expected behavior:</strong><br>
+            ✅ Chrome/Edge: Should work (HTTP 200)<br>
+            ❌ Firefox/Safari: Currently returns 404 (known issue)<br>
+            <br>
+            <strong>Workaround:</strong> Use <a href="https://edmecaacademy.netlify.app" target="_blank">edmecaacademy.netlify.app</a> (works on all browsers)
+        </div>
+    </div>
+
+    <script>
+        // Detect browser
+        function detectBrowser() {
+            const ua = navigator.userAgent;
+            let browserName = 'Unknown';
+            
+            if (ua.indexOf('Firefox') > -1) {
+                browserName = 'Firefox';
+            } else if (ua.indexOf('Chrome') > -1 && ua.indexOf('Edg') === -1) {
+                browserName = 'Chrome';
+            } else if (ua.indexOf('Safari') > -1 && ua.indexOf('Chrome') === -1) {
+                browserName = 'Safari';
+            } else if (ua.indexOf('Edg') > -1) {
+                browserName = 'Microsoft Edge';
+            } else if (ua.indexOf('Opera') > -1 || ua.indexOf('OPR') > -1) {
+                browserName = 'Opera';
+            }
+            
+            return browserName;
+        }
+
+        // Display browser info
+        document.getElementById('browserName').textContent = detectBrowser();
+        document.getElementById('userAgent').textContent = navigator.userAgent;
+
+        // Test connection
+        async function runTest() {
+            const statusDiv = document.getElementById('status');
+            const resultsDiv = document.getElementById('results');
+            
+            statusDiv.className = 'status loading';
+            statusDiv.innerHTML = '<div class="spinner"></div> Testing connection to https://edmeca.co.za...';
+            resultsDiv.innerHTML = '';
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch('https://edmeca.co.za/', {
+                    method: 'HEAD',
+                    cache: 'no-cache',
+                    mode: 'no-cors' // Avoid CORS issues
+                });
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+
+                // Since we're using no-cors, we can't read the status
+                // Instead, try to load the actual page
+                const testResponse = await fetch('https://edmeca.co.za/');
+                const text = await testResponse.text();
+
+                if (text.includes('EDMECA') || text.includes('edmeca') || text.length > 1000) {
+                    statusDiv.className = 'status success';
+                    statusDiv.innerHTML = `
+                        ✅ <strong>SUCCESS!</strong> Your browser can access edmeca.co.za<br>
+                        <small>Response time: ${duration}ms | Page size: ${text.length} bytes</small>
+                    `;
+                    
+                    resultsDiv.innerHTML = `
+                        <div style="background: #d4edda; padding: 15px; border-radius: 6px; margin-top: 15px;">
+                            <strong>✅ Migration complete for your browser!</strong><br>
+                            You can safely use <a href="https://edmeca.co.za" target="_blank">https://edmeca.co.za</a>
+                        </div>
+                    `;
+                } else {
+                    throw new Error('Page content does not match expected site');
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `
+                    ❌ <strong>FAILED</strong> - Cannot access edmeca.co.za<br>
+                    <small>Error: ${error.message}</small>
+                `;
+                
+                resultsDiv.innerHTML = `
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 6px; margin-top: 15px;">
+                        <strong>⚠️ Temporary workaround:</strong><br>
+                        Use <a href="https://edmecaacademy.netlify.app" target="_blank" style="font-weight: bold;">edmecaacademy.netlify.app</a> instead<br>
+                        <small>This URL works on all browsers while we fix the CDN routing issue.</small>
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-run test on load
+        runTest();
+    </script>
+</body>
+</html>
