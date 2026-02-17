@@ -1,4 +1,6 @@
 [build]
+  # Base directory (project root)
+  base = "."
   # Build command for React app
   command = "npm run build"
   # Output directory for React build
