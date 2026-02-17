@@ -68,9 +68,9 @@ Update your **local** `.env.local` (NOT committed to git):
 
 ```bash
 # .env.local - DO NOT COMMIT THIS FILE
-VITE_SUPABASE_URL=https://dqvdnyxkkletgkkpicdg.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxdmRueXhra2xldGdra3BpY2RnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzExNTQ3OTMsImV4cCI6MjA4NjczMDc5M30.d7JGx-h931PNBxHS0emXBzCdY7dqgW0tItFigrnz-24
-SUPABASE_SERVICE_ROLE_KEY=[PASTE NEW KEY HERE]
+VITE_SUPABASE_URL=[Your Supabase URL from dashboard]
+VITE_SUPABASE_ANON_KEY=[Your Supabase anon key from dashboard]
+SUPABASE_SERVICE_ROLE_KEY=[Your service role key from dashboard]
 ```
 
 #### Step 3: Update Netlify Environment Variables
@@ -88,7 +88,7 @@ SUPABASE_SERVICE_ROLE_KEY=[PASTE NEW KEY HERE]
 Try using the old key - it should fail:
 ```bash
 # This should return 401 Unauthorized
-curl -X GET "https://dqvdnyxkkletgkkpicdg.supabase.co/rest/v1/users" \
+curl -X GET "[YOUR_SUPABASE_URL]/rest/v1/users" \
   -H "apikey: [OLD_KEY_HERE]" \
   -H "Authorization: Bearer [OLD_KEY_HERE]"
 ```
@@ -149,7 +149,7 @@ SUPABASE_SERVICE_ROLE_KEY → Netlify env vars (marked as sensitive)
 **Bad:** Hardcoded in files
 ```javascript
 // ❌ NEVER DO THIS
-const supabaseUrl = "https://dqvdnyxkkletgkkpicdg.supabase.co";
+const supabaseUrl = "[YOUR_SUPABASE_URL]";
 const serviceKey = "eyJhbGci..."; // BAD!
 ```
 

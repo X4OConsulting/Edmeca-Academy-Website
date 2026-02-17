@@ -20,9 +20,9 @@
 Staging should use the SAME environment variables as production:
 
 ```env
-VITE_SUPABASE_URL=https://dqvdnyxkkletgkkpicdg.supabase.co  
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxdmRueXhra2xldGdra3BpY2RnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzExNTQ3OTMsImV4cCI6MjA4NjczMDc5M30.d7JGx-h931PNBxHS0emXBzCdY7dqgW0tItFigrnz-24
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+VITE_SUPABASE_URL=[From Netlify env vars]
+VITE_SUPABASE_ANON_KEY=[From Netlify env vars]
+SUPABASE_SERVICE_ROLE_KEY=[From Netlify env vars]
 ```
 
 ## 🚀 Workflow

@@ -7,11 +7,10 @@
   functions = "netlify/functions"
 
 [build.environment]
-  # Node version
-  NODE_VERSION = "18"
-  # Disable secrets scanner - Supabase anon key is designed to be public
-  # Service role key is server-side only (not in client bundle)
-  SECRETS_SCAN_ENABLED = "false"
+  # Node version - Vite requires >= 20.19.0
+  NODE_VERSION = "20.19.0"
+  # Secrets scanning - allow public Supabase keys in client bundle
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL"
 
 # Redirect rules for SPA routing
 [[redirects]]
