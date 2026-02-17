@@ -31,7 +31,12 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Environment variables (these will be set in Netlify dashboard)
+# Environment variables (set in Netlify dashboard, NOT here)
 # VITE_SUPABASE_URL = "your-supabase-url"
 # VITE_SUPABASE_ANON_KEY = "your-supabase-anon-key"  
 # SUPABASE_SERVICE_ROLE_KEY = "your-supabase-service-role-key"
+
+# Secrets scanning configuration
+# Allow VITE_SUPABASE_ANON_KEY - it's designed to be public
+[build.environment]
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY"
