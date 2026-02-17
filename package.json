@@ -20,7 +20,8 @@
     "task:complete": "node scripts/smartsheet-cli.js complete",
     "task:status": "node scripts/smartsheet-cli.js status",
     "task:add": "node scripts/smartsheet-cli.js add",
-    "task:sync": "node scripts/smartsheet-cli.js sync"
+    "task:sync": "node scripts/smartsheet-cli.js sync",
+    "dns:verify": "node scripts/verify-dns.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
