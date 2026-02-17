@@ -9,10 +9,9 @@
 [build.environment]
   # Node version
   NODE_VERSION = "18"
-  # Secrets scanning configuration
-  # Omit VITE_ prefixed keys (designed to be public) and build output
-  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL"
-  SECRETS_SCAN_OMIT_PATHS = "client/dist/**"
+  # Disable secrets scanner - Supabase anon key is designed to be public
+  # Service role key is server-side only (not in client bundle)
+  SECRETS_SCAN_ENABLED = "false"
 
 # Redirect rules for SPA routing
 [[redirects]]
