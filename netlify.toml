@@ -42,6 +42,7 @@
 
 [context.staging.environment]
   NODE_VERSION = "20.19.0"
+  VITE_ENABLE_LOGIN = "true"
 
 # Branch deploy context for development
 [context.development]
@@ -50,6 +51,7 @@
 
 [context.development.environment]
   NODE_VERSION = "20.19.0"
+  VITE_ENABLE_LOGIN = "true"
 
 # Environment variables (set in Netlify dashboard, NOT here)
 # VITE_SUPABASE_URL = "your-supabase-url"

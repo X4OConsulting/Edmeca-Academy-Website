@@ -5,6 +5,8 @@ import { Menu } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import logoImage from "@assets/EdMeCa_LOGO.png";
 
+const isLoginEnabled = import.meta.env.VITE_ENABLE_LOGIN === "true";
+
 const navLinks = [
   { href: "/about", label: "About" },
   { href: "/solutions", label: "Solutions" },
@@ -51,7 +53,7 @@ export function Header() {
             ) : (
               <>
                 <a href="/login">
-                  <Button variant="ghost" className="hidden sm:inline-flex" data-testid="button-login" disabled>
+                  <Button variant="ghost" className="hidden sm:inline-flex" data-testid="button-login" disabled={!isLoginEnabled}>
                     Log In
                   </Button>
                 </a>
@@ -86,7 +88,7 @@ export function Header() {
                   ) : (
                     <>
                       <a href="/login">
-                        <Button variant="outline" className="w-full" data-testid="button-login-mobile" disabled>
+                        <Button variant="outline" className="w-full" data-testid="button-login-mobile" disabled={!isLoginEnabled}>
                           Log In
                         </Button>
                       </a>
