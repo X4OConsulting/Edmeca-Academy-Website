@@ -52,11 +52,17 @@ export function Header() {
               </Link>
             ) : (
               <>
-                <a href="/login">
-                  <Button variant="ghost" className="hidden sm:inline-flex" data-testid="button-login" disabled={!isLoginEnabled}>
+                {isLoginEnabled ? (
+                  <a href="/login">
+                    <Button variant="ghost" className="hidden sm:inline-flex" data-testid="button-login">
+                      Log In
+                    </Button>
+                  </a>
+                ) : (
+                  <Button variant="ghost" className="hidden sm:inline-flex opacity-50 cursor-not-allowed" data-testid="button-login" disabled>
                     Log In
                   </Button>
-                </a>
+                )}
                 <Link href="/contact">
                   <Button data-testid="button-get-started">Get Started</Button>
                 </Link>
@@ -87,11 +93,17 @@ export function Header() {
                     </Link>
                   ) : (
                     <>
-                      <a href="/login">
-                        <Button variant="outline" className="w-full" data-testid="button-login-mobile" disabled={!isLoginEnabled}>
+                      {isLoginEnabled ? (
+                        <a href="/login">
+                          <Button variant="outline" className="w-full" data-testid="button-login-mobile">
+                            Log In
+                          </Button>
+                        </a>
+                      ) : (
+                        <Button variant="outline" className="w-full opacity-50 cursor-not-allowed" data-testid="button-login-mobile" disabled>
                           Log In
                         </Button>
-                      </a>
+                      )}
                       <Link href="/contact">
                         <Button className="w-full mt-2" data-testid="button-get-started-mobile">
                           Get Started
