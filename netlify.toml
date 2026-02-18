@@ -35,7 +35,23 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
+# Branch deploy context for staging
+[context.staging]
+  command = "npm run build"
+  publish = "client/dist"
+
+[context.staging.environment]
+  NODE_VERSION = "20.19.0"
+
+# Branch deploy context for development
+[context.development]
+  command = "npm run build"
+  publish = "client/dist"
+
+[context.development.environment]
+  NODE_VERSION = "20.19.0"
+
 # Environment variables (set in Netlify dashboard, NOT here)
 # VITE_SUPABASE_URL = "your-supabase-url"
 # VITE_SUPABASE_ANON_KEY = "your-supabase-anon-key"  
-# SUPABASE_SERVICE_ROLE_KEY = "your-supabase-service-role-key"# Force rebuild at 2026-02-17 14:15:57
+# SUPABASE_SERVICE_ROLE_KEY = "your-supabase-service-role-key"
