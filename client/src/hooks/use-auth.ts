@@ -38,8 +38,12 @@ async function signUpWithEmail(email: string, password: string) {
 }
 
 async function signInWithOAuth(provider: 'google' | 'github') {
+  const redirectTo = `${window.location.origin}/portal`;
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
+    options: {
+      redirectTo,
+    },
   });
   
   if (error) throw error;
