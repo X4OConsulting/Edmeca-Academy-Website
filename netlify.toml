@@ -35,6 +35,15 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
+# Production context - login explicitly disabled
+[context.production]
+  command = "npm run build"
+  publish = "client/dist"
+
+[context.production.environment]
+  NODE_VERSION = "20.19.0"
+  VITE_ENABLE_LOGIN = "false"
+
 # Branch deploy context for staging
 [context.staging]
   command = "npm run build"
