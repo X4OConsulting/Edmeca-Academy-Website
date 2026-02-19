@@ -78,6 +78,14 @@ Local copies kept in sync with code:
 
 **Always update the relevant CSV AND push the live Smartsheet update after any task change.**
 
+### Smartsheet Sheet IDs
+
+| Sheet | ID |
+|---|---|
+| SDLC Tasks (EdMeCa Academy Website Development) | `1413139749883780` |
+| Test Cases (EDMECA Academy - Test Cases) | `3745437451243396` |
+| Bug Tracker (EDMECA Academy - Bug Tracker) | `789091202322308` |
+
 ---
 
 ## Environment Variables
@@ -92,7 +100,7 @@ Stored in `.env.local` (gitignored — never commit):
 | `SESSION_SECRET` | Express session secret |
 | `RESEND_API_KEY` | Resend transactional email API key |
 | `SMARTSHEET_API_TOKEN` | Smartsheet API token for CLI and git hook |
-| `SMARTSHEET_SHEET_ID` | `1413139749883780` |
+| `SMARTSHEET_SHEET_ID` | `1413139749883780` (SDLC Tasks sheet) |
 
 Netlify environment variables are set per context in `netlify.toml`:
 - `[context.production]` → `VITE_ENABLE_LOGIN=false`
