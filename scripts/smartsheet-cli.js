@@ -302,8 +302,10 @@ async function main() {
   }
 }
 
-// Check if this file is being run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Check if this file is being run directly (cross-platform, handles Windows backslashes)
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename)) {
   main().catch(error => {
     console.error('❌ CLI Error:', error.message);
     console.error(error);
