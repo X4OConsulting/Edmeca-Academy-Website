@@ -52,7 +52,7 @@ class SmartsheetCLI {
           'Authorization': `Bearer ${this.apiToken}`,
           'Content-Type': 'application/json'
         },
-        timeout: 10000 // 10 second timeout
+        timeout: 30000 // 30 second timeout
       };
       
       if (data) config.data = data;
