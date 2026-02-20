@@ -1,93 +1,11 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import {
   ArrowRight,
-  Lightbulb,
-  Layers,
-  BarChart3,
-  Target,
-  FileText,
-  TrendingUp,
   Sparkles,
-  CheckCircle2,
 } from "lucide-react";
 
-const frameworks = [
-  {
-    icon: Lightbulb,
-    title: "Design Thinking",
-    category: "Innovation",
-    description: "A human-centered approach to innovation that integrates user needs, technology possibilities, and business viability.",
-    capabilities: [
-      "Empathy mapping and user research",
-      "Problem definition and HMW questions",
-      "Ideation and concept development",
-      "Rapid prototyping guidance",
-    ],
-  },
-  {
-    icon: Layers,
-    title: "Business Model Canvas",
-    category: "Strategy",
-    description: "Visual strategic management template for developing new or documenting existing business models.",
-    capabilities: [
-      "9-block canvas with guided prompts",
-      "AI-assisted block suggestions",
-      "Version history and comparison",
-      "PDF/DOCX export ready",
-    ],
-  },
-  {
-    icon: BarChart3,
-    title: "SWOT Analysis",
-    category: "Analysis",
-    description: "Strategic planning technique to identify Strengths, Weaknesses, Opportunities, and Threats.",
-    capabilities: [
-      "Structured internal/external analysis",
-      "Prioritization matrix",
-      "Strategic implications generator",
-      "Action planning integration",
-    ],
-  },
-  {
-    icon: TrendingUp,
-    title: "PESTLE Analysis",
-    category: "Analysis",
-    description: "Macro-environmental analysis covering Political, Economic, Social, Technological, Legal, and Environmental factors.",
-    capabilities: [
-      "Comprehensive factor assessment",
-      "Trend identification",
-      "Risk and opportunity mapping",
-      "Industry-specific prompts",
-    ],
-  },
-  {
-    icon: Target,
-    title: "Value Proposition Design",
-    category: "Strategy",
-    description: "Tools to understand customer jobs, pains, and gains—and design value propositions that resonate.",
-    capabilities: [
-      "Customer persona builder",
-      "Jobs-to-be-done framework",
-      "Problem-solution fit analysis",
-      "Assumptions and test planning",
-    ],
-  },
-  {
-    icon: FileText,
-    title: "Pitch Builder",
-    category: "Communication",
-    description: "Structure compelling investor pitches with proven narrative frameworks and persuasive storytelling.",
-    capabilities: [
-      "10-slide deck structure",
-      "Key message refinement",
-      "Story arc development",
-      "Investor-ready export",
-    ],
-  },
-];
 
 const aiFeatures = [
   {
@@ -128,48 +46,6 @@ export default function Frameworks() {
               Access the same strategic frameworks used by top consulting firms and business schools, 
               enhanced with intelligent guidance and practical tooling.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Frameworks Grid */}
-      <section className="bg-card border-y">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-          <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold">Our Framework Library</h2>
-            <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-              Each framework is implemented as an interactive tool with guided prompts, 
-              AI assistance, and export capabilities.
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {frameworks.map((framework) => (
-              <Card key={framework.title} className="hover-elevate overflow-visible h-full">
-                <CardContent className="p-6 flex flex-col h-full">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="p-2 rounded-lg bg-primary/10 text-primary dark:bg-accent/10 dark:text-accent">
-                      <framework.icon className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded">
-                      {framework.category}
-                    </span>
-                  </div>
-                  <h3 className="mt-4 font-semibold text-lg">{framework.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed flex-1">
-                    {framework.description}
-                  </p>
-                  <ul className="mt-4 space-y-2">
-                    {framework.capabilities.slice(0, 3).map((cap) => (
-                      <li key={cap} className="flex items-start gap-2 text-xs text-muted-foreground">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-green-600 mt-0.5 flex-shrink-0" />
-                        <span>{cap}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            ))}
           </div>
         </div>
       </section>
