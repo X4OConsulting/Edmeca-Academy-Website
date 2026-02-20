@@ -19,7 +19,8 @@ import {
 } from "@/components/ui/form";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Phone, MapPin, Calendar, Loader2, CheckCircle2 } from "lucide-react";
+import { contactService } from "@/lib/services";
+import { Mail, MapPin, Calendar, Loader2, CheckCircle2 } from "lucide-react";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -48,7 +49,7 @@ export default function Contact() {
 
   const mutation = useMutation({
     mutationFn: async (data: ContactFormValues) => {
-      // Submit to Netlify Forms
+      // 1. Submit to Netlify Forms (handles email notification to team)
       const formData = new FormData();
       formData.append('form-name', 'contact');
       formData.append('name', data.name);
@@ -65,6 +66,20 @@ export default function Contact() {
 
       if (!response.ok) {
         throw new Error('Failed to submit form');
+      }
+
+      // 2. Also persist to Supabase for reporting and history
+      try {
+        await contactService.submitContactForm({
+          name: data.name,
+          email: data.email,
+          company: data.company || null,
+          audience_type: data.audienceType,
+          message: data.message,
+        });
+      } catch {
+        // Non-fatal: Netlify submission succeeded, Supabase write is best-effort
+        console.warn('Contact form saved to Netlify but Supabase write failed.');
       }
 
       return response;
