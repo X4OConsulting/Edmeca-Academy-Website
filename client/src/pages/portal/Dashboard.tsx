@@ -18,6 +18,7 @@ import {
   Clock,
   Sparkles,
   LogOut,
+  LifeBuoy,
 } from "lucide-react";
 import type { Artifact } from "@shared/schema";
 import logoImage from "@assets/EdMeCa_LOGO.png";
@@ -128,6 +129,15 @@ export default function Dashboard() {
             </Link>
 
             <div className="flex items-center gap-4">
+              <Link href="/contact">
+                <Button variant="outline" size="sm" className="gap-2 hidden sm:flex">
+                  <LifeBuoy className="h-4 w-4" />
+                  Support
+                </Button>
+                <Button variant="ghost" size="icon" className="sm:hidden">
+                  <LifeBuoy className="h-4 w-4" />
+                </Button>
+              </Link>
               <Link href="/portal/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                 <Avatar className="h-9 w-9">
                   <AvatarImage src={user?.user_metadata?.avatar_url || undefined} />
