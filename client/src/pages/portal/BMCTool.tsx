@@ -387,6 +387,7 @@ export default function BusinessModelCanvas() {
         tool_type: "bmc",
         title: `${data.companyName || "Untitled"} — Business Model Canvas`,
         content: data.canvasData,
+        version: 1,
         status: "complete",
       });
       if (error) throw new Error(error.message);
