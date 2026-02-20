@@ -128,7 +128,7 @@ export default function Dashboard() {
             </Link>
 
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
+              <Link href="/portal/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                 <Avatar className="h-9 w-9">
                   <AvatarImage src={user?.user_metadata?.avatar_url || undefined} />
                   <AvatarFallback className="text-sm">
@@ -141,7 +141,7 @@ export default function Dashboard() {
                   </p>
                   <p className="text-xs text-muted-foreground">{user?.email}</p>
                 </div>
-              </div>
+              </Link>
               <Button variant="ghost" size="icon" data-testid="button-logout" onClick={handleLogout}>
                 <LogOut className="h-4 w-4" />
               </Button>

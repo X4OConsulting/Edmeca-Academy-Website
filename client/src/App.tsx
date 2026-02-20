@@ -16,6 +16,7 @@ import Contact from "@/pages/Contact";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/portal/Dashboard";
 import BMCTool from "@/pages/portal/BMCTool";
+import Profile from "@/pages/portal/Profile";
 import NotFound from "@/pages/not-found";
 
 // CI/CD Automation Test - This PR will be auto-reviewed and approved if all checks pass
@@ -72,6 +73,11 @@ function Router() {
       <Route path="/portal/tools/bmc">
         <ProtectedRoute>
           <BMCTool />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/portal/profile">
+        <ProtectedRoute>
+          <Profile />
         </ProtectedRoute>
       </Route>
 
