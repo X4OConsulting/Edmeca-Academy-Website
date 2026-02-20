@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "wouter";
-import edmecaLogo from "@assets/EdMeca_LOGOMARK_A4_2024_1767948366417.jpg";
+const edmecaLogo = "/logo.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
