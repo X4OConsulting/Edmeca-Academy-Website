@@ -16,6 +16,10 @@ import Contact from "@/pages/Contact";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/portal/Dashboard";
 import BMCTool from "@/pages/portal/BMCTool";
+import SWOTPestleTool from "@/pages/portal/SWOTPestleTool";
+import ValuePropTool from "@/pages/portal/ValuePropTool";
+import PitchBuilderTool from "@/pages/portal/PitchBuilderTool";
+import ProgressTrackerTool from "@/pages/portal/ProgressTrackerTool";
 import Profile from "@/pages/portal/Profile";
 import NotFound from "@/pages/not-found";
 
@@ -73,6 +77,26 @@ function Router() {
       <Route path="/portal/tools/bmc">
         <ProtectedRoute>
           <BMCTool />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/portal/tools/analysis">
+        <ProtectedRoute>
+          <SWOTPestleTool />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/portal/tools/value-prop">
+        <ProtectedRoute>
+          <ValuePropTool />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/portal/tools/pitch">
+        <ProtectedRoute>
+          <PitchBuilderTool />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/portal/tools/progress">
+        <ProtectedRoute>
+          <ProgressTrackerTool />
         </ProtectedRoute>
       </Route>
       <Route path="/portal/profile">
