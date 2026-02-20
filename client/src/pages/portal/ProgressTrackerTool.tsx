@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { artifactsService, progressService } from "@/lib/services";
-import { supabase } from "@/lib/supabase";
+import { queryKeys } from "@/lib/queryKeys";
 import { useAuth } from "@/hooks/use-auth";
 import {
   ArrowLeft,
@@ -67,13 +67,13 @@ export default function ProgressTrackerTool() {
   const [form, setForm] = useState<MilestoneForm>({ milestone: "", evidence: "", completed: false });
 
   const { data: artifacts } = useQuery({
-    queryKey: ["artifacts"],
+    queryKey: queryKeys.artifacts.all,
     queryFn: () => artifactsService.getArtifacts(),
     enabled: !!user,
   });
 
   const { data: entries, isLoading: entriesLoading } = useQuery({
-    queryKey: ["progress_entries"],
+    queryKey: queryKeys.progress.all,
     queryFn: () => progressService.getProgressEntries(),
     enabled: !!user,
   });
@@ -91,19 +91,14 @@ export default function ProgressTrackerTool() {
 
   const addMutation = useMutation({
     mutationFn: async () => {
-      const { data: { user: u } } = await supabase.auth.getUser();
-      if (!u) throw new Error("Not authenticated");
-      const { data: saved, error } = await supabase.from("progress_entries").insert({
-        user_id: u.id,
+      return progressService.createProgressEntry({
         milestone: form.milestone,
         evidence: form.evidence || null,
-        completed_at: form.completed ? new Date().toISOString() : null,
-      }).select().single();
-      if (error) throw new Error(error.message);
-      return saved;
+        completedAt: form.completed ? new Date().toISOString() : null,
+      });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["progress_entries"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.progress.all });
       setForm({ milestone: "", evidence: "", completed: false });
       toast({ title: "Milestone logged" });
     },
@@ -111,22 +106,15 @@ export default function ProgressTrackerTool() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("progress_entries").delete().eq("id", id);
-      if (error) throw new Error(error.message);
-    },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["progress_entries"] }),
+    mutationFn: (id: string) => progressService.deleteProgressEntry(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.progress.all }),
     onError: (e: any) => toast({ title: "Delete failed", description: e.message, variant: "destructive" }),
   });
 
   const toggleMutation = useMutation({
-    mutationFn: async ({ id, completed }: { id: string; completed: boolean }) => {
-      const { error } = await supabase.from("progress_entries")
-        .update({ completed_at: completed ? new Date().toISOString() : null })
-        .eq("id", id);
-      if (error) throw new Error(error.message);
-    },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["progress_entries"] }),
+    mutationFn: ({ id, completed }: { id: string; completed: boolean }) =>
+      progressService.toggleComplete(id, completed),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.progress.all }),
   });
 
   return (

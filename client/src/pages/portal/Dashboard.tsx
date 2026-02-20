@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { useRealtimeSync } from "@/hooks/use-realtime";
 import { useQuery } from "@tanstack/react-query";
 import { artifactsService } from "@/lib/services";
 import { Button } from "@/components/ui/button";
@@ -69,6 +70,9 @@ const tools = [
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const [, navigate] = useLocation();
+
+  // Keep all portal queries in sync via Supabase Realtime
+  useRealtimeSync();
 
   const handleLogout = async () => {
     await logout();
