@@ -60,7 +60,14 @@ const swotConfig = [
     color: "text-green-600",
     bg: "bg-green-50 dark:bg-green-900/20",
     border: "border-green-200 dark:border-green-800",
-    hint: "Internal advantages — what does your business do well? (e.g. skilled team, strong brand, unique IP)",
+    hint: "Internal advantages your business already has — things you do better than competitors. Think about your team's skills, unique product features, loyal customers, or a strong brand. These come from inside your business.",
+    quickAddItems: [
+      "Experienced founding team",
+      "Unique product or technology",
+      "Strong customer relationships",
+      "Low operating costs",
+      "First-mover advantage",
+    ],
   },
   {
     key: "weaknesses" as const,
@@ -69,7 +76,14 @@ const swotConfig = [
     color: "text-red-600",
     bg: "bg-red-50 dark:bg-red-900/20",
     border: "border-red-200 dark:border-red-800",
-    hint: "Internal limitations — what could you improve? (e.g. limited capital, gaps in expertise)",
+    hint: "Internal gaps or limitations your business currently has. Being honest here helps you prioritise what to fix. Consider funding gaps, skills shortages, limited brand awareness, or processes that don't scale yet.",
+    quickAddItems: [
+      "Limited funding / short runway",
+      "Small team — skills gaps",
+      "No brand recognition yet",
+      "Narrow product range",
+      "Heavy reliance on a single customer",
+    ],
   },
   {
     key: "opportunities" as const,
@@ -78,7 +92,14 @@ const swotConfig = [
     color: "text-blue-600",
     bg: "bg-blue-50 dark:bg-blue-900/20",
     border: "border-blue-200 dark:border-blue-800",
-    hint: "External possibilities — what market trends or gaps could you exploit?",
+    hint: "External trends, market gaps, or changes in the environment that your business could take advantage of. These come from outside your business — think about growing industries, underserved customers, new technology, or competitors leaving the market.",
+    quickAddItems: [
+      "Growing local or regional market",
+      "Competitor exiting the market",
+      "Government grant or incentive available",
+      "Rising demand for digital services",
+      "Strategic partnership opportunity",
+    ],
   },
   {
     key: "threats" as const,
@@ -87,17 +108,54 @@ const swotConfig = [
     color: "text-orange-600",
     bg: "bg-orange-50 dark:bg-orange-900/20",
     border: "border-orange-200 dark:border-orange-800",
-    hint: "External risks — what could harm your business? (e.g. new competitors, regulation changes)",
+    hint: "External risks that could hurt your business — things largely outside your control. Think about new competitors entering, economic downturns reducing customer spend, regulatory changes, or technology shifting consumer behaviour.",
+    quickAddItems: [
+      "New direct competitor entering market",
+      "Rising costs / inflation",
+      "Regulatory or licensing changes",
+      "Economic downturn reducing spend",
+      "Technology disrupting your model",
+    ],
   },
 ];
 
 const pestleConfig = [
-  { key: "political" as const, label: "Political", icon: Globe, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-900/20", border: "border-indigo-200 dark:border-indigo-800", hint: "Government policies, trade agreements, political stability affecting your market" },
-  { key: "economic" as const, label: "Economic", icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/20", border: "border-emerald-200 dark:border-emerald-800", hint: "Inflation, exchange rates, unemployment, consumer spending trends (e.g. South African Rand volatility)" },
-  { key: "social" as const, label: "Social", icon: Users, color: "text-pink-600", bg: "bg-pink-50 dark:bg-pink-900/20", border: "border-pink-200 dark:border-pink-800", hint: "Demographics, cultural attitudes, lifestyle shifts, education levels in your target market" },
-  { key: "technological" as const, label: "Technological", icon: Cpu, color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-900/20", border: "border-purple-200 dark:border-purple-800", hint: "Digital disruption, automation, R&D trends, tech adoption rates" },
-  { key: "legal" as const, label: "Legal", icon: Scale, color: "text-yellow-600", bg: "bg-yellow-50 dark:bg-yellow-900/20", border: "border-yellow-200 dark:border-yellow-800", hint: "Labour law, POPIA/GDPR, sector-specific regulations, IP protection" },
-  { key: "environmental" as const, label: "Environmental", icon: Leaf, color: "text-teal-600", bg: "bg-teal-50 dark:bg-teal-900/20", border: "border-teal-200 dark:border-teal-800", hint: "Climate impact, sustainability requirements, ESG expectations" },
+  {
+    key: "political" as const, label: "Political", icon: Globe, color: "text-indigo-600",
+    bg: "bg-indigo-50 dark:bg-indigo-900/20", border: "border-indigo-200 dark:border-indigo-800",
+    hint: "Government decisions, policies, and political stability that affect your business environment. In South Africa this includes load-shedding policies, BEE/transformation requirements, municipal service delivery, and trade regulations.",
+    quickAddItems: ["Government policy uncertainty", "BEE / transformation requirements", "Trade tariffs or import duties", "Public sector budget changes", "Municipal / local government factors"],
+  },
+  {
+    key: "economic" as const, label: "Economic", icon: DollarSign, color: "text-emerald-600",
+    bg: "bg-emerald-50 dark:bg-emerald-900/20", border: "border-emerald-200 dark:border-emerald-800",
+    hint: "Macroeconomic conditions that affect what customers can afford to spend, and what it costs you to run your business. SA-specific factors include Rand volatility, load-shedding energy costs, high unemployment, and rising interest rates.",
+    quickAddItems: ["Rand / currency volatility", "Rising inflation and interest rates", "Load-shedding energy costs", "High consumer price sensitivity", "Unemployment reducing market size"],
+  },
+  {
+    key: "social" as const, label: "Social", icon: Users, color: "text-pink-600",
+    bg: "bg-pink-50 dark:bg-pink-900/20", border: "border-pink-200 dark:border-pink-800",
+    hint: "Changes in demographics, culture, lifestyle, and values that influence what customers want and how they behave. Think about who your customers are, how they live, and what they care about.",
+    quickAddItems: ["Growing youth and Gen Z market", "Increased mobile internet usage", "Health and wellness trend", "Preference for local / African brands", "Growth of the informal economy"],
+  },
+  {
+    key: "technological" as const, label: "Technological", icon: Cpu, color: "text-purple-600",
+    bg: "bg-purple-50 dark:bg-purple-900/20", border: "border-purple-200 dark:border-purple-800",
+    hint: "Technology advances that could create new opportunities for your business — or make your current approach outdated. Think about AI, mobile platforms, fintech, automation, and digital infrastructure.",
+    quickAddItems: ["AI and automation adoption", "Mobile money and fintech growth", "E-commerce expansion", "Cloud computing accessibility", "Cybersecurity risks"],
+  },
+  {
+    key: "legal" as const, label: "Legal", icon: Scale, color: "text-yellow-600",
+    bg: "bg-yellow-50 dark:bg-yellow-900/20", border: "border-yellow-200 dark:border-yellow-800",
+    hint: "Laws and regulations that directly affect how your business must operate — from hiring staff to protecting customer data. Non-compliance can result in fines or shutdowns, so know what applies to you.",
+    quickAddItems: ["POPIA data protection compliance", "Labour law / minimum wage changes", "Industry-specific licensing", "Consumer Protection Act", "CIPC / company registration requirements"],
+  },
+  {
+    key: "environmental" as const, label: "Environmental", icon: Leaf, color: "text-teal-600",
+    bg: "bg-teal-50 dark:bg-teal-900/20", border: "border-teal-200 dark:border-teal-800",
+    hint: "Environmental factors and sustainability expectations that affect your supply chain, operations, and how customers and investors perceive your business. Increasingly important for funding and partnerships.",
+    quickAddItems: ["ESG investor requirements", "Water scarcity and drought risk", "Carbon emission regulations", "Sustainable packaging demand", "Renewable energy opportunities"],
+  },
 ];
 
 function ItemList({
@@ -105,17 +163,20 @@ function ItemList({
   onAdd,
   onRemove,
   placeholder,
+  quickAddItems,
 }: {
   items: string[];
   onAdd: (val: string) => void;
   onRemove: (i: number) => void;
   placeholder: string;
+  quickAddItems?: string[];
 }) {
   const [input, setInput] = useState("");
   const submit = () => {
     const v = input.trim();
     if (v) { onAdd(v); setInput(""); }
   };
+  const available = quickAddItems?.filter(q => !items.includes(q)) ?? [];
   return (
     <div className="space-y-2">
       {items.map((item, i) => (
@@ -126,7 +187,20 @@ function ItemList({
           </button>
         </div>
       ))}
-      <div className="flex gap-2 mt-2">
+      {available.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 pt-1 pb-0.5">
+          {available.map(q => (
+            <button
+              key={q}
+              onClick={() => onAdd(q)}
+              className="text-xs px-2 py-0.5 rounded-full border border-dashed border-muted-foreground/40 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+            >
+              + {q}
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="flex gap-2 mt-1">
         <Input
           value={input}
           onChange={e => setInput(e.target.value)}
@@ -300,7 +374,7 @@ export default function SWOTPestleTool() {
         {/* SWOT View */}
         {view === "swot" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {swotConfig.map(({ key, label, icon: Icon, color, bg, border, hint }) => (
+            {swotConfig.map(({ key, label, icon: Icon, color, bg, border, hint, quickAddItems }) => (
               <Card key={key} className={`border ${border}`}>
                 <CardHeader className={`pb-3 ${bg} rounded-t-lg`}>
                   <CardTitle className={`flex items-center gap-2 text-base ${color}`}>
@@ -315,6 +389,7 @@ export default function SWOTPestleTool() {
                     onAdd={v => updateSwot(key, [...data.swot[key], v])}
                     onRemove={i => updateSwot(key, data.swot[key].filter((_, idx) => idx !== i))}
                     placeholder={`Add ${label.toLowerCase()}…`}
+                    quickAddItems={quickAddItems}
                   />
                 </CardContent>
               </Card>
@@ -325,7 +400,7 @@ export default function SWOTPestleTool() {
         {/* PESTLE View */}
         {view === "pestle" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {pestleConfig.map(({ key, label, icon: Icon, color, bg, border, hint }) => (
+            {pestleConfig.map(({ key, label, icon: Icon, color, bg, border, hint, quickAddItems }) => (
               <Card key={key} className={`border ${border}`}>
                 <CardHeader className={`pb-3 ${bg} rounded-t-lg`}>
                   <CardTitle className={`flex items-center gap-2 text-base ${color}`}>
@@ -340,6 +415,7 @@ export default function SWOTPestleTool() {
                     onAdd={v => updatePestle(key, [...data.pestle[key], v])}
                     onRemove={i => updatePestle(key, data.pestle[key].filter((_, idx) => idx !== i))}
                     placeholder={`Add ${label.toLowerCase()} factor…`}
+                    quickAddItems={quickAddItems}
                   />
                 </CardContent>
               </Card>

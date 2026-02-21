@@ -36,6 +36,7 @@ interface PitchSection {
   placeholder: string;
   hint: string;
   bmcHint?: string;
+  starters?: string[];
 }
 
 interface PitchData {
@@ -57,14 +58,60 @@ const emptyData: PitchData = {
 };
 
 const sections: PitchSection[] = [
-  { id: "problem", label: "The Problem", icon: AlertCircle, placeholder: "What problem are you solving? Why does it matter?", hint: "Be specific — quantify the pain if possible. Investors need to believe this is a real, significant problem.", bmcHint: "Consider your Customer Segments and the pains you identified in your Value Proposition canvas." },
-  { id: "solution", label: "Our Solution", icon: Lightbulb, placeholder: "How does your product/service solve the problem uniquely?", hint: "Focus on the core insight — what makes your approach different or better than alternatives.", bmcHint: "Draw from your Value Propositions and Products & Services in your BMC." },
-  { id: "marketSize", label: "Market Opportunity", icon: Users, placeholder: "TAM, SAM, SOM — how big is the market and who are your target customers?", hint: "Use credible data sources. Show you understand the South African / African market landscape.", bmcHint: "Your Customer Segments block in the BMC defines your SAM." },
-  { id: "businessModel", label: "Business Model", icon: DollarSign, placeholder: "How do you make money? Pricing model, revenue streams, unit economics…", hint: "Explain what customers pay for and why. Show path to profitability.", bmcHint: "This maps directly to Revenue Streams and Cost Structure in your BMC." },
-  { id: "traction", label: "Traction", icon: TrendingUp, placeholder: "What proof do you have this is working? Customers, revenue, pilots, LOIs…", hint: "Even early traction counts — user interviews, waitlists, partnerships, or prototype feedback." },
-  { id: "team", label: "The Team", icon: UserCheck, placeholder: "Who are the founders? What relevant experience and skills do you bring?", hint: "Investors bet on people as much as ideas. Highlight domain expertise and complementary skills.", bmcHint: "Think about your Key Resources — human capital is your most important resource." },
-  { id: "financials", label: "Financials", icon: PiggyBank, placeholder: "Revenue projections, key cost drivers, burn rate, runway…", hint: "Show 3–5 year projections with realistic assumptions. Be prepared to defend every number.", bmcHint: "Reference your Cost Structure and Revenue Streams blocks." },
-  { id: "ask", label: "The Ask", icon: HelpCircle, placeholder: "How much are you raising? What will you use funds for? What milestones will this reach?", hint: "Be specific: amount, use of funds, and the 18-24 month milestones you'll hit with this capital." },
+  {
+    id: "problem", label: "The Problem", icon: AlertCircle,
+    placeholder: "What problem are you solving? Why does it matter?",
+    hint: "Describe the pain your target customer experiences. Be specific and concrete — if you can quantify it (e.g. \"small businesses in SA spend 8 hours a week on manual invoicing\"), that's much stronger than a vague statement. The reader must believe this problem is real and significant.",
+    bmcHint: "Look at your Customer Segments and the Pains column in your Value Proposition canvas for inspiration.",
+    starters: ["The problem is that...", "X% of [target customers] struggle with...", "Currently there is no affordable solution for...", "This costs businesses / people R... per year"],
+  },
+  {
+    id: "solution", label: "Our Solution", icon: Lightbulb,
+    placeholder: "How does your product/service solve the problem uniquely?",
+    hint: "Explain your core solution in plain language — what does it do, and why is it better than what already exists? Focus on the key insight that makes your approach work. Avoid jargon. A good test: can someone who knows nothing about your industry understand it in 30 seconds?",
+    bmcHint: "Draw from your Value Propositions and Products & Services in your BMC and Value Prop canvas.",
+    starters: ["We solve this by...", "Our platform / product allows users to...", "Unlike existing alternatives, we...", "The key insight behind our approach is..."],
+  },
+  {
+    id: "marketSize", label: "Market Opportunity", icon: Users,
+    placeholder: "TAM, SAM, SOM — how big is the market and who are your target customers?",
+    hint: "Show investors there is a big enough market worth pursuing. Include TAM (Total Addressable Market), SAM (your realistic target slice), and SOM (what you can capture in 3-5 years). Use credible data — reference Stats SA, industry reports, or comparable markets.",
+    bmcHint: "Your Customer Segments block in the BMC defines your SAM.",
+    starters: ["Our total addressable market (TAM) is...", "We are targeting the South African / African...", "Our serviceable market (SAM) is approximately...", "We estimate we can capture X% of the market within..."],
+  },
+  {
+    id: "businessModel", label: "Business Model", icon: DollarSign,
+    placeholder: "How do you make money? Pricing model, revenue streams, unit economics…",
+    hint: "Explain exactly what customers pay for and how much. Include your pricing model (subscription, per transaction, project-based, etc.), key cost drivers, and how the unit economics improve at scale. Show a clear path to profitability.",
+    bmcHint: "This maps directly to Revenue Streams and Cost Structure in your BMC.",
+    starters: ["Customers pay a monthly subscription of R...", "We charge per transaction at X%...", "Our primary revenue stream is...", "At X customers, we reach break-even because..."],
+  },
+  {
+    id: "traction", label: "Traction", icon: TrendingUp,
+    placeholder: "What proof do you have this is working? Customers, revenue, pilots, LOIs…",
+    hint: "Traction is evidence that your solution works and people want it. Even early-stage proof matters — paying customers, signed letters of intent, pilot results, waitlists, user interviews, or a successful prototype. Show momentum and the direction of travel.",
+    starters: ["We currently have X paying customers", "Completed X pilots with [organisation]...", "Our waitlist has X sign-ups in X weeks", "Revenue to date: R...", "We have letters of intent from..."],
+  },
+  {
+    id: "team", label: "The Team", icon: UserCheck,
+    placeholder: "Who are the founders? What relevant experience and skills do you bring?",
+    hint: "Investors often say they back people, not just ideas. Highlight why your team is uniquely positioned to solve this problem. Include relevant domain experience, past successes, complementary skill sets, and key advisors.",
+    bmcHint: "Think about your Key Resources block in the BMC — your human capital is often your most critical resource.",
+    starters: ["Our CEO / Founder has X years experience in...", "Our CTO previously built...", "Combined, our team has worked at...", "We are advised by [name], who has expertise in..."],
+  },
+  {
+    id: "financials", label: "Financials", icon: PiggyBank,
+    placeholder: "Revenue projections, key cost drivers, burn rate, runway…",
+    hint: "Show 3–5 year financial projections with realistic, defensible assumptions. Include monthly burn rate, current runway, key cost drivers, and when you reach profitability. Bottom-up projections (built from unit economics) are more credible than top-down (\"%  of market\").",
+    bmcHint: "Reference your Cost Structure and Revenue Streams blocks in your BMC.",
+    starters: ["Projected Year 1 revenue: R...", "Monthly burn rate: R...", "We have X months of runway remaining", "We project break-even at month X when...", "Our key cost drivers are..."],
+  },
+  {
+    id: "ask", label: "The Ask", icon: HelpCircle,
+    placeholder: "How much are you raising? What will you use funds for? What milestones will this reach?",
+    hint: "Be specific and confident about what you want. State the amount, the type of funding (equity, convertible note, grant), exactly how the money will be spent, and the key milestones you will hit within 18–24 months. Vague asks signal poor planning.",
+    starters: ["We are raising R...", "Funds will be used for: (1) product development, (2)...", "With this raise we will reach...", "We are seeking [equity / debt / grant] at a valuation of..."],
+  },
 ];
 
 export default function PitchBuilderTool() {
@@ -242,6 +289,23 @@ export default function PitchBuilderTool() {
                   )}
                 </CardHeader>
                 <CardContent>
+                  {current.starters && !isFinalized && (
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      <span className="text-xs text-muted-foreground self-center mr-0.5">Starters:</span>
+                      {current.starters.map(s => (
+                        <button
+                          key={s}
+                          onClick={() => {
+                            const cur = (data as any)[current.id] || "";
+                            set(current.id as keyof PitchData, cur ? `${cur}\n${s}` : s);
+                          }}
+                          className="text-xs px-2 py-0.5 rounded-full border border-dashed border-muted-foreground/40 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                        >
+                          + {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   <Textarea
                     value={(data as any)[current.id]}
                     onChange={e => set(current.id as keyof PitchData, e.target.value)}

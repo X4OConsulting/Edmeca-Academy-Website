@@ -53,18 +53,21 @@ function ItemList({
   onRemove,
   placeholder,
   disabled,
+  quickAddItems,
 }: {
   items: string[];
   onAdd: (v: string) => void;
   onRemove: (i: number) => void;
   placeholder: string;
   disabled?: boolean;
+  quickAddItems?: string[];
 }) {
   const [input, setInput] = useState("");
   const submit = () => {
     const v = input.trim();
     if (v) { onAdd(v); setInput(""); }
   };
+  const available = quickAddItems?.filter(q => !items.includes(q)) ?? [];
   return (
     <div className="space-y-1.5">
       {items.map((item, i) => (
@@ -77,8 +80,21 @@ function ItemList({
           )}
         </div>
       ))}
+      {!disabled && available.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 pt-1 pb-0.5">
+          {available.map(q => (
+            <button
+              key={q}
+              onClick={() => onAdd(q)}
+              className="text-xs px-2 py-0.5 rounded-full border border-dashed border-muted-foreground/40 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+            >
+              + {q}
+            </button>
+          ))}
+        </div>
+      )}
       {!disabled && (
-        <div className="flex gap-2 mt-2">
+        <div className="flex gap-2 mt-1">
           <Input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && submit()} placeholder={placeholder} className="text-sm h-8" />
           <Button size="sm" variant="ghost" onClick={submit} className="h-8 w-8 p-0"><Plus className="h-4 w-4" /></Button>
         </div>
@@ -233,33 +249,33 @@ export default function ValuePropTool() {
         {/* Customer Profile View */}
         {view === "customer" && (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Map what your customer is trying to accomplish, their frustrations, and their desired outcomes.</p>
+            <p className="text-sm text-muted-foreground">The Customer Profile helps you deeply understand the person you are building for. Start by picking one specific customer segment and mapping what they are trying to do, what frustrates them, and what success looks like for them.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="border-blue-200 dark:border-blue-800">
                 <CardHeader className="pb-3 bg-blue-50 dark:bg-blue-900/20 rounded-t-lg">
                   <CardTitle className="flex items-center gap-2 text-base text-blue-600"><Briefcase className="h-4 w-4" />Customer Jobs</CardTitle>
-                  <p className="text-xs text-muted-foreground">Tasks customers need to get done (functional, social, emotional)</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">What tasks, goals, or problems is your customer trying to handle? Include practical tasks (functional jobs), how they want to appear to others (social jobs), and how they want to feel (emotional jobs).</p>
                 </CardHeader>
                 <CardContent className="pt-4">
-                  <ItemList items={data.customer.jobs} onAdd={v => updateCustomer("jobs", [...data.customer.jobs, v])} onRemove={i => updateCustomer("jobs", data.customer.jobs.filter((_, idx) => idx !== i))} placeholder="Add a customer job…" disabled={isFinalized} />
+                  <ItemList items={data.customer.jobs} onAdd={v => updateCustomer("jobs", [...data.customer.jobs, v])} onRemove={i => updateCustomer("jobs", data.customer.jobs.filter((_, idx) => idx !== i))} placeholder="Add a customer job…" disabled={isFinalized} quickAddItems={["Manage personal finances", "Find affordable services", "Save time on daily tasks", "Grow their business", "Learn a new skill", "Stay healthy and safe"]} />
                 </CardContent>
               </Card>
               <Card className="border-red-200 dark:border-red-800">
                 <CardHeader className="pb-3 bg-red-50 dark:bg-red-900/20 rounded-t-lg">
                   <CardTitle className="flex items-center gap-2 text-base text-red-600"><Frown className="h-4 w-4" />Pains</CardTitle>
-                  <p className="text-xs text-muted-foreground">Obstacles, risks, and bad outcomes customers want to avoid</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">What obstacles, frustrations, or bad outcomes does your customer currently experience? What risks do they want to avoid? Think about what makes their job harder or more expensive than it should be.</p>
                 </CardHeader>
                 <CardContent className="pt-4">
-                  <ItemList items={data.customer.pains} onAdd={v => updateCustomer("pains", [...data.customer.pains, v])} onRemove={i => updateCustomer("pains", data.customer.pains.filter((_, idx) => idx !== i))} placeholder="Add a customer pain…" disabled={isFinalized} />
+                  <ItemList items={data.customer.pains} onAdd={v => updateCustomer("pains", [...data.customer.pains, v])} onRemove={i => updateCustomer("pains", data.customer.pains.filter((_, idx) => idx !== i))} placeholder="Add a customer pain…" disabled={isFinalized} quickAddItems={["Too expensive / not affordable", "Too complicated to use", "Takes too long", "Can't find a reliable provider", "Poor customer service", "Wasting money on the wrong solution"]} />
                 </CardContent>
               </Card>
               <Card className="border-green-200 dark:border-green-800">
                 <CardHeader className="pb-3 bg-green-50 dark:bg-green-900/20 rounded-t-lg">
                   <CardTitle className="flex items-center gap-2 text-base text-green-600"><Smile className="h-4 w-4" />Gains</CardTitle>
-                  <p className="text-xs text-muted-foreground">Outcomes and benefits customers want to achieve</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">What outcomes and benefits does your customer want to achieve? What would make their life or work better, easier, or more enjoyable? Think about both practical benefits and how they want to feel.</p>
                 </CardHeader>
                 <CardContent className="pt-4">
-                  <ItemList items={data.customer.gains} onAdd={v => updateCustomer("gains", [...data.customer.gains, v])} onRemove={i => updateCustomer("gains", data.customer.gains.filter((_, idx) => idx !== i))} placeholder="Add a desired gain…" disabled={isFinalized} />
+                  <ItemList items={data.customer.gains} onAdd={v => updateCustomer("gains", [...data.customer.gains, v])} onRemove={i => updateCustomer("gains", data.customer.gains.filter((_, idx) => idx !== i))} placeholder="Add a desired gain…" disabled={isFinalized} quickAddItems={["Save money", "Save time and effort", "Peace of mind / less stress", "Better results than before", "Easy to use and understand", "Feeling in control"]} />
                 </CardContent>
               </Card>
             </div>
@@ -269,33 +285,33 @@ export default function ValuePropTool() {
         {/* Value Map View */}
         {view === "value" && (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Define what you offer and how it directly addresses your customer's pains and gains.</p>
+            <p className="text-sm text-muted-foreground">The Value Map describes what you offer and why it matters to your customer. A strong value proposition happens when your Pain Relievers directly address customer Pains, and your Gain Creators deliver the outcomes they actually want.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="border-purple-200 dark:border-purple-800">
                 <CardHeader className="pb-3 bg-purple-50 dark:bg-purple-900/20 rounded-t-lg">
                   <CardTitle className="flex items-center gap-2 text-base text-purple-600"><Star className="h-4 w-4" />Products & Services</CardTitle>
-                  <p className="text-xs text-muted-foreground">What you offer to help customers get their jobs done</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">List everything you offer that helps customers get their jobs done. This can be a physical product, a digital platform, a service, training, or a combination. Be specific about what you actually deliver.</p>
                 </CardHeader>
                 <CardContent className="pt-4">
-                  <ItemList items={data.value.products} onAdd={v => updateValue("products", [...data.value.products, v])} onRemove={i => updateValue("products", data.value.products.filter((_, idx) => idx !== i))} placeholder="Add product or service…" disabled={isFinalized} />
+                  <ItemList items={data.value.products} onAdd={v => updateValue("products", [...data.value.products, v])} onRemove={i => updateValue("products", data.value.products.filter((_, idx) => idx !== i))} placeholder="Add product or service…" disabled={isFinalized} quickAddItems={["Mobile app", "Online platform or marketplace", "Consulting or advisory service", "Training programme", "Physical product", "Subscription service"]} />
                 </CardContent>
               </Card>
               <Card className="border-orange-200 dark:border-orange-800">
                 <CardHeader className="pb-3 bg-orange-50 dark:bg-orange-900/20 rounded-t-lg">
                   <CardTitle className="flex items-center gap-2 text-base text-orange-600"><ShieldCheck className="h-4 w-4" />Pain Relievers</CardTitle>
-                  <p className="text-xs text-muted-foreground">How your offering eliminates or reduces customer pains</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">Describe specifically how what you offer reduces or eliminates a pain from your Customer Profile. For each pain reliever, you should be able to point to a specific pain it addresses. Aim for at least one per major pain.</p>
                 </CardHeader>
                 <CardContent className="pt-4">
-                  <ItemList items={data.value.painRelievers} onAdd={v => updateValue("painRelievers", [...data.value.painRelievers, v])} onRemove={i => updateValue("painRelievers", data.value.painRelievers.filter((_, idx) => idx !== i))} placeholder="Add pain reliever…" disabled={isFinalized} />
+                  <ItemList items={data.value.painRelievers} onAdd={v => updateValue("painRelievers", [...data.value.painRelievers, v])} onRemove={i => updateValue("painRelievers", data.value.painRelievers.filter((_, idx) => idx !== i))} placeholder="Add pain reliever…" disabled={isFinalized} quickAddItems={["Cheaper than alternatives", "Faster than existing solutions", "Simpler and easier to use", "Transparent and upfront pricing", "Reliable and always available", "Dedicated customer support"]} />
                 </CardContent>
               </Card>
               <Card className="border-teal-200 dark:border-teal-800">
                 <CardHeader className="pb-3 bg-teal-50 dark:bg-teal-900/20 rounded-t-lg">
                   <CardTitle className="flex items-center gap-2 text-base text-teal-600"><Zap className="h-4 w-4" />Gain Creators</CardTitle>
-                  <p className="text-xs text-muted-foreground">How your offering produces outcomes customers want</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">Describe how your offering produces benefits and outcomes your customer actually wants to achieve. For each gain creator, link it back to a specific gain in your Customer Profile. The more concrete the better.</p>
                 </CardHeader>
                 <CardContent className="pt-4">
-                  <ItemList items={data.value.gainCreators} onAdd={v => updateValue("gainCreators", [...data.value.gainCreators, v])} onRemove={i => updateValue("gainCreators", data.value.gainCreators.filter((_, idx) => idx !== i))} placeholder="Add gain creator…" disabled={isFinalized} />
+                  <ItemList items={data.value.gainCreators} onAdd={v => updateValue("gainCreators", [...data.value.gainCreators, v])} onRemove={i => updateValue("gainCreators", data.value.gainCreators.filter((_, idx) => idx !== i))} placeholder="Add gain creator…" disabled={isFinalized} quickAddItems={["Saves users X hours per week", "Increases user income or revenue", "Provides recognised certification", "Connects to a wider network", "Delivers measurable results", "One-stop solution"]} />
                 </CardContent>
               </Card>
             </div>
