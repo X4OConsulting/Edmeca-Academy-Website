@@ -131,6 +131,7 @@ export default function ValuePropTool() {
     if (hasLoadedRef.current) return; // never overwrite user edits after initial load
     if (existing === undefined) return;
     if (existing) {
+      setData(existing.content as ValuePropData);
       setExistingId(existing.id);
       if (existing.status === "complete") setIsFinalized(true);
     } else if (bmcArtifact) {
