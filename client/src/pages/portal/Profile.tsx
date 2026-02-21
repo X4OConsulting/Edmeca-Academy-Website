@@ -144,17 +144,17 @@ export default function Profile() {
     },
     onSuccess: (result) => {
       const { updated, total } = result ?? { updated: 0, total: 0 };
-      console.log("[Profile] updateBusinessMutation onSuccess:", { updated, total });
-      const msg = total === 0
-        ? "Saved (0 artifacts found)"
-        : `Saved — renamed ${updated}/${total} artifacts`;
-      toast({ title: msg });
+      toast({
+        title: "Business profile saved",
+        description: total > 0
+          ? `${updated} artifact title${updated !== 1 ? "s" : ""} updated.`
+          : "Profile saved.",
+      });
       queryClient.invalidateQueries({ queryKey: ["userProfile"] });
       queryClient.invalidateQueries({ queryKey: ["artifacts"] });
     },
     onError: (err: Error) => {
-      console.error("[Profile] updateBusinessMutation error:", err);
-      toast({ title: `Save failed: ${err.message}`, variant: "destructive" });
+      toast({ title: "Save failed", description: err.message, variant: "destructive" });
     },
   });
 
