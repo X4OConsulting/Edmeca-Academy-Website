@@ -105,12 +105,13 @@ export default function Profile() {
   // Upsert business profile mutation — also retitles any Untitled artifacts
   const updateBusinessMutation = useMutation({
     mutationFn: async () => {
+      // profileService.upsertUserProfile handles user_id injection
       await profileService.upsertUserProfile({
         business_name: businessName,
         business_description: businessDescription,
       });
 
-      // Back-fill titles on artifacts that still say "Untitled" — fetch fresh
+      // Back-fill artifact titles — fetch all, filter client-side to avoid LIKE encoding issues
       if (businessName.trim()) {
         const titleMap: Record<string, string> = {
           bmc: "Business Model Canvas",
@@ -118,19 +119,22 @@ export default function Profile() {
           value_proposition: "Value Proposition",
           pitch_builder: "Pitch Deck",
         };
-        const { data: freshArtifacts } = await supabase
+        const { data: allArtifacts, error: fetchError } = await supabase
           .from("artifacts")
-          .select("id, title, tool_type")
-          .like("title", "Untitled%");
-        if (freshArtifacts && freshArtifacts.length > 0) {
-          await Promise.all(
-            freshArtifacts.map((a: any) =>
-              supabase
-                .from("artifacts")
-                .update({ title: `${businessName.trim()} \u2014 ${titleMap[a.tool_type] || "Document"}` })
-                .eq("id", a.id)
-            )
-          );
+          .select("id, title, tool_type");
+        if (fetchError) throw new Error(fetchError.message);
+
+        const toUpdate = (allArtifacts ?? []).filter(
+          (a: any) => typeof a.title === "string" && a.title.startsWith("Untitled")
+        );
+
+        for (const a of toUpdate) {
+          const newTitle = `${businessName.trim()} \u2014 ${titleMap[(a as any).tool_type] || "Document"}`;
+          const { error: updateError } = await supabase
+            .from("artifacts")
+            .update({ title: newTitle })
+            .eq("id", (a as any).id);
+          if (updateError) throw new Error(updateError.message);
         }
       }
     },
@@ -140,7 +144,7 @@ export default function Profile() {
       queryClient.invalidateQueries({ queryKey: ["artifacts"] });
     },
     onError: (err: Error) => {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: "Save failed", description: err.message, variant: "destructive" });
     },
   });
 
