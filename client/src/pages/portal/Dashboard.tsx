@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useRealtimeSync } from "@/hooks/use-realtime";
@@ -8,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Layers,
   BarChart3,
@@ -70,6 +72,7 @@ const tools = [
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const [, navigate] = useLocation();
+  const [newToolOpen, setNewToolOpen] = useState(false);
 
   // Keep all portal queries in sync via Supabase Realtime
   useRealtimeSync();
@@ -260,13 +263,41 @@ export default function Dashboard() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-serif text-xl font-semibold">Recent Work</h2>
-            <Link href="/portal/tools/bmc" asChild>
-              <Button variant="outline" size="sm" data-testid="button-new-artifact">
-                <Plus className="h-4 w-4 mr-1" />
-                New
-              </Button>
-            </Link>
+            <Button variant="outline" size="sm" data-testid="button-new-artifact" onClick={() => setNewToolOpen(true)}>
+              <Plus className="h-4 w-4 mr-1" />
+              New
+            </Button>
           </div>
+
+          {/* Tool picker dialog */}
+          <Dialog open={newToolOpen} onOpenChange={setNewToolOpen}>
+            <DialogContent className="sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle className="font-serif text-xl">Start a new tool</DialogTitle>
+              </DialogHeader>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                {tools.map((tool) => (
+                  <Link key={tool.href} href={tool.href} onClick={() => setNewToolOpen(false)}>
+                    <Card className="hover-elevate cursor-pointer group h-full">
+                      <CardContent className="p-4 flex items-start gap-3">
+                        <div className={`p-2 rounded-lg ${tool.bgColor} shrink-0`}>
+                          <tool.icon className={`h-4 w-4 ${tool.color}`} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-sm group-hover:text-primary transition-colors">
+                            {tool.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                            {tool.description}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </DialogContent>
+          </Dialog>
 
           {artifactsLoading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

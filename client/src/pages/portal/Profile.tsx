@@ -102,17 +102,39 @@ export default function Profile() {
     },
   });
 
-  // Upsert business profile mutation
+  // Upsert business profile mutation — also retitles any Untitled artifacts
   const updateBusinessMutation = useMutation({
     mutationFn: async () => {
-      return profileService.upsertUserProfile({
+      await profileService.upsertUserProfile({
         business_name: businessName,
         business_description: businessDescription,
       });
+
+      // Back-fill titles on artifacts that still say "Untitled"
+      if (businessName.trim() && artifacts && artifacts.length > 0) {
+        const titleMap: Record<string, string> = {
+          bmc: "Business Model Canvas",
+          swot_pestle: "SWOT & PESTLE Analysis",
+          value_proposition: "Value Proposition",
+          pitch_builder: "Pitch Deck",
+        };
+        const untitled = artifacts.filter((a: any) =>
+          (a.title || "").startsWith("Untitled")
+        );
+        await Promise.all(
+          untitled.map((a: any) =>
+            supabase
+              .from("artifacts")
+              .update({ title: `${businessName.trim()} \u2014 ${titleMap[a.toolType] || titleMap[a.tool_type] || "Document"}` })
+              .eq("id", a.id)
+          )
+        );
+      }
     },
     onSuccess: () => {
       toast({ title: "Business profile saved", description: "Your business details have been updated." });
       queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+      queryClient.invalidateQueries({ queryKey: ["artifacts"] });
     },
     onError: (err: Error) => {
       toast({ title: "Error", description: err.message, variant: "destructive" });
