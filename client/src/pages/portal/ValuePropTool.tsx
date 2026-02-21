@@ -187,7 +187,9 @@ export default function ValuePropTool() {
         status: "in_progress",
       }).catch(() => {});
     };
-  }, []); = (key: keyof ValuePropData["customer"], items: string[]) =>
+  }, []);
+
+  const updateCustomer = (key: keyof ValuePropData["customer"], items: string[]) =>
     setData(prev => ({ ...prev, customer: { ...prev.customer, [key]: items } }));
 
   const updateValue = (key: keyof ValuePropData["value"], items: string[]) =>
