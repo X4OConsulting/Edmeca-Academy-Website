@@ -154,13 +154,6 @@ export default function Dashboard() {
     };
     return labels[status] || status;
   };
-    const styles: Record<string, string> = {
-      draft: "bg-muted text-muted-foreground",
-      in_progress: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-      complete: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-    };
-    return styles[status] || styles.draft;
-  };
 
   return (
     <div className="min-h-screen bg-background">
