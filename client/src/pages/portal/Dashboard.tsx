@@ -85,10 +85,26 @@ export default function Dashboard() {
     enabled: !!user,
   });
 
-  const recentArtifacts = artifacts?.slice(0, 3) || [];
-  const completedCount = artifacts?.filter(a => a.status === "complete").length || 0;
-  const totalCount = artifacts?.length || 0;
-  const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+  // Deduplicate: keep only the most recently updated artifact per tool type
+  const KEY_TOOL_TYPES = ["bmc", "swot_pestle", "value_proposition", "pitch_builder"] as const;
+
+  const latestByType = artifacts?.reduce((acc, a) => {
+    const key = a.toolType;
+    const existing = acc[key];
+    if (!existing || new Date(a.updatedAt ?? 0) > new Date(existing.updatedAt ?? 0)) {
+      acc[key] = a;
+    }
+    return acc;
+  }, {} as Record<string, Artifact>);
+
+  const uniqueArtifacts = Object.values(latestByType ?? {}).sort(
+    (a, b) => new Date(b.updatedAt ?? 0).getTime() - new Date(a.updatedAt ?? 0).getTime()
+  );
+
+  const recentArtifacts = uniqueArtifacts.slice(0, 3);
+  const completedCount = KEY_TOOL_TYPES.filter(t => latestByType?.[t]?.status === "complete").length;
+  const totalTools = KEY_TOOL_TYPES.length; // always 4
+  const progressPercent = (completedCount / totalTools) * 100;
 
   const getInitials = (name?: string | null) => {
     if (!name) return "U";
@@ -105,7 +121,24 @@ export default function Dashboard() {
     return labels[type] || type;
   };
 
-  const getStatusBadge = (status: string) => {
+  const getToolHref = (type: string) => {
+    const hrefs: Record<string, string> = {
+      bmc: "/portal/tools/bmc",
+      swot_pestle: "/portal/tools/analysis",
+      value_proposition: "/portal/tools/value-prop",
+      pitch_builder: "/portal/tools/pitch",
+    };
+    return hrefs[type] || "/portal/tools/bmc";
+  };
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      draft: "Draft",
+      in_progress: "In Progress",
+      complete: "Complete",
+    };
+    return labels[status] || status;
+  };
     const styles: Record<string, string> = {
       draft: "bg-muted text-muted-foreground",
       in_progress: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
@@ -182,7 +215,7 @@ export default function Dashboard() {
               <div>
                 <h2 className="font-semibold">Your Progress</h2>
                 <p className="text-sm text-muted-foreground">
-                  {completedCount} of {totalCount || "5"} key artifacts completed
+                  {completedCount} of {totalTools} key tools completed
                 </p>
               </div>
               <div className="flex items-center gap-2 text-sm">
@@ -249,30 +282,32 @@ export default function Dashboard() {
           ) : recentArtifacts.length > 0 ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {recentArtifacts.map((artifact) => (
-                <Card key={artifact.id} className="hover-elevate overflow-visible">
-                  <CardContent className="p-5">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3 className="font-semibold text-sm line-clamp-1">
-                        {artifact.title}
-                      </h3>
-                      <Badge variant="secondary" className={`text-xs ${getStatusBadge(artifact.status || "draft")}`}>
-                        {artifact.status}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-3">
-                      {getToolTypeLabel(artifact.toolType)}
-                    </p>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      <span>
-                        {artifact.updatedAt 
-                          ? new Date(artifact.updatedAt).toLocaleDateString()
-                          : "Recently"
-                        }
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
+                <Link key={artifact.id} href={getToolHref(artifact.toolType)}>
+                  <Card className="hover-elevate overflow-visible cursor-pointer group h-full">
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="font-semibold text-sm line-clamp-1 group-hover:text-primary transition-colors">
+                          {artifact.title}
+                        </h3>
+                        <Badge variant="secondary" className={`text-xs shrink-0 ${getStatusBadge(artifact.status || "draft")}`}>
+                          {getStatusLabel(artifact.status || "draft")}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        {getToolTypeLabel(artifact.toolType)}
+                      </p>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        <span>
+                          {artifact.updatedAt
+                            ? new Date(artifact.updatedAt).toLocaleDateString()
+                            : "Recently"
+                          }
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           ) : (
