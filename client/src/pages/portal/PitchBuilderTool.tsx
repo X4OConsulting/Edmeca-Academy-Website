@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { artifactsService } from "@/lib/services";
 import {
   ArrowLeft,
@@ -69,6 +69,7 @@ const sections: PitchSection[] = [
 
 export default function PitchBuilderTool() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [view, setView] = useState<ViewType>("editor");
   const [activeSection, setActiveSection] = useState(0);
   const [data, setData] = useState<PitchData>(emptyData);
@@ -82,6 +83,7 @@ export default function PitchBuilderTool() {
   const { data: existing } = useQuery({
     queryKey: ["artifact", "pitch_builder"],
     queryFn: () => artifactsService.getLatestArtifactByType("pitch_builder"),
+    staleTime: 0,
   });
 
   const { data: bmcArtifact } = useQuery({
@@ -134,6 +136,7 @@ export default function PitchBuilderTool() {
           status: "in_progress",
         });
         if (!existingIdRef.current) { existingIdRef.current = id; setExistingId(id); }
+        queryClient.invalidateQueries({ queryKey: ["artifact", "pitch_builder"] });
       } catch { /* silent */ }
     }, 1500);
     return () => clearTimeout(timer);
@@ -153,6 +156,7 @@ export default function PitchBuilderTool() {
         status: finalize ? "complete" : "in_progress",
       });
       if (!existingIdRef.current) { existingIdRef.current = id; setExistingId(id); }
+      queryClient.invalidateQueries({ queryKey: ["artifact", "pitch_builder"] });
       return finalize;
     },
     onSuccess: (finalized) => {

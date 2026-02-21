@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { artifactsService } from "@/lib/services";
 import {
   ArrowLeft,
@@ -89,6 +89,7 @@ function ItemList({
 
 export default function ValuePropTool() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [view, setView] = useState<ViewType>("customer");
   const [data, setData] = useState<ValuePropData>(emptyData);
   const [isFinalized, setIsFinalized] = useState(false);
@@ -101,6 +102,7 @@ export default function ValuePropTool() {
   const { data: existing } = useQuery({
     queryKey: ["artifact", "value_proposition"],
     queryFn: () => artifactsService.getLatestArtifactByType("value_proposition"),
+    staleTime: 0,
   });
 
   const { data: bmcArtifact } = useQuery({
@@ -139,6 +141,7 @@ export default function ValuePropTool() {
           status: "in_progress",
         });
         if (!existingIdRef.current) { existingIdRef.current = id; setExistingId(id); }
+        queryClient.invalidateQueries({ queryKey: ["artifact", "value_proposition"] });
       } catch { /* silent */ }
     }, 1500);
     return () => clearTimeout(timer);
@@ -162,6 +165,7 @@ export default function ValuePropTool() {
         status: finalize ? "complete" : "in_progress",
       });
       if (!existingIdRef.current) { existingIdRef.current = id; setExistingId(id); }
+      queryClient.invalidateQueries({ queryKey: ["artifact", "value_proposition"] });
       return finalize;
     },
     onSuccess: (finalized) => {

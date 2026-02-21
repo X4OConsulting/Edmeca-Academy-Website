@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { artifactsService } from "@/lib/services";
 import {
   ArrowLeft,
@@ -144,6 +144,7 @@ function ItemList({
 
 export default function SWOTPestleTool() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [view, setView] = useState<ViewType>("swot");
   const [data, setData] = useState<AnalysisData>(emptyData);
   const [isFinalized, setIsFinalized] = useState(false);
@@ -158,6 +159,7 @@ export default function SWOTPestleTool() {
   const { data: existing } = useQuery({
     queryKey: ["artifact", "swot_pestle"],
     queryFn: () => artifactsService.getLatestArtifactByType("swot_pestle"),
+    staleTime: 0,
   });
 
   // Pre-load company name from BMC if no SWOT exists
@@ -193,6 +195,7 @@ export default function SWOTPestleTool() {
           status: "in_progress",
         });
         if (!existingIdRef.current) { existingIdRef.current = id; setExistingId(id); }
+        queryClient.invalidateQueries({ queryKey: ["artifact", "swot_pestle"] });
       } catch { /* silent — manual Save Draft still available */ }
     }, 1500);
     return () => clearTimeout(timer);
@@ -216,6 +219,7 @@ export default function SWOTPestleTool() {
         status: finalize ? "complete" : "in_progress",
       });
       if (!existingIdRef.current) { existingIdRef.current = id; setExistingId(id); }
+      queryClient.invalidateQueries({ queryKey: ["artifact", "swot_pestle"] });
       return finalize;
     },
     onSuccess: (finalized) => {
