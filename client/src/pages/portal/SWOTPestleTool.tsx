@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { artifactsService } from "@/lib/services";
+import { artifactsService, profileService } from "@/lib/services";
 import {
   ArrowLeft,
   Plus,
@@ -229,9 +229,16 @@ export default function SWOTPestleTool() {
   const hasLoadedRef = useRef(false);
   const dataRef = useRef(data);
   const isFinalizedRef = useRef(false);
+  const profileNameRef = useRef("");
   useEffect(() => { existingIdRef.current = existingId; }, [existingId]);
   useEffect(() => { dataRef.current = data; }, [data]);
   useEffect(() => { isFinalizedRef.current = isFinalized; }, [isFinalized]);
+
+  const { data: userProfile } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: () => profileService.getUserProfile(),
+  });
+  useEffect(() => { profileNameRef.current = (userProfile as any)?.business_name || ""; }, [userProfile]);
 
   // Load existing draft or last saved artifact
   const { data: existing } = useQuery({
@@ -256,7 +263,9 @@ export default function SWOTPestleTool() {
       if (existing.status === "complete") setIsFinalized(true);
     } else if (bmcArtifact) {
       const bmcContent = bmcArtifact.content as any;
-      setData(prev => ({ ...prev, companyName: bmcContent?.companyName || "" }));
+      setData(prev => ({ ...prev, companyName: bmcContent?.companyName || profileNameRef.current || "" }));
+    } else {
+      setData(prev => ({ ...prev, companyName: prev.companyName || profileNameRef.current || "" }));
     }
     // Mark initial load complete so auto-save can fire on subsequent changes
     setTimeout(() => { hasLoadedRef.current = true; }, 0);
@@ -269,7 +278,7 @@ export default function SWOTPestleTool() {
       try {
         const id = await artifactsService.saveArtifact(existingIdRef.current, {
           tool_type: "swot_pestle",
-          title: `${data.companyName || "Untitled"} — SWOT & PESTLE Analysis`,
+          title: `${data.companyName || profileNameRef.current || "Untitled"} — SWOT & PESTLE Analysis`,
           content: data as unknown as Record<string, unknown>,
           status: "in_progress",
         });
@@ -285,7 +294,7 @@ export default function SWOTPestleTool() {
       if (!hasLoadedRef.current || isFinalizedRef.current) return;
       artifactsService.saveArtifact(existingIdRef.current, {
         tool_type: "swot_pestle",
-        title: `${dataRef.current.companyName || "Untitled"} — SWOT & PESTLE Analysis`,
+        title: `${dataRef.current.companyName || profileNameRef.current || "Untitled"} — SWOT & PESTLE Analysis`,
         content: dataRef.current as unknown as Record<string, unknown>,
         status: "in_progress",
       }).catch(() => {});
@@ -305,7 +314,7 @@ export default function SWOTPestleTool() {
     mutationFn: async (finalize: boolean) => {
       const id = await artifactsService.saveArtifact(existingIdRef.current, {
         tool_type: "swot_pestle",
-        title: `${data.companyName || "Untitled"} — SWOT & PESTLE Analysis`,
+        title: `${data.companyName || profileNameRef.current || "Untitled"} — SWOT & PESTLE Analysis`,
         content: data as unknown as Record<string, unknown>,
         status: finalize ? "complete" : "in_progress",
       });

@@ -111,7 +111,7 @@ export default function Profile() {
         business_description: businessDescription,
       });
 
-      // Back-fill artifact titles — fetch all, filter client-side to avoid LIKE encoding issues
+      // Re-title all artifacts to reflect the business name
       if (businessName.trim()) {
         const titleMap: Record<string, string> = {
           bmc: "Business Model Canvas",
@@ -121,14 +121,10 @@ export default function Profile() {
         };
         const { data: allArtifacts, error: fetchError } = await supabase
           .from("artifacts")
-          .select("id, title, tool_type");
+          .select("id, tool_type");
         if (fetchError) throw new Error(fetchError.message);
 
-        const toUpdate = (allArtifacts ?? []).filter(
-          (a: any) => typeof a.title === "string" && a.title.startsWith("Untitled")
-        );
-
-        for (const a of toUpdate) {
+        for (const a of (allArtifacts ?? [])) {
           const newTitle = `${businessName.trim()} \u2014 ${titleMap[(a as any).tool_type] || "Document"}`;
           const { error: updateError } = await supabase
             .from("artifacts")

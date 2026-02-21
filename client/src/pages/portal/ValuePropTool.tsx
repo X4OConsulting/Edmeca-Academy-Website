@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { artifactsService } from "@/lib/services";
+import { artifactsService, profileService } from "@/lib/services";
 import {
   ArrowLeft,
   Plus,
@@ -115,9 +115,16 @@ export default function ValuePropTool() {
   const hasLoadedRef = useRef(false);
   const dataRef = useRef(data);
   const isFinalizedRef = useRef(false);
+  const profileNameRef = useRef("");
   useEffect(() => { existingIdRef.current = existingId; }, [existingId]);
   useEffect(() => { dataRef.current = data; }, [data]);
   useEffect(() => { isFinalizedRef.current = isFinalized; }, [isFinalized]);
+
+  const { data: userProfile } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: () => profileService.getUserProfile(),
+  });
+  useEffect(() => { profileNameRef.current = (userProfile as any)?.business_name || ""; }, [userProfile]);
 
   const { data: existing } = useQuery({
     queryKey: ["artifact", "value_proposition"],
@@ -142,10 +149,12 @@ export default function ValuePropTool() {
       const c = bmcArtifact.content as any;
       setData(prev => ({
         ...prev,
-        companyName: c?.companyName || "",
+        companyName: c?.companyName || profileNameRef.current || "",
         customerSegment: (c?.customerSegments?.[0]) || "",
         value: { ...prev.value, products: c?.valuePropositions || [] },
       }));
+    } else {
+      setData(prev => ({ ...prev, companyName: prev.companyName || profileNameRef.current || "" }));
     }
     setTimeout(() => { hasLoadedRef.current = true; }, 0);
   }, [existing, bmcArtifact]);
@@ -157,7 +166,7 @@ export default function ValuePropTool() {
       try {
         const id = await artifactsService.saveArtifact(existingIdRef.current, {
           tool_type: "value_proposition",
-          title: `${data.companyName || "Untitled"} — Value Proposition`,
+          title: `${data.companyName || profileNameRef.current || "Untitled"} — Value Proposition`,
           content: data as unknown as Record<string, unknown>,
           status: "in_progress",
         });
@@ -173,7 +182,7 @@ export default function ValuePropTool() {
       if (!hasLoadedRef.current || isFinalizedRef.current) return;
       artifactsService.saveArtifact(existingIdRef.current, {
         tool_type: "value_proposition",
-        title: `${dataRef.current.companyName || "Untitled"} — Value Proposition`,
+        title: `${dataRef.current.companyName || profileNameRef.current || "Untitled"} — Value Proposition`,
         content: dataRef.current as unknown as Record<string, unknown>,
         status: "in_progress",
       }).catch(() => {});
@@ -191,7 +200,7 @@ export default function ValuePropTool() {
     mutationFn: async (finalize: boolean) => {
       const id = await artifactsService.saveArtifact(existingIdRef.current, {
         tool_type: "value_proposition",
-        title: `${data.companyName || "Untitled"} — Value Proposition`,
+        title: `${data.companyName || profileNameRef.current || "Untitled"} — Value Proposition`,
         content: data as unknown as Record<string, unknown>,
         status: finalize ? "complete" : "in_progress",
       });

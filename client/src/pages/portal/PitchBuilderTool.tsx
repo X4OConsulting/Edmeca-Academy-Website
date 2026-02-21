@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { artifactsService } from "@/lib/services";
+import { artifactsService, profileService } from "@/lib/services";
 import {
   ArrowLeft,
   Save,
@@ -127,9 +127,16 @@ export default function PitchBuilderTool() {
   const hasLoadedRef = useRef(false);
   const dataRef = useRef(data);
   const isFinalizedRef = useRef(false);
+  const profileNameRef = useRef("");
   useEffect(() => { existingIdRef.current = existingId; }, [existingId]);
   useEffect(() => { dataRef.current = data; }, [data]);
   useEffect(() => { isFinalizedRef.current = isFinalized; }, [isFinalized]);
+
+  const { data: userProfile } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: () => profileService.getUserProfile(),
+  });
+  useEffect(() => { profileNameRef.current = (userProfile as any)?.business_name || ""; }, [userProfile]);
 
   const { data: existing } = useQuery({
     queryKey: ["artifact", "pitch_builder"],
@@ -161,7 +168,7 @@ export default function PitchBuilderTool() {
       const vp = valuePropArtifact?.content as any;
       setData(prev => ({
         ...prev,
-        companyName: c?.companyName || "",
+        companyName: c?.companyName || profileNameRef.current || "",
         businessModel: c?.revenueStreams?.length
           ? `Revenue Streams:\n• ${c.revenueStreams.join("\n• ")}\n\nCost Structure:\n• ${(c.costStructure || []).join("\n• ")}`
           : "",
@@ -183,7 +190,7 @@ export default function PitchBuilderTool() {
       try {
         const id = await artifactsService.saveArtifact(existingIdRef.current, {
           tool_type: "pitch_builder",
-          title: `${data.companyName || "Untitled"} — Pitch Deck`,
+          title: `${data.companyName || profileNameRef.current || "Untitled"} — Pitch Deck`,
           content: data as unknown as Record<string, unknown>,
           status: "in_progress",
         });
@@ -199,7 +206,7 @@ export default function PitchBuilderTool() {
       if (!hasLoadedRef.current || isFinalizedRef.current) return;
       artifactsService.saveArtifact(existingIdRef.current, {
         tool_type: "pitch_builder",
-        title: `${dataRef.current.companyName || "Untitled"} — Pitch Deck`,
+        title: `${dataRef.current.companyName || profileNameRef.current || "Untitled"} — Pitch Deck`,
         content: dataRef.current as unknown as Record<string, unknown>,
         status: "in_progress",
       }).catch(() => {});
@@ -213,7 +220,7 @@ export default function PitchBuilderTool() {
     mutationFn: async (finalize: boolean) => {
       const id = await artifactsService.saveArtifact(existingIdRef.current, {
         tool_type: "pitch_builder",
-        title: `${data.companyName || "Untitled"} — Pitch Deck`,
+        title: `${data.companyName || profileNameRef.current || "Untitled"} — Pitch Deck`,
         content: data as unknown as Record<string, unknown>,
         status: finalize ? "complete" : "in_progress",
       });
