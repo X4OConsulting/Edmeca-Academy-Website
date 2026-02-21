@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { artifactsService } from "@/lib/services";
-import { supabase } from "@/lib/supabase";
 import {
   ArrowLeft,
   Plus,
@@ -150,6 +149,11 @@ export default function SWOTPestleTool() {
   const [isFinalized, setIsFinalized] = useState(false);
   const [existingId, setExistingId] = useState<string | null>(null);
 
+  // Refs for auto-save (avoids stale closures and skips initial load)
+  const existingIdRef = useRef<string | null>(null);
+  const hasLoadedRef = useRef(false);
+  useEffect(() => { existingIdRef.current = existingId; }, [existingId]);
+
   // Load existing draft or last saved artifact
   const { data: existing } = useQuery({
     queryKey: ["artifact", "swot_pestle"],
@@ -164,6 +168,7 @@ export default function SWOTPestleTool() {
   });
 
   useEffect(() => {
+    if (existing === undefined) return; // query still loading
     if (existing) {
       setData(existing.content as AnalysisData);
       setExistingId(existing.id);
@@ -172,7 +177,26 @@ export default function SWOTPestleTool() {
       const bmcContent = bmcArtifact.content as any;
       setData(prev => ({ ...prev, companyName: bmcContent?.companyName || "" }));
     }
+    // Mark initial load complete so auto-save can fire on subsequent changes
+    setTimeout(() => { hasLoadedRef.current = true; }, 0);
   }, [existing, bmcArtifact]);
+
+  // Auto-save draft 1.5s after any data change (silent — no toast)
+  useEffect(() => {
+    if (!hasLoadedRef.current || isFinalized) return;
+    const timer = setTimeout(async () => {
+      try {
+        const id = await artifactsService.saveArtifact(existingIdRef.current, {
+          tool_type: "swot_pestle",
+          title: `${data.companyName || "Untitled"} — SWOT & PESTLE Analysis`,
+          content: data as unknown as Record<string, unknown>,
+          status: "in_progress",
+        });
+        if (!existingIdRef.current) { existingIdRef.current = id; setExistingId(id); }
+      } catch { /* silent — manual Save Draft still available */ }
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [data, isFinalized]);
 
   const updateSwot = (key: keyof AnalysisData["swot"], items: string[]) =>
     setData(prev => ({ ...prev, swot: { ...prev.swot, [key]: items } }));
@@ -185,24 +209,13 @@ export default function SWOTPestleTool() {
 
   const saveMutation = useMutation({
     mutationFn: async (finalize: boolean) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-      const payload = {
-        user_id: user.id,
+      const id = await artifactsService.saveArtifact(existingIdRef.current, {
         tool_type: "swot_pestle",
         title: `${data.companyName || "Untitled"} — SWOT & PESTLE Analysis`,
-        content: data,
-        version: 1,
+        content: data as unknown as Record<string, unknown>,
         status: finalize ? "complete" : "in_progress",
-      };
-      if (existingId) {
-        const { error } = await supabase.from("artifacts").update(payload).eq("id", existingId);
-        if (error) throw new Error(error.message);
-      } else {
-        const { data: saved, error } = await supabase.from("artifacts").insert(payload).select().single();
-        if (error) throw new Error(error.message);
-        setExistingId(saved.id);
-      }
+      });
+      if (!existingIdRef.current) { existingIdRef.current = id; setExistingId(id); }
       return finalize;
     },
     onSuccess: (finalized) => {

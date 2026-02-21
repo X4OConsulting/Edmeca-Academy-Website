@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { artifactsService } from "@/lib/services";
-import { supabase } from "@/lib/supabase";
 import {
   ArrowLeft,
   Plus,
@@ -95,6 +94,10 @@ export default function ValuePropTool() {
   const [isFinalized, setIsFinalized] = useState(false);
   const [existingId, setExistingId] = useState<string | null>(null);
 
+  const existingIdRef = useRef<string | null>(null);
+  const hasLoadedRef = useRef(false);
+  useEffect(() => { existingIdRef.current = existingId; }, [existingId]);
+
   const { data: existing } = useQuery({
     queryKey: ["artifact", "value_proposition"],
     queryFn: () => artifactsService.getLatestArtifactByType("value_proposition"),
@@ -107,6 +110,7 @@ export default function ValuePropTool() {
   });
 
   useEffect(() => {
+    if (existing === undefined) return;
     if (existing) {
       setData(existing.content as ValuePropData);
       setExistingId(existing.id);
@@ -120,7 +124,25 @@ export default function ValuePropTool() {
         value: { ...prev.value, products: c?.valuePropositions || [] },
       }));
     }
+    setTimeout(() => { hasLoadedRef.current = true; }, 0);
   }, [existing, bmcArtifact]);
+
+  // Auto-save draft 1.5s after any data change (silent — no toast)
+  useEffect(() => {
+    if (!hasLoadedRef.current || isFinalized) return;
+    const timer = setTimeout(async () => {
+      try {
+        const id = await artifactsService.saveArtifact(existingIdRef.current, {
+          tool_type: "value_proposition",
+          title: `${data.companyName || "Untitled"} — Value Proposition`,
+          content: data as unknown as Record<string, unknown>,
+          status: "in_progress",
+        });
+        if (!existingIdRef.current) { existingIdRef.current = id; setExistingId(id); }
+      } catch { /* silent */ }
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [data, isFinalized]);
 
   const updateCustomer = (key: keyof ValuePropData["customer"], items: string[]) =>
     setData(prev => ({ ...prev, customer: { ...prev.customer, [key]: items } }));
@@ -133,24 +155,13 @@ export default function ValuePropTool() {
 
   const saveMutation = useMutation({
     mutationFn: async (finalize: boolean) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-      const payload = {
-        user_id: user.id,
+      const id = await artifactsService.saveArtifact(existingIdRef.current, {
         tool_type: "value_proposition",
         title: `${data.companyName || "Untitled"} — Value Proposition`,
-        content: data,
-        version: 1,
+        content: data as unknown as Record<string, unknown>,
         status: finalize ? "complete" : "in_progress",
-      };
-      if (existingId) {
-        const { error } = await supabase.from("artifacts").update(payload).eq("id", existingId);
-        if (error) throw new Error(error.message);
-      } else {
-        const { data: saved, error } = await supabase.from("artifacts").insert(payload).select().single();
-        if (error) throw new Error(error.message);
-        setExistingId(saved.id);
-      }
+      });
+      if (!existingIdRef.current) { existingIdRef.current = id; setExistingId(id); }
       return finalize;
     },
     onSuccess: (finalized) => {
