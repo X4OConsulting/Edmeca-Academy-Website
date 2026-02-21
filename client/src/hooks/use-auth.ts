@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { queryClient } from '@/lib/queryClient';
 import type { User, Session } from '@supabase/supabase-js';
 
 interface AuthUser {
@@ -79,6 +80,11 @@ export function useAuth() {
         setSession(session);
         setUser(session?.user ? formatUser(session.user) : null);
         setIsLoading(false);
+
+        // Clear all cached query data on sign-out so next user never sees stale data
+        if (event === 'SIGNED_OUT') {
+          queryClient.clear();
+        }
 
         // Ensure a user_profiles row exists (idempotent — no-op if already present)
         if (session?.user) {
