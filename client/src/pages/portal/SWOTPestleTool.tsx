@@ -227,7 +227,11 @@ export default function SWOTPestleTool() {
   // Refs for auto-save (avoids stale closures and skips initial load)
   const existingIdRef = useRef<string | null>(null);
   const hasLoadedRef = useRef(false);
+  const dataRef = useRef(data);
+  const isFinalizedRef = useRef(false);
   useEffect(() => { existingIdRef.current = existingId; }, [existingId]);
+  useEffect(() => { dataRef.current = data; }, [data]);
+  useEffect(() => { isFinalizedRef.current = isFinalized; }, [isFinalized]);
 
   // Load existing draft or last saved artifact
   const { data: existing } = useQuery({
@@ -274,6 +278,19 @@ export default function SWOTPestleTool() {
     }, 1500);
     return () => clearTimeout(timer);
   }, [data, isFinalized]);
+
+  // Save on unmount — catches any unsaved changes when user navigates away mid-debounce
+  useEffect(() => {
+    return () => {
+      if (!hasLoadedRef.current || isFinalizedRef.current) return;
+      artifactsService.saveArtifact(existingIdRef.current, {
+        tool_type: "swot_pestle",
+        title: `${dataRef.current.companyName || "Untitled"} — SWOT & PESTLE Analysis`,
+        content: dataRef.current as unknown as Record<string, unknown>,
+        status: "in_progress",
+      }).catch(() => {});
+    };
+  }, []);
 
   const updateSwot = (key: keyof AnalysisData["swot"], items: string[]) =>
     setData(prev => ({ ...prev, swot: { ...prev.swot, [key]: items } }));

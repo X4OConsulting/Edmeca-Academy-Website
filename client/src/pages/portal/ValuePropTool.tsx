@@ -113,7 +113,11 @@ export default function ValuePropTool() {
 
   const existingIdRef = useRef<string | null>(null);
   const hasLoadedRef = useRef(false);
+  const dataRef = useRef(data);
+  const isFinalizedRef = useRef(false);
   useEffect(() => { existingIdRef.current = existingId; }, [existingId]);
+  useEffect(() => { dataRef.current = data; }, [data]);
+  useEffect(() => { isFinalizedRef.current = isFinalized; }, [isFinalized]);
 
   const { data: existing } = useQuery({
     queryKey: ["artifact", "value_proposition"],
@@ -163,7 +167,18 @@ export default function ValuePropTool() {
     return () => clearTimeout(timer);
   }, [data, isFinalized]);
 
-  const updateCustomer = (key: keyof ValuePropData["customer"], items: string[]) =>
+  // Save on unmount — catches any unsaved changes when user navigates away mid-debounce
+  useEffect(() => {
+    return () => {
+      if (!hasLoadedRef.current || isFinalizedRef.current) return;
+      artifactsService.saveArtifact(existingIdRef.current, {
+        tool_type: "value_proposition",
+        title: `${dataRef.current.companyName || "Untitled"} — Value Proposition`,
+        content: dataRef.current as unknown as Record<string, unknown>,
+        status: "in_progress",
+      }).catch(() => {});
+    };
+  }, []); = (key: keyof ValuePropData["customer"], items: string[]) =>
     setData(prev => ({ ...prev, customer: { ...prev.customer, [key]: items } }));
 
   const updateValue = (key: keyof ValuePropData["value"], items: string[]) =>

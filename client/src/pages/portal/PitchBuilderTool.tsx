@@ -125,7 +125,11 @@ export default function PitchBuilderTool() {
 
   const existingIdRef = useRef<string | null>(null);
   const hasLoadedRef = useRef(false);
+  const dataRef = useRef(data);
+  const isFinalizedRef = useRef(false);
   useEffect(() => { existingIdRef.current = existingId; }, [existingId]);
+  useEffect(() => { dataRef.current = data; }, [data]);
+  useEffect(() => { isFinalizedRef.current = isFinalized; }, [isFinalized]);
 
   const { data: existing } = useQuery({
     queryKey: ["artifact", "pitch_builder"],
@@ -189,7 +193,18 @@ export default function PitchBuilderTool() {
     return () => clearTimeout(timer);
   }, [data, isFinalized]);
 
-  const set = (field: keyof PitchData, val: string) =>
+  // Save on unmount — catches any unsaved changes when user navigates away mid-debounce
+  useEffect(() => {
+    return () => {
+      if (!hasLoadedRef.current || isFinalizedRef.current) return;
+      artifactsService.saveArtifact(existingIdRef.current, {
+        tool_type: "pitch_builder",
+        title: `${dataRef.current.companyName || "Untitled"} — Pitch Deck`,
+        content: dataRef.current as unknown as Record<string, unknown>,
+        status: "in_progress",
+      }).catch(() => {});
+    };
+  }, []);
     setData(prev => ({ ...prev, [field]: val }));
 
   const completedSections = sections.filter(s => (data as any)[s.id]?.trim()).length;
