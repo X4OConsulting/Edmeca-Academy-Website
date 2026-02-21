@@ -79,6 +79,14 @@ export function useAuth() {
         setSession(session);
         setUser(session?.user ? formatUser(session.user) : null);
         setIsLoading(false);
+
+        // Ensure a user_profiles row exists (idempotent — no-op if already present)
+        if (session?.user) {
+          supabase
+            .from('user_profiles')
+            .upsert({ user_id: session.user.id }, { onConflict: 'user_id', ignoreDuplicates: true })
+            .then(() => {});
+        }
       }
     );
 

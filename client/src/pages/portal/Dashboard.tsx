@@ -287,7 +287,7 @@ export default function Dashboard() {
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <h3 className="font-semibold text-sm line-clamp-1 group-hover:text-primary transition-colors">
-                          {artifact.title}
+                          {artifact.title?.startsWith("Untitled") ? getToolTypeLabel(artifact.toolType) : artifact.title}
                         </h3>
                         <Badge variant="secondary" className={`text-xs shrink-0 ${getStatusBadge(artifact.status || "draft")}`}>
                           {getStatusLabel(artifact.status || "draft")}
