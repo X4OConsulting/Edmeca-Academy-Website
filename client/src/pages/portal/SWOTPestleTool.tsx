@@ -170,6 +170,7 @@ export default function SWOTPestleTool() {
   });
 
   useEffect(() => {
+    if (hasLoadedRef.current) return; // never overwrite user edits after initial load
     if (existing === undefined) return; // query still loading
     if (existing) {
       setData(existing.content as AnalysisData);
@@ -195,7 +196,6 @@ export default function SWOTPestleTool() {
           status: "in_progress",
         });
         if (!existingIdRef.current) { existingIdRef.current = id; setExistingId(id); }
-        queryClient.invalidateQueries({ queryKey: ["artifact", "swot_pestle"] });
       } catch { /* silent — manual Save Draft still available */ }
     }, 1500);
     return () => clearTimeout(timer);

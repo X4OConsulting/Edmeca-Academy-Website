@@ -112,9 +112,9 @@ export default function ValuePropTool() {
   });
 
   useEffect(() => {
+    if (hasLoadedRef.current) return; // never overwrite user edits after initial load
     if (existing === undefined) return;
     if (existing) {
-      setData(existing.content as ValuePropData);
       setExistingId(existing.id);
       if (existing.status === "complete") setIsFinalized(true);
     } else if (bmcArtifact) {
@@ -141,7 +141,6 @@ export default function ValuePropTool() {
           status: "in_progress",
         });
         if (!existingIdRef.current) { existingIdRef.current = id; setExistingId(id); }
-        queryClient.invalidateQueries({ queryKey: ["artifact", "value_proposition"] });
       } catch { /* silent */ }
     }, 1500);
     return () => clearTimeout(timer);

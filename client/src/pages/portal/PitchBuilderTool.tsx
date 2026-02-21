@@ -99,9 +99,9 @@ export default function PitchBuilderTool() {
   });
 
   useEffect(() => {
+    if (hasLoadedRef.current) return; // never overwrite user edits after initial load
     if (existing === undefined) return;
     if (existing) {
-      setData(existing.content as PitchData);
       setExistingId(existing.id);
       if (existing.status === "complete") setIsFinalized(true);
     } else if (bmcArtifact) {
@@ -136,7 +136,6 @@ export default function PitchBuilderTool() {
           status: "in_progress",
         });
         if (!existingIdRef.current) { existingIdRef.current = id; setExistingId(id); }
-        queryClient.invalidateQueries({ queryKey: ["artifact", "pitch_builder"] });
       } catch { /* silent */ }
     }, 1500);
     return () => clearTimeout(timer);
