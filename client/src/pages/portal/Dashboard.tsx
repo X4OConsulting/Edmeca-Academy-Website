@@ -89,24 +89,27 @@ export default function Dashboard() {
   });
 
   // Deduplicate: keep only the most recently updated artifact per tool type
+  // Note: Supabase returns snake_case (tool_type) not camelCase (toolType)
   const KEY_TOOL_TYPES = ["bmc", "swot_pestle", "value_proposition", "pitch_builder"] as const;
 
   const latestByType = artifacts?.reduce((acc, a) => {
-    const key = a.toolType;
+    const key = (a as any).tool_type ?? a.toolType;
     const existing = acc[key];
-    if (!existing || new Date(a.updatedAt ?? 0) > new Date(existing.updatedAt ?? 0)) {
-      acc[key] = a;
-    }
+    const aDate = new Date((a as any).updated_at ?? a.updatedAt ?? 0);
+    const eDate = new Date((existing as any)?.updated_at ?? existing?.updatedAt ?? 0);
+    if (!existing || aDate > eDate) acc[key] = a;
     return acc;
   }, {} as Record<string, Artifact>);
 
-  const uniqueArtifacts = Object.values(latestByType ?? {}).sort(
-    (a, b) => new Date(b.updatedAt ?? 0).getTime() - new Date(a.updatedAt ?? 0).getTime()
-  );
+  const uniqueArtifacts = Object.values(latestByType ?? {}).sort((a, b) => {
+    const ad = new Date((a as any).updated_at ?? a.updatedAt ?? 0).getTime();
+    const bd = new Date((b as any).updated_at ?? b.updatedAt ?? 0).getTime();
+    return bd - ad;
+  });
 
   const recentArtifacts = uniqueArtifacts.slice(0, 3);
   const completedCount = KEY_TOOL_TYPES.filter(t => latestByType?.[t]?.status === "complete").length;
-  const totalTools = KEY_TOOL_TYPES.length; // always 4
+  const totalTools = KEY_TOOL_TYPES.length;
   const progressPercent = (completedCount / totalTools) * 100;
 
   const getInitials = (name?: string | null) => {
@@ -132,6 +135,15 @@ export default function Dashboard() {
       pitch_builder: "/portal/tools/pitch",
     };
     return hrefs[type] || "/portal/tools/bmc";
+  };
+
+  const getStatusBadge = (status: string) => {
+    const styles: Record<string, string> = {
+      draft: "bg-muted text-muted-foreground",
+      in_progress: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+      complete: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+    };
+    return styles[status] || styles.draft;
   };
 
   const getStatusLabel = (status: string) => {
@@ -277,7 +289,11 @@ export default function Dashboard() {
               </DialogHeader>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 {tools.map((tool) => (
-                  <Link key={tool.href} href={tool.href} onClick={() => setNewToolOpen(false)}>
+                  <button
+                    key={tool.href}
+                    className="text-left w-full"
+                    onClick={() => { setNewToolOpen(false); navigate(tool.href); }}
+                  >
                     <Card className="hover-elevate cursor-pointer group h-full">
                       <CardContent className="p-4 flex items-start gap-3">
                         <div className={`p-2 rounded-lg ${tool.bgColor} shrink-0`}>
@@ -293,7 +309,7 @@ export default function Dashboard() {
                         </div>
                       </CardContent>
                     </Card>
-                  </Link>
+                  </button>
                 ))}
               </div>
             </DialogContent>
@@ -312,26 +328,32 @@ export default function Dashboard() {
             </div>
           ) : recentArtifacts.length > 0 ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recentArtifacts.map((artifact) => (
-                <Link key={artifact.id} href={getToolHref(artifact.toolType)}>
+              {recentArtifacts.map((artifact) => {
+                const toolType = (artifact as any).tool_type ?? artifact.toolType;
+                const title = (artifact.title ?? "").startsWith("Untitled")
+                  ? getToolTypeLabel(toolType)
+                  : artifact.title;
+                const updatedAt = (artifact as any).updated_at ?? artifact.updatedAt;
+                return (
+                <Link key={artifact.id} href={getToolHref(toolType)}>
                   <Card className="hover-elevate overflow-visible cursor-pointer group h-full">
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <h3 className="font-semibold text-sm line-clamp-1 group-hover:text-primary transition-colors">
-                          {artifact.title?.startsWith("Untitled") ? getToolTypeLabel(artifact.toolType) : artifact.title}
+                          {title}
                         </h3>
                         <Badge variant="secondary" className={`text-xs shrink-0 ${getStatusBadge(artifact.status || "draft")}`}>
                           {getStatusLabel(artifact.status || "draft")}
                         </Badge>
                       </div>
                       <p className="text-xs text-muted-foreground mb-3">
-                        {getToolTypeLabel(artifact.toolType)}
+                        {getToolTypeLabel(toolType)}
                       </p>
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
                         <span>
-                          {artifact.updatedAt
-                            ? new Date(artifact.updatedAt).toLocaleDateString()
+                          {updatedAt
+                            ? new Date(updatedAt).toLocaleDateString()
                             : "Recently"
                           }
                         </span>
@@ -339,7 +361,8 @@ export default function Dashboard() {
                     </CardContent>
                   </Card>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <Card>

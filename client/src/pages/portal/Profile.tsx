@@ -110,25 +110,28 @@ export default function Profile() {
         business_description: businessDescription,
       });
 
-      // Back-fill titles on artifacts that still say "Untitled"
-      if (businessName.trim() && artifacts && artifacts.length > 0) {
+      // Back-fill titles on artifacts that still say "Untitled" — fetch fresh
+      if (businessName.trim()) {
         const titleMap: Record<string, string> = {
           bmc: "Business Model Canvas",
           swot_pestle: "SWOT & PESTLE Analysis",
           value_proposition: "Value Proposition",
           pitch_builder: "Pitch Deck",
         };
-        const untitled = artifacts.filter((a: any) =>
-          (a.title || "").startsWith("Untitled")
-        );
-        await Promise.all(
-          untitled.map((a: any) =>
-            supabase
-              .from("artifacts")
-              .update({ title: `${businessName.trim()} \u2014 ${titleMap[a.toolType] || titleMap[a.tool_type] || "Document"}` })
-              .eq("id", a.id)
-          )
-        );
+        const { data: freshArtifacts } = await supabase
+          .from("artifacts")
+          .select("id, title, tool_type")
+          .like("title", "Untitled%");
+        if (freshArtifacts && freshArtifacts.length > 0) {
+          await Promise.all(
+            freshArtifacts.map((a: any) =>
+              supabase
+                .from("artifacts")
+                .update({ title: `${businessName.trim()} \u2014 ${titleMap[a.tool_type] || "Document"}` })
+                .eq("id", a.id)
+            )
+          );
+        }
       }
     },
     onSuccess: () => {
