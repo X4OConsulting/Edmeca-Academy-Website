@@ -112,30 +112,44 @@ export default function Profile() {
       });
 
       // Re-title all artifacts to reflect the business name
-      if (businessName.trim()) {
-        const titleMap: Record<string, string> = {
-          bmc: "Business Model Canvas",
-          swot_pestle: "SWOT & PESTLE Analysis",
-          value_proposition: "Value Proposition",
-          pitch_builder: "Pitch Deck",
-        };
-        const { data: allArtifacts, error: fetchError } = await supabase
-          .from("artifacts")
-          .select("id, tool_type");
-        if (fetchError) throw new Error(fetchError.message);
+      if (!businessName.trim()) return { updated: 0, total: 0 };
 
-        for (const a of (allArtifacts ?? [])) {
-          const newTitle = `${businessName.trim()} \u2014 ${titleMap[(a as any).tool_type] || "Document"}`;
-          const { error: updateError } = await supabase
-            .from("artifacts")
-            .update({ title: newTitle })
-            .eq("id", (a as any).id);
-          if (updateError) throw new Error(updateError.message);
-        }
+      const titleMap: Record<string, string> = {
+        bmc: "Business Model Canvas",
+        swot_pestle: "SWOT & PESTLE Analysis",
+        value_proposition: "Value Proposition",
+        pitch_builder: "Pitch Deck",
+      };
+
+      const { data: allArtifacts, error: fetchError } = await supabase
+        .from("artifacts")
+        .select("id, tool_type, title");
+
+      if (fetchError) throw new Error(`Fetch error: ${fetchError.message}`);
+      if (!allArtifacts || allArtifacts.length === 0) {
+        return { updated: 0, total: 0 };
       }
+
+      let updated = 0;
+      for (const a of allArtifacts) {
+        const newTitle = `${businessName.trim()} \u2014 ${titleMap[(a as any).tool_type] || "Document"}`;
+        const { error: updateError } = await supabase
+          .from("artifacts")
+          .update({ title: newTitle, updated_at: new Date().toISOString() })
+          .eq("id", (a as any).id);
+        if (updateError) throw new Error(`Update error on ${(a as any).id}: ${updateError.message}`);
+        updated++;
+      }
+      return { updated, total: allArtifacts.length };
     },
-    onSuccess: () => {
-      toast({ title: "Business profile saved", description: "Your business details have been updated." });
+    onSuccess: (result) => {
+      const { updated, total } = result ?? { updated: 0, total: 0 };
+      toast({
+        title: "Business profile saved",
+        description: total === 0
+          ? "Profile updated. No artifacts found to rename."
+          : `Profile updated. Renamed ${updated} of ${total} artifact(s).`,
+      });
       queryClient.invalidateQueries({ queryKey: ["userProfile"] });
       queryClient.invalidateQueries({ queryKey: ["artifacts"] });
     },
