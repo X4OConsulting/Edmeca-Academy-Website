@@ -212,6 +212,8 @@ export default function PitchBuilderTool() {
       }).catch(() => {});
     };
   }, []);
+
+  const updateField = (field: keyof PitchData, val: string) =>
     setData(prev => ({ ...prev, [field]: val }));
 
   const completedSections = sections.filter(s => (data as any)[s.id]?.trim()).length;
