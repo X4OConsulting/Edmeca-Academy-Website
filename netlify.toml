@@ -25,6 +25,32 @@
   to = "/.netlify/functions/chat"
   status = 200
 
+# Explicitly block sensitive source/config files (defence-in-depth)
+# These files are not in the publish dir but we deny them explicitly
+[[redirects]]
+  from = "/.env"
+  to = "/index.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.env.*"
+  to = "/index.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/server/*"
+  to = "/index.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/drizzle.config*"
+  to = "/index.html"
+  status = 404
+  force = true
+
 # SPA routing - redirect all routes to index.html for React Router
 [[redirects]]
   from = "/*"
