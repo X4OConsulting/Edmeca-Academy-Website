@@ -10,7 +10,10 @@ export const handler: Handler = async (event: HandlerEvent) => {
 
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    return { statusCode: 500, body: JSON.stringify({ error: 'AI service not configured.' }) };
+    // Diagnostic: list available env keys (no values) to help debug missing key
+    const envKeys = Object.keys(process.env).filter(k => !k.startsWith('npm_')).join(', ');
+    console.error('GROQ_API_KEY missing. Available env keys:', envKeys);
+    return { statusCode: 500, body: JSON.stringify({ error: 'AI service not configured.', debug_keys: envKeys }) };
   }
 
   let body: { messages?: any[]; businessContext?: string };
