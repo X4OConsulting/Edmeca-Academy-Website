@@ -152,7 +152,23 @@ export default function Dashboard() {
       in_progress: "In Progress",
       complete: "Complete",
     };
-    return labels[status] || status;
+    return labels[status] || "Draft";
+  };
+
+  const getRelativeTime = (dateStr: string | undefined) => {
+    if (!dateStr) return "Recently";
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "Recently";
+    const diffMs = Date.now() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    if (diffMins < 2) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return date.toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" });
   };
 
   return (
@@ -344,12 +360,7 @@ export default function Dashboard() {
                       </p>
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
-                        <span>
-                          {updatedAt
-                            ? new Date(updatedAt).toLocaleDateString()
-                            : "Recently"
-                          }
-                        </span>
+                        <span>{getRelativeTime(updatedAt)}</span>
                       </div>
                     </CardContent>
                   </Card>

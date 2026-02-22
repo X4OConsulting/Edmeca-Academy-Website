@@ -70,8 +70,18 @@ export default function Profile() {
     enabled: !!user,
   });
 
-  const completedCount = artifacts?.filter((a: any) => a.status === "complete").length || 0;
-  const totalCount = artifacts?.length || 0;
+  // Deduplicate by tool type (same logic as Dashboard) — prevents auto-saves inflating counts
+  const KEY_TOOL_TYPES = ["bmc", "swot_pestle", "value_proposition", "pitch_builder"];
+  const latestByType = artifacts?.reduce((acc: Record<string, any>, a: any) => {
+    const key = a.tool_type ?? a.toolType;
+    const existing = acc[key];
+    const aDate = new Date(a.updated_at ?? a.updatedAt ?? 0);
+    const eDate = new Date(existing?.updated_at ?? existing?.updatedAt ?? 0);
+    if (!existing || aDate > eDate) acc[key] = a;
+    return acc;
+  }, {} as Record<string, any>) ?? {};
+  const toolsStarted = KEY_TOOL_TYPES.filter(t => !!latestByType[t]).length;
+  const toolsCompleted = KEY_TOOL_TYPES.filter(t => latestByType[t]?.status === "complete").length;
 
   const getInitials = (name?: string | null) => {
     if (!name) return "U";
@@ -232,8 +242,8 @@ export default function Profile() {
                 <FileText className="h-4 w-4 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{totalCount}</p>
-                <p className="text-xs text-muted-foreground">Artifacts</p>
+                <p className="text-2xl font-bold">{toolsStarted} <span className="text-sm font-normal text-muted-foreground">of 4</span></p>
+                <p className="text-xs text-muted-foreground">Tools Started</p>
               </div>
             </CardContent>
           </Card>
@@ -243,7 +253,7 @@ export default function Profile() {
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{completedCount}</p>
+                <p className="text-2xl font-bold">{toolsCompleted} <span className="text-sm font-normal text-muted-foreground">of 4</span></p>
                 <p className="text-xs text-muted-foreground">Completed</p>
               </div>
             </CardContent>
@@ -255,9 +265,9 @@ export default function Profile() {
               </div>
               <div>
                 <p className="text-2xl font-bold">
-                  {totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0}%
+                  {Math.round((toolsCompleted / 4) * 100)}%
                 </p>
-                <p className="text-xs text-muted-foreground">Progress</p>
+                <p className="text-xs text-muted-foreground">Overall Progress</p>
               </div>
             </CardContent>
           </Card>
