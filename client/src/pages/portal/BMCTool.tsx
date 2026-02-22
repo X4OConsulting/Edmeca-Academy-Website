@@ -1138,32 +1138,44 @@ function CanvasCell({
   className?: string;
 }) {
   const Icon = section.icon;
+  const filled = items.length > 0;
   return (
     <div
-      className={`flex flex-col rounded-lg border-2 p-3 ${section.borderColor} ${section.bgColor} ${className}`}
+      className={`flex flex-col rounded-lg border bg-card overflow-hidden min-h-[120px] ${className}`}
       data-testid={`canvas-cell-${section.id}`}
     >
-      <div className="mb-2 flex items-center gap-2">
-        <Icon className={`h-4 w-4 ${section.color}`} />
-        <span className="text-xs font-semibold uppercase tracking-wide">
-          {section.title}
-        </span>
-        {items.length > 0 && (
-          <Badge variant="secondary" className="ml-auto text-xs">
-            {items.length}
-          </Badge>
-        )}
-      </div>
-      <div className="flex-1 space-y-1 overflow-auto">
-        {items.length === 0 ? (
-          <p className="text-xs italic text-muted-foreground">No items yet</p>
-        ) : (
-          items.map((item, index) => (
-            <p key={index} className="text-xs">
-              • {item}
+      {/* Accent bar */}
+      <div className="h-1 w-full bg-primary/70" />
+      <div className="flex flex-col flex-1 p-3 gap-2">
+        <div className="flex items-center gap-1.5">
+          <div className="p-1 rounded bg-primary/10">
+            <Icon className="h-3 w-3 text-primary" />
+          </div>
+          <span className="text-[11px] font-semibold text-foreground leading-tight">
+            {section.title}
+          </span>
+          {filled && (
+            <span className="ml-auto text-[10px] font-medium bg-primary/10 text-primary rounded-full px-1.5 py-0.5">
+              {items.length}
+            </span>
+          )}
+        </div>
+        <div className="flex-1">
+          {!filled ? (
+            <p className="text-[10px] text-muted-foreground italic leading-tight">
+              {section.question}
             </p>
-          ))
-        )}
+          ) : (
+            <ul className="space-y-0.5">
+              {items.map((item, index) => (
+                <li key={index} className="text-[11px] text-foreground/80 flex items-start gap-1">
+                  <span className="text-primary mt-0.5 shrink-0">›</span>
+                  <span className="leading-tight">{item}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1172,59 +1184,29 @@ function CanvasCell({
 function CanvasView({ canvasData }: CanvasViewProps) {
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-semibold" data-testid="text-canvas-title">Business Model Canvas</h2>
-      
-      <div className="hidden lg:grid lg:grid-cols-5 lg:gap-3">
-        <CanvasCell
-          section={SECTIONS[7]}
-          items={canvasData.keyPartnerships}
-          className="row-span-2"
-        />
-        <CanvasCell
-          section={SECTIONS[6]}
-          items={canvasData.keyActivities}
-        />
-        <CanvasCell
-          section={SECTIONS[1]}
-          items={canvasData.valuePropositions}
-          className="row-span-2"
-        />
-        <CanvasCell
-          section={SECTIONS[3]}
-          items={canvasData.customerRelationships}
-        />
-        <CanvasCell
-          section={SECTIONS[0]}
-          items={canvasData.customerSegments}
-          className="row-span-2"
-        />
-        <CanvasCell
-          section={SECTIONS[5]}
-          items={canvasData.keyResources}
-        />
-        <CanvasCell
-          section={SECTIONS[2]}
-          items={canvasData.channels}
-        />
-        <CanvasCell
-          section={SECTIONS[8]}
-          items={canvasData.costStructure}
-          className="col-span-2"
-        />
-        <CanvasCell
-          section={SECTIONS[4]}
-          items={canvasData.revenueStreams}
-          className="col-span-3"
-        />
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-serif font-semibold" data-testid="text-canvas-title">Canvas Overview</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">A visual map of how your business creates, delivers, and captures value.</p>
+        </div>
+      </div>
+      <div className="hidden lg:grid lg:grid-cols-5 lg:gap-2">
+        <CanvasCell section={SECTIONS[7]} items={canvasData.keyPartnerships} className="row-span-2" />
+        <CanvasCell section={SECTIONS[6]} items={canvasData.keyActivities} />
+        <CanvasCell section={SECTIONS[1]} items={canvasData.valuePropositions} className="row-span-2" />
+        <CanvasCell section={SECTIONS[3]} items={canvasData.customerRelationships} />
+        <CanvasCell section={SECTIONS[0]} items={canvasData.customerSegments} className="row-span-2" />
+        <CanvasCell section={SECTIONS[5]} items={canvasData.keyResources} />
+        <CanvasCell section={SECTIONS[2]} items={canvasData.channels} />
+        <div className="col-span-5 grid grid-cols-5 gap-2">
+          <div className="col-span-2"><CanvasCell section={SECTIONS[8]} items={canvasData.costStructure} /></div>
+          <div className="col-span-3"><CanvasCell section={SECTIONS[4]} items={canvasData.revenueStreams} /></div>
+        </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 lg:hidden">
+      <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:hidden">
         {SECTIONS.map((section) => (
-          <CanvasCell
-            key={section.id}
-            section={section}
-            items={canvasData[section.id]}
-          />
+          <CanvasCell key={section.id} section={section} items={canvasData[section.id]} />
         ))}
       </div>
     </div>
@@ -1262,114 +1244,115 @@ function DashboardView({
 }: DashboardViewProps) {
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-2xl font-semibold" data-testid="text-dashboard-title">
-          {companyName ? `${companyName} - ` : ""}Business Model Overview
-        </h2>
+      {/* Header */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h2 className="font-serif text-2xl font-semibold" data-testid="text-dashboard-title">
+            {companyName || "Business Model"} Overview
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Summary of your Business Model Canvas
+          </p>
+        </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={handleExport} data-testid="button-export">
+          <Button variant="outline" size="sm" onClick={handleExport} data-testid="button-export">
             <Download className="mr-2 h-4 w-4" />
             Export JSON
           </Button>
-          <Button variant="outline" onClick={handleExportWord} data-testid="button-export-word">
+          <Button variant="outline" size="sm" onClick={handleExportWord} data-testid="button-export-word">
             <FileText className="mr-2 h-4 w-4" />
             Export Word
           </Button>
-          {isFinalized ? (
-            <Button variant="outline" disabled className="gap-2" data-testid="button-finalized">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              Saved to Database
-            </Button>
-          ) : (
-            <Button
-              onClick={handleFinalize}
-              disabled={isFinalizing}
-              className="gap-2"
-              data-testid="button-finalize"
-            >
-              <Save className="h-4 w-4" />
-              {isFinalizing ? "Saving..." : "Finalize & Save"}
-            </Button>
-          )}
-          <Button variant="outline" onClick={() => setCurrentView("guided")} data-testid="button-continue-editing">
+          <Button variant="outline" size="sm" onClick={() => setCurrentView("guided")} data-testid="button-continue-editing">
             Continue Editing
           </Button>
+          {isFinalized ? (
+            <Button variant="outline" size="sm" disabled className="gap-2 text-green-600 border-green-200" data-testid="button-finalized">
+              <CheckCircle className="h-4 w-4" />
+              Saved
+            </Button>
+          ) : (
+            <Button size="sm" onClick={handleFinalize} disabled={isFinalizing} data-testid="button-finalize">
+              <Save className="h-4 w-4 mr-2" />
+              {isFinalizing ? "Saving..." : "Finalise & Save"}
+            </Button>
+          )}
         </div>
       </div>
 
+      {/* Stats row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Company"
-          value={companyName || "Not set"}
-          icon={Building2}
-          color="bg-gradient-to-br from-blue-500 to-blue-600"
-          testId="stat-company"
-        />
-        <StatCard
-          title="Completion"
-          value={`${completedSections}/9`}
-          icon={TrendingUp}
-          color="bg-gradient-to-br from-purple-500 to-purple-600"
-          testId="stat-completion"
-        />
-        <StatCard
-          title="Total Items"
-          value={totalItems.toString()}
-          icon={List}
-          color="bg-gradient-to-br from-cyan-500 to-cyan-600"
-          testId="stat-items"
-        />
-        <StatCard
-          title="Model Strength"
-          value={`${progressPercentage}%`}
-          icon={BarChart3}
-          color="bg-gradient-to-br from-green-500 to-green-600"
-          testId="stat-strength"
-        />
+        <StatCard title="Business" value={companyName || "Not set"} icon={Building2} testId="stat-company" />
+        <StatCard title="Sections Filled" value={`${completedSections} of 9`} icon={TrendingUp} testId="stat-completion" />
+        <StatCard title="Total Points" value={totalItems.toString()} icon={List} testId="stat-items" />
+        <StatCard title="Completeness" value={`${progressPercentage}%`} icon={BarChart3} testId="stat-strength" />
       </div>
 
+      {/* Progress bar */}
+      <Card>
+        <CardContent className="p-5">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium">Overall Progress</p>
+            <p className="text-sm text-muted-foreground">{completedSections}/9 sections</p>
+          </div>
+          <div className="w-full bg-muted rounded-full h-2">
+            <div
+              className="bg-primary h-2 rounded-full transition-all duration-500"
+              style={{ width: `${progressPercentage}%` }}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            {progressPercentage < 40 ? "Keep going — you're getting started!" :
+             progressPercentage < 80 ? "Good progress — a few sections left." :
+             "Almost complete — great work!"}
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Canvas grid */}
       <div>
-        <h3 className="mb-4 text-lg font-semibold">Canvas Overview</h3>
         <CanvasView canvasData={canvasData} />
       </div>
 
+      {/* Section Details */}
       <div>
-        <h3 className="mb-4 text-lg font-semibold">Section Details</h3>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="h-5 w-1 rounded-full bg-primary" />
+          <h3 className="font-serif text-lg font-semibold">Section Breakdown</h3>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {SECTIONS.map((section) => {
             const items = canvasData[section.id];
             const Icon = section.icon;
+            const filled = items.length > 0;
             return (
-              <Card key={section.id} className={`border-l-4 ${section.borderColor}`} data-testid={`detail-card-${section.id}`}>
-                <CardHeader className="flex flex-row items-center gap-3 pb-2">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${section.bgColor}`}>
-                    <Icon className={`h-5 w-5 ${section.color}`} />
+              <Card key={section.id} className={filled ? "border-primary/30" : ""} data-testid={`detail-card-${section.id}`}>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded bg-primary/10">
+                      <Icon className="h-3.5 w-3.5 text-primary" />
+                    </div>
+                    <span className="font-semibold text-sm">{section.title}</span>
+                    <span className={`ml-auto text-xs px-2 py-0.5 rounded-full font-medium ${
+                      filled ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-muted text-muted-foreground"
+                    }`}>
+                      {filled ? `${items.length} item${items.length !== 1 ? "s" : ""}` : "Empty"}
+                    </span>
                   </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-base">{section.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      {items.length} item{items.length !== 1 ? "s" : ""}
-                    </p>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {items.length === 0 ? (
-                    <p className="text-sm italic text-muted-foreground">
-                      No items defined
-                    </p>
-                  ) : (
+                  <p className="text-xs text-muted-foreground mb-2 italic">{section.question}</p>
+                  {filled ? (
                     <ul className="space-y-1">
                       {items.slice(0, 3).map((item, index) => (
-                        <li key={index} className="text-sm">
-                          • {item}
+                        <li key={index} className="text-xs text-foreground/80 flex items-start gap-1">
+                          <span className="text-primary shrink-0 mt-0.5">›</span>{item}
                         </li>
                       ))}
                       {items.length > 3 && (
-                        <li className="text-sm text-muted-foreground">
-                          +{items.length - 3} more...
-                        </li>
+                        <li className="text-xs text-muted-foreground pl-3">+{items.length - 3} more</li>
                       )}
                     </ul>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">No items added yet.</p>
                   )}
                 </CardContent>
               </Card>
@@ -1378,21 +1361,23 @@ function DashboardView({
         </div>
       </div>
 
+      {/* Insights */}
       <div>
-        <h3 className="mb-4 text-lg font-semibold">AI Insights</h3>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="h-5 w-1 rounded-full bg-primary" />
+          <h3 className="font-serif text-lg font-semibold">Canvas Insights</h3>
+        </div>
         <div className="grid gap-4 md:grid-cols-2">
-          <Card className="border-l-4 border-green-500" data-testid="card-strengths">
+          <Card data-testid="card-strengths">
             <CardHeader className="flex flex-row items-center gap-3 pb-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 dark:bg-green-950/30">
-                <Lightbulb className="h-5 w-5 text-green-500" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
+                <Lightbulb className="h-4 w-4 text-green-600" />
               </div>
               <CardTitle className="text-base">Strengths</CardTitle>
             </CardHeader>
             <CardContent>
               {insights.strengths.length === 0 ? (
-                <p className="text-sm italic text-muted-foreground">
-                  Add more items to see your strengths
-                </p>
+                <p className="text-sm text-muted-foreground">Add more items to reveal your strengths.</p>
               ) : (
                 <ul className="space-y-2">
                   {insights.strengths.map((strength, index) => (
@@ -1406,18 +1391,16 @@ function DashboardView({
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-amber-500" data-testid="card-improvements">
+          <Card data-testid="card-improvements">
             <CardHeader className="flex flex-row items-center gap-3 pb-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/30">
-                <AlertTriangle className="h-5 w-5 text-amber-500" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30">
+                <AlertTriangle className="h-4 w-4 text-amber-600" />
               </div>
               <CardTitle className="text-base">Areas to Develop</CardTitle>
             </CardHeader>
             <CardContent>
               {insights.areasToImprove.length === 0 ? (
-                <p className="text-sm italic text-muted-foreground">
-                  Great work! All sections are well-defined
-                </p>
+                <p className="text-sm text-muted-foreground">All sections are well-defined — great work!</p>
               ) : (
                 <ul className="space-y-2">
                   {insights.areasToImprove.map((area, index) => (
@@ -1440,24 +1423,22 @@ function StatCard({
   title,
   value,
   icon: Icon,
-  color,
   testId,
 }: {
   title: string;
   value: string;
   icon: typeof Building2;
-  color: string;
   testId: string;
 }) {
   return (
-    <Card className={`${color} text-white`} data-testid={testId}>
-      <CardContent className="flex items-center gap-4 p-6">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
-          <Icon className="h-6 w-6" />
+    <Card data-testid={testId}>
+      <CardContent className="flex items-center gap-4 p-5">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+          <Icon className="h-5 w-5 text-primary" />
         </div>
-        <div>
-          <p className="text-sm font-medium text-white/80">{title}</p>
-          <p className="text-2xl font-bold">{value}</p>
+        <div className="min-w-0">
+          <p className="text-xs text-muted-foreground font-medium">{title}</p>
+          <p className="text-xl font-bold truncate">{value}</p>
         </div>
       </CardContent>
     </Card>
