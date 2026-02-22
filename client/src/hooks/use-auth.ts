@@ -84,6 +84,7 @@ export function useAuth() {
         // Clear all cached query data on sign-out so next user never sees stale data
         if (event === 'SIGNED_OUT') {
           queryClient.clear();
+          localStorage.removeItem('business-model-canvas');
         }
 
         // Ensure a user_profiles row exists (idempotent — no-op if already present)
