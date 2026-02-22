@@ -22,6 +22,7 @@ import PitchBuilderTool from "@/pages/portal/PitchBuilderTool";
 import ProgressTrackerTool from "@/pages/portal/ProgressTrackerTool";
 import Profile from "@/pages/portal/Profile";
 import NotFound from "@/pages/not-found";
+import { FloatingChat } from "@/components/FloatingChat";
 
 // CI/CD Automation Test - This PR will be auto-reviewed and approved if all checks pass
 
@@ -51,7 +52,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return <>{children}</>;
+  return <>{children}<FloatingChat /></>;
 }
 
 function Router() {

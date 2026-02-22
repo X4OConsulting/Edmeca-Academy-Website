@@ -660,23 +660,65 @@ export default function BusinessModelCanvas() {
     const strengths: string[] = [];
     const areasToImprove: string[] = [];
 
-    SECTIONS.forEach((section) => {
-      const items = canvasData[section.id];
-      if (items.length >= 3) {
-        strengths.push(`Strong ${section.title.toLowerCase()} definition with ${items.length} elements`);
-      } else if (items.length === 0) {
-        areasToImprove.push(`${section.title} needs attention - no items defined yet`);
-      } else if (items.length < 2) {
-        areasToImprove.push(`Consider expanding ${section.title.toLowerCase()} - only ${items.length} item defined`);
-      }
-    });
+    const {
+      customerSegments, valuePropositions, channels,
+      customerRelationships, revenueStreams, keyResources,
+      keyActivities, keyPartnerships, costStructure,
+    } = canvasData;
 
-    if (canvasData.valuePropositions.length > 0 && canvasData.customerSegments.length > 0) {
-      strengths.push("Good alignment between value propositions and customer segments");
+    // --- Strengths ---
+    if (valuePropositions.length >= 2 && customerSegments.length >= 2) {
+      strengths.push("Your value proposition is clearly matched to defined customer segments — a strong commercial foundation.");
+    }
+    if (revenueStreams.length >= 2 && costStructure.length >= 2) {
+      strengths.push("You have both revenue streams and cost structure defined — your financial model has a solid base.");
+    }
+    if (channels.length >= 2 && customerRelationships.length >= 1) {
+      strengths.push("You've described how you reach customers and maintain relationships — this supports sales and retention.");
+    }
+    if (keyActivities.length >= 2 && keyResources.length >= 2) {
+      strengths.push("Your operational backbone (key activities + key resources) is taking shape — this shows operational awareness.");
+    }
+    if (keyPartnerships.length >= 1) {
+      strengths.push(`You've identified ${keyPartnerships.length} key partner${keyPartnerships.length > 1 ? "s" : ""} — leveraging external expertise reduces risk.`);
+    }
+    const filledSections = Object.values(canvasData).filter(a => a.length > 0).length;
+    if (filledSections >= 7) {
+      strengths.push("Over 75% of your canvas is complete — you have a well-developed business model overview.");
     }
 
-    if (canvasData.revenueStreams.length > 0 && canvasData.costStructure.length > 0) {
-      strengths.push("Financial model foundation is in place");
+    // --- Areas to Improve ---
+    if (valuePropositions.length === 0) {
+      areasToImprove.push("Define your Value Proposition — this is the heart of your business model and should come first.");
+    }
+    if (customerSegments.length === 0) {
+      areasToImprove.push("Add your Customer Segments — without knowing your audience, it's hard to design the right solution.");
+    }
+    if (revenueStreams.length === 0) {
+      areasToImprove.push("Revenue Streams is empty — describe how your business will make money (subscriptions, fees, sales, etc.).");
+    }
+    if (costStructure.length === 0) {
+      areasToImprove.push("Cost Structure is empty — list your main costs so you can assess profitability.");
+    }
+    if (channels.length === 0) {
+      areasToImprove.push("Add your Channels — explain how customers will find, buy, and receive your product or service.");
+    }
+    if (keyActivities.length === 0) {
+      areasToImprove.push("Key Activities is empty — describe what your business must do every day to deliver its value.");
+    }
+    if (keyResources.length === 0) {
+      areasToImprove.push("Key Resources is empty — list the assets most essential to your business (people, IP, tech, funds).");
+    }
+    if (revenueStreams.length > 0 && costStructure.length === 0) {
+      areasToImprove.push("You have revenue streams but no costs defined — add your Cost Structure to assess your margin.");
+    }
+    if (valuePropositions.length > 0 && channels.length === 0) {
+      areasToImprove.push("Great value proposition — now add Channels to explain how customers will access it.");
+    }
+
+    // If canvas is empty, give a starter nudge
+    if (strengths.length === 0 && areasToImprove.length === 0) {
+      areasToImprove.push("Start with Customer Segments and Value Proposition — these anchor your entire business model.");
     }
 
     return { strengths, areasToImprove };

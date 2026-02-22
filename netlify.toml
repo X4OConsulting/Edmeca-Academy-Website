@@ -20,6 +20,11 @@
   to = "/.netlify/functions/contact"
   status = 200
 
+[[redirects]]
+  from = "/api/chat"
+  to = "/.netlify/functions/chat"
+  status = 200
+
 # SPA routing - redirect all routes to index.html for React Router
 [[redirects]]
   from = "/*"
