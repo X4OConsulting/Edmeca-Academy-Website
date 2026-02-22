@@ -36,12 +36,29 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       };
     }
 
+    // Input length limits to prevent abuse
+    if (name.length > 100 || email.length > 200 || (company && company.length > 200) || message.length > 5000) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: 'Input exceeds maximum allowed length' }),
+      };
+    }
+
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return {
         statusCode: 400,
         body: JSON.stringify({ message: 'Invalid email format' }),
+      };
+    }
+
+    // Validate audienceType against allowed values
+    const allowedAudienceTypes = ['entrepreneur', 'student', 'corporate', 'investor', 'other'];
+    if (!allowedAudienceTypes.includes(audienceType)) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: 'Invalid audience type' }),
       };
     }
 
@@ -75,8 +92,8 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*', // Configure this properly for production
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Origin': 'https://edmeca.co.za',
+        'Vary': 'Origin',
       },
       body: JSON.stringify({ 
         message: 'Contact form submitted successfully',

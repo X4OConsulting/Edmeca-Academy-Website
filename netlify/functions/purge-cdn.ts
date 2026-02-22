@@ -15,6 +15,13 @@ import { purgeCache } from "@netlify/functions";
 import type { Context } from "@netlify/functions";
 
 export default async (req: Request, context: Context) => {
+  // Require a secret token to prevent unauthorized use
+  const secret = process.env.PURGE_SECRET;
+  const provided = req.headers.get('x-purge-secret') ?? new URL(req.url).searchParams.get('secret');
+  if (!secret || provided !== secret) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+  }
+
   try {
     console.log("🔥 Starting CDN cache purge for all site content...");
     console.log("Site ID:", context.site?.id || "(auto-detected)");

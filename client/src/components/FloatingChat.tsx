@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { artifactsService, profileService } from "@/lib/services";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/lib/supabase";
 
 interface Message {
   role: "user" | "assistant";
@@ -141,9 +142,21 @@ export function FloatingChat() {
     setLoading(true);
 
     try {
+      // Get current session token to authenticate the request
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) {
+        setMessages(prev => [...prev, { role: "assistant", content: "Session expired. Please refresh the page." }]);
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify({
           messages: newMessages,
           businessContext: contextRef.current,
