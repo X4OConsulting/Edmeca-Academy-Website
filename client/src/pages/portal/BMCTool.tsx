@@ -10,6 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { profileService } from "@/lib/services";
 import {
   Document,
   Packer,
@@ -342,10 +343,21 @@ export default function BusinessModelCanvas() {
         if (data.companyNameSet) setCompanyNameSet(data.companyNameSet);
         if (data.currentStep !== undefined) setCurrentStep(data.currentStep);
         if (data.canvasData) setCanvasData(data.canvasData);
+        // If localStorage has a name we're done — no profile fetch needed
+        if (data.companyName && data.companyNameSet) return;
       } catch (e) {
         console.error("Failed to load saved data:", e);
       }
     }
+    // Fallback: load business name from Supabase profile so the prompt
+    // doesn't re-appear after every sign-out / sign-in cycle
+    profileService.getUserProfile().then((profile) => {
+      const name = (profile as any)?.business_name;
+      if (name) {
+        setCompanyName(name);
+        setCompanyNameSet(true);
+      }
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -474,9 +486,12 @@ export default function BusinessModelCanvas() {
 
   const handleCompanyNameSubmit = useCallback(() => {
     if (companyNameInput.trim()) {
-      setCompanyName(companyNameInput.trim());
+      const name = companyNameInput.trim();
+      setCompanyName(name);
       setCompanyNameSet(true);
       setIsEditingCompanyName(false);
+      // Persist to profile so it survives sign-out
+      profileService.upsertUserProfile({ business_name: name } as any).catch(() => {});
     }
   }, [companyNameInput]);
 
