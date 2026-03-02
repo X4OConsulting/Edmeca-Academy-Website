@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,12 +20,7 @@ import {
   Loader2,
   CheckCircle2,
   AlertTriangle,
-  BarChart3,
-  DollarSign,
-  Activity,
   FileText,
-  Lightbulb,
-  ShieldAlert,
   Clock,
   RefreshCw,
   Quote,
@@ -83,76 +78,52 @@ function QuotesCarousel() {
 }
 
 // ── Markdown renderer — styled to match the system design ─────────────────────
-const mdComponents: React.ComponentProps<typeof ReactMarkdown>["components"] = {
-  h1: ({ children }) => <h1 className="text-base font-bold text-[#1f3a6e] mb-2 mt-4 first:mt-0">{children}</h1>,
-  h2: ({ children }) => <h2 className="text-sm font-bold text-[#1f3a6e] mb-1.5 mt-3 first:mt-0">{children}</h2>,
-  h3: ({ children }) => <h3 className="text-sm font-semibold text-foreground mb-1 mt-3 first:mt-0 border-b pb-0.5">{children}</h3>,
+const mdComponents: Components = {
+  h1: ({ children }) => <h1 className="text-lg font-bold text-[#1f3a6e] mt-6 mb-2 first:mt-0">{children}</h1>,
+  h2: ({ children }) => (
+    <h2 className="text-base font-bold text-[#1f3a6e] mt-5 mb-2 first:mt-0 flex items-center gap-2 border-b border-[#1f3a6e]/10 pb-1">
+      {children}
+    </h2>
+  ),
+  h3: ({ children }) => <h3 className="text-sm font-semibold text-foreground mt-4 mb-1.5 first:mt-0">{children}</h3>,
   p: ({ children }) => <p className="text-sm leading-relaxed mb-2 last:mb-0">{children}</p>,
   strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
   em: ({ children }) => <em className="italic text-muted-foreground">{children}</em>,
-  ul: ({ children }) => <ul className="space-y-1 mb-2 pl-4 list-none">{children}</ul>,
-  ol: ({ children }) => <ol className="space-y-1 mb-2 pl-4 list-decimal">{children}</ol>,
+  ul: ({ children }) => <ul className="mb-3 space-y-1">{children}</ul>,
+  ol: ({ children }) => <ol className="mb-3 space-y-1 list-decimal pl-5">{children}</ol>,
   li: ({ children }) => (
     <li className="text-sm leading-relaxed flex gap-2">
-      <span className="text-[#1f3a6e] mt-1.5 flex-shrink-0">&#x2022;</span>
+      <span className="text-[#1f3a6e] font-bold flex-shrink-0 mt-px">•</span>
       <span>{children}</span>
     </li>
   ),
   table: ({ children }) => (
-    <div className="overflow-x-auto my-3 rounded-lg border">
-      <table className="w-full text-sm border-collapse">{children}</table>
+    <div className="overflow-x-auto my-4 rounded-lg border border-border shadow-sm">
+      <table className="w-full text-sm border-collapse min-w-[400px]">{children}</table>
     </div>
   ),
-  thead: ({ children }) => <thead className="bg-[#1f3a6e]/5">{children}</thead>,
-  th: ({ children }) => <th className="px-3 py-2 text-left text-xs font-semibold text-[#1f3a6e] border-b whitespace-nowrap">{children}</th>,
-  td: ({ children }) => <td className="px-3 py-2 text-xs border-b last:border-0 border-border/50">{children}</td>,
-  tr: ({ children }) => <tr className="hover:bg-muted/30 transition-colors">{children}</tr>,
+  thead: ({ children }) => <thead className="bg-[#1f3a6e] text-white">{children}</thead>,
+  th: ({ children }) => <th className="px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap">{children}</th>,
+  tbody: ({ children }) => <tbody className="divide-y divide-border">{children}</tbody>,
+  tr: ({ children }) => <tr className="hover:bg-muted/40 transition-colors">{children}</tr>,
+  td: ({ children }) => <td className="px-4 py-2 text-xs text-foreground">{children}</td>,
   blockquote: ({ children }) => (
-    <blockquote className="border-l-4 border-[#1f3a6e]/30 pl-3 my-2 text-muted-foreground italic">{children}</blockquote>
+    <blockquote className="border-l-4 border-[#1f3a6e]/30 pl-4 my-3 text-muted-foreground italic bg-muted/20 rounded-r-md py-2">
+      {children}
+    </blockquote>
   ),
-  hr: () => <hr className="border-border my-3" />,
-  code: ({ children }) => <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">{children}</code>,
+  hr: () => <hr className="border-border my-5" />,
+  code: ({ children }) => <code className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono text-[#1f3a6e]">{children}</code>,
 };
 
-interface UploadRecord {
-  id: string;
+interface UploadRecord {  id: string;
   file_name: string;
   file_type: string;
   company_name: string | null;
   analysed_at: string;
 }
 
-function parseSections(report: string) {
-  const sectionPatterns = [
-    { key: "executive",       label: "Executive Summary",     icon: FileText,    color: "text-[#1f3a6e]" },
-    { key: "revenue",         label: "Revenue Analysis",      icon: TrendingUp,  color: "text-green-600" },
-    { key: "expense",         label: "Expense Analysis",      icon: DollarSign,  color: "text-orange-600" },
-    { key: "cashflow",        label: "Cash Flow Assessment",  icon: Activity,    color: "text-blue-600" },
-    { key: "ratios",          label: "Key Financial Ratios",  icon: BarChart3,   color: "text-purple-600" },
-    { key: "risks",           label: "Risk Flags",            icon: ShieldAlert, color: "text-red-600" },
-    { key: "recommendations", label: "Recommendations",       icon: Lightbulb,   color: "text-yellow-600" },
-  ];
-  const lines = report.split("\n");
-  const sections: { key: string; label: string; icon: any; color: string; content: string }[] = [];
-  let cur: (typeof sections)[0] | null = null;
-  let curLines: string[] = [];
-  for (const line of lines) {
-    const matched = sectionPatterns.find(s =>
-      line.toLowerCase().includes(s.label.toLowerCase()) || line.toLowerCase().includes(s.key)
-    );
-    if (matched) {
-      if (cur) sections.push({ ...cur, content: curLines.join("\n").trim() });
-      cur = { ...matched, content: "" };
-      curLines = [];
-    } else if (cur) {
-      curLines.push(line);
-    }
-  }
-  if (cur) sections.push({ ...cur, content: curLines.join("\n").trim() });
-  if (sections.length === 0)
-    return [{ key: "full", label: "Financial Analysis Report", icon: FileText, color: "text-[#1f3a6e]", content: report }];
-  return sections;
-}
+function parseSections(_report: string) { return []; } // kept for type-compat, no longer used
 
 async function fetchUploadHistory(): Promise<UploadRecord[]> {
   const { data, error } = await supabase
@@ -261,7 +232,6 @@ export default function FinancialAnalysisTool() {
   };
 
   const handleReset = () => { setResult(null); setError(null); setStep("idle"); setStatements(""); setUploadResult(null); };
-  const sections = result ? parseSections(result.report) : [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -396,25 +366,15 @@ export default function FinancialAnalysisTool() {
                 <Button variant="outline" size="sm" onClick={handleReset}>New Analysis</Button>
               </div>
             </div>
-            <div className="space-y-4">
-              {sections.map(section => {
-                const Icon = section.icon;
-                return (
-                  <Card key={section.key}>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm flex items-center gap-2">
-                        <Icon className={`h-4 w-4 ${section.color}`} />{section.label}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
-                        {section.content}
-                      </ReactMarkdown>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+
+            <Card>
+              <CardContent className="pt-6">
+                <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+                  {result.report}
+                </ReactMarkdown>
+              </CardContent>
+            </Card>
+
             <div className="flex justify-center pt-2">
               <Button variant="outline" onClick={handleReset}>Analyse Different Data</Button>
             </div>
