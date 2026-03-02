@@ -23,7 +23,6 @@ import {
   FileText,
   Clock,
   RefreshCw,
-  Quote,
 } from "lucide-react";
 
 interface AnalysisResult {
@@ -34,7 +33,7 @@ interface AnalysisResult {
 
 type Step = "idle" | "categorising" | "analysing" | "done";
 
-// ── Leadership quotes shown while analysis runs ────────────────────────────────
+// ── Leadership quotes ─────────────────────────────────────────────────────
 const QUOTES = [
   { text: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
   { text: "Financial freedom is available to those who learn about it and work for it.", author: "Robert Kiyosaki" },
@@ -47,35 +46,6 @@ const QUOTES = [
   { text: "The function of leadership is to produce more leaders, not more followers.", author: "Ralph Nader" },
   { text: "Price is what you pay. Value is what you get.", author: "Warren Buffett" },
 ];
-
-function QuotesCarousel() {
-  const [idx, setIdx] = useState(() => Math.floor(Math.random() * QUOTES.length));
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setVisible(false);
-      setTimeout(() => {
-        setIdx(i => (i + 1) % QUOTES.length);
-        setVisible(true);
-      }, 400);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const quote = QUOTES[idx];
-  return (
-    <div className={`transition-opacity duration-500 ${visible ? "opacity-100" : "opacity-0"}`}>
-      <div className="flex gap-3 items-start">
-        <Quote className="h-6 w-6 text-[#1f3a6e]/30 flex-shrink-0 mt-0.5" />
-        <div>
-          <p className="text-sm italic text-muted-foreground leading-relaxed">"{quote.text}"</p>
-          <p className="text-xs font-medium text-[#1f3a6e] mt-1.5">— {quote.author}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ── Markdown renderer — styled to match the system design ─────────────────────
 const mdComponents: Components = {
@@ -153,6 +123,20 @@ export default function FinancialAnalysisTool() {
   const [step, setStep] = useState<Step>("idle");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Fire leadership quote toasts while the analysis runs
+  useEffect(() => {
+    if (!isAnalysing) return;
+    let quoteIdx = Math.floor(Math.random() * QUOTES.length);
+    const fire = () => {
+      const q = QUOTES[quoteIdx % QUOTES.length];
+      toast({ title: `“${q.text}”`, description: `— ${q.author}`, duration: 7000 });
+      quoteIdx++;
+    };
+    fire(); // show immediately
+    const id = setInterval(fire, 8000);
+    return () => clearInterval(id);
+  }, [isAnalysing]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: profileService.getUserProfile });
   const companyName = companyNameOverride || profile?.businessName || "";
@@ -278,9 +262,8 @@ export default function FinancialAnalysisTool() {
                 </div>
 
                 {/* Quote card */}
-                <div className="rounded-xl border border-[#1f3a6e]/15 bg-gradient-to-br from-[#1f3a6e]/5 via-background to-transparent p-6">
-                  <p className="text-[10px] font-semibold text-[#1f3a6e] uppercase tracking-widest mb-4">While you wait</p>
-                  <QuotesCarousel />
+                <div className="rounded-xl border border-[#1f3a6e]/15 bg-gradient-to-br from-[#1f3a6e]/5 via-background to-transparent p-5 text-center">
+                  <p className="text-xs text-muted-foreground">Leadership quotes are appearing as notifications →</p>
                 </div>
 
                 <p className="text-xs text-center text-muted-foreground">This may take 30–60 seconds…</p>
