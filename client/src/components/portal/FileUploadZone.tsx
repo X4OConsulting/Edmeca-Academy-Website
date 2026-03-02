@@ -1,16 +1,22 @@
 import { useRef, useState, useCallback } from "react";
 import * as XLSX from "xlsx";
+import * as pdfjsLib from "pdfjs-dist";
 import { Upload, FileText, X, AlertTriangle, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+
+// Point pdfjs at its bundled worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.mjs",
+  import.meta.url
+).toString();
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 export interface UploadResult {
   fileName: string;
   fileType: "csv" | "xlsx" | "pdf";
   fileSize: number;   // bytes
-  text: string;       // extracted text (empty string for PDFs — extracted server-side)
-  fileData?: string;  // base64-encoded bytes (PDFs only)
+  text: string;       // extracted text for all types
 }
 
 interface FileUploadZoneProps {
@@ -80,15 +86,24 @@ export function FileUploadZone({ onUpload, onClear, currentFile, disabled }: Fil
         onUpload({ fileName: file.name, fileType, fileSize: file.size, text: allText });
 
       } else {
-        // PDF — read as base64, extraction happens server-side via pdf-parse
+        // PDF — extract text client-side with pdfjs-dist
         const buffer = await file.arrayBuffer();
-        const bytes = new Uint8Array(buffer);
-        let binary = "";
-        for (let i = 0; i < bytes.byteLength; i++) {
-          binary += String.fromCharCode(bytes[i]);
+        const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+        const pageTexts: string[] = [];
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const pageText = content.items
+            .map((item: any) => ("str" in item ? item.str : ""))
+            .join(" ");
+          pageTexts.push(pageText);
         }
-        const base64 = btoa(binary);
-        onUpload({ fileName: file.name, fileType, fileSize: file.size, text: "", fileData: base64 });
+        const fullText = pageTexts.join("\n");
+        if (!fullText.trim()) {
+          setExtractError("Could not extract text from this PDF. It may be a scanned image — please use a text-based PDF or paste the data manually.");
+          return;
+        }
+        onUpload({ fileName: file.name, fileType, fileSize: file.size, text: fullText });
       }
     } catch (err: any) {
       setExtractError(`Failed to read file: ${err.message ?? "unknown error"}`);
@@ -114,7 +129,7 @@ export function FileUploadZone({ onUpload, onClear, currentFile, disabled }: Fil
   };
 
   // ── Uploaded state ───────────────────────────────────────────────────────────
-  if (currentFile) {
+    if (currentFile) {
     const ext = currentFile.split(".").pop()?.toUpperCase() ?? "FILE";
     const isPdf = ext === "PDF";
     return (
@@ -124,12 +139,7 @@ export function FileUploadZone({ onUpload, onClear, currentFile, disabled }: Fil
           : <FileSpreadsheet className="h-8 w-8 text-green-600 flex-shrink-0" />}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate">{currentFile}</p>
-          <div className="flex items-center gap-2 mt-1">
-            <Badge variant="secondary" className="text-xs">{ext}</Badge>
-            {isPdf && (
-              <span className="text-xs text-muted-foreground">Text extracted server-side</span>
-            )}
-          </div>
+          <Badge variant="secondary" className="text-xs mt-1">{ext}</Badge>
         </div>
         {!disabled && (
           <Button variant="ghost" size="icon" onClick={onClear} className="flex-shrink-0 h-8 w-8">

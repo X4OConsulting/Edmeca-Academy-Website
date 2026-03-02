@@ -147,9 +147,6 @@ export default function FinancialAnalysisTool() {
 
       if (isPaste) {
         body.statements = statements.trim();
-      } else if (uploadResult!.fileType === "pdf") {
-        body.fileData = uploadResult!.fileData!;
-        body.fileName = uploadResult!.fileName;
       } else {
         body.statements = uploadResult!.text;
       }
@@ -250,16 +247,13 @@ export default function FinancialAnalysisTool() {
                 <div className="space-y-3">
                   <FileUploadZone onUpload={setUploadResult} onClear={() => setUploadResult(null)}
                     currentFile={uploadResult?.fileName ?? null} disabled={isAnalysing} />
-                  {uploadResult && uploadResult.fileType !== "pdf" && uploadResult.text && (
+                  {uploadResult?.text && (
                     <div className="rounded-lg bg-muted/50 p-3">
                       <p className="text-xs text-muted-foreground font-medium mb-1">Extracted preview:</p>
                       <pre className="text-xs font-mono overflow-auto max-h-32 whitespace-pre-wrap">
-                        {uploadResult.text.slice(0, 600)}{uploadResult.text.length > 600 ? "\n…" : ""}
+                        {uploadResult.text.slice(0, 600)}{uploadResult.text.length > 600 ? "\n\u2026" : ""}
                       </pre>
                     </div>
-                  )}
-                  {uploadResult?.fileType === "pdf" && (
-                    <p className="text-xs text-muted-foreground">PDF text will be extracted server-side when you generate the report.</p>
                   )}
                 </div>
               )}
