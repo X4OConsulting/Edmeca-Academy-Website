@@ -212,6 +212,59 @@ class SmartsheetCLI {
     console.log(`✅ Added task ${taskId}: ${title}`);
   }
 
+  async addSubTask(parentTaskId, title, category = 'Feature Development', priority = 'Medium', description = '', status = 'Not Started', risk = 'Low') {
+    const COL = {
+      taskId:   148899208318852,
+      name:     4652498835689348,
+      phase:    2400699022004100,
+      category: 6904298649374596,
+      priority: 1274799115161476,
+      status:   5778398742531972,
+      pct:      3526598928846724,
+      desc:     1837749068582788,
+      risk:     2682173998714756,
+    };
+
+    // Find the parent row by task ID
+    const sheet = await this.getSheet();
+    const parentRow = sheet.rows.find(r =>
+      r.cells.find(c => c.columnId === COL.taskId && String(c.value) === String(parentTaskId))
+    );
+
+    if (!parentRow) {
+      console.error(`❌ Parent task ${parentTaskId} not found in sheet`);
+      return;
+    }
+
+    // Count existing children to generate sub-ID (e.g. 3.24.1, 3.24.2 ...)
+    const subPrefix = `${parentTaskId}.`;
+    const existingChildren = sheet.rows.filter(r =>
+      r.cells.find(c => c.columnId === COL.taskId && String(c.value ?? '').startsWith(subPrefix))
+    );
+    const subId = `${parentTaskId}.${existingChildren.length + 1}`;
+
+    // Inherit phase label from parent
+    const parentPhase = parentRow.cells.find(c => c.columnId === COL.phase)?.value ?? '';
+
+    const newRow = {
+      parentId: parentRow.id,  // makes this a child row (indented in Smartsheet)
+      cells: [
+        { columnId: COL.taskId,   value: subId },
+        { columnId: COL.name,     value: title },
+        { columnId: COL.phase,    value: parentPhase },
+        { columnId: COL.category, value: category },
+        { columnId: COL.priority, value: priority },
+        { columnId: COL.status,   value: status },
+        { columnId: COL.pct,      value: status === 'Complete' ? 1 : 0 },
+        { columnId: COL.desc,     value: description },
+        { columnId: COL.risk,     value: risk },
+      ]
+    };
+
+    await this.request('POST', `/sheets/${this.sheetId}/rows`, newRow);
+    console.log(`✅ Added subtask ${subId} under ${parentTaskId}: ${title}`);
+  }
+
   async syncGitCommits() {
     // Get recent git commits
     try {
@@ -249,7 +302,9 @@ class SmartsheetCLI {
   status <taskId> <status>          - Update task status
   complete <taskId>                  - Mark task as complete (100%)
   add <taskId> <title> [category] [priority] [description] [status] [risk]
-                                     - Add new task row
+                                     - Add new top-level task row (inserts after predecessor)
+  subtask <parentTaskId> <title> [category] [priority] [description] [status] [risk]
+                                     - Add child row indented under a parent task
   sync                               - Show recent git commits
   sheet                              - View sheet info
 
@@ -257,11 +312,13 @@ class SmartsheetCLI {
   node smartsheet-cli.js complete 3.19
   node smartsheet-cli.js status 3.19 "In Progress"
   node smartsheet-cli.js add 3.19 "My Feature" "Feature Development" "High" "Description" "Complete" "Low"
+  node smartsheet-cli.js subtask 3.24 "PDF text extraction" "Feature Development" "High" "Use pdf-parse to extract text from uploaded PDFs" "Not Started" "Low"
   node smartsheet-cli.js sync
 
 ⚠️  Notes:
-  - "Assigned To" column is CONTACT type — it is intentionally omitted from add/complete
+  - "Assigned To" column is CONTACT type — it is intentionally omitted from all commands
   - taskId must be a string like "3.19" (the phase prefix determines the SDLC Phase label)
+  - subtask IDs are auto-generated as <parentId>.<n> (e.g. 3.24.1, 3.24.2)
 
 🔧 Setup:
   export SMARTSHEET_API_TOKEN=your-token
@@ -304,6 +361,14 @@ async function main() {
       await cli.addTask(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
       break;
       
+    case 'subtask':
+      if (args.length < 2) {
+        console.error('❌ Usage: subtask <parentTaskId> <title> [category] [priority] [description] [status] [risk]');
+        return;
+      }
+      await cli.addSubTask(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+      break;
+
     case 'sync':
       await cli.syncGitCommits();
       break;
