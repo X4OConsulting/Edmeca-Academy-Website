@@ -175,7 +175,26 @@ class SmartsheetCLI {
     const phaseKey = String(taskId).split('.')[0];
     const phaseLabel = phaseLabels[phaseKey] || phaseKey;
 
+    // Find the preceding task row to use as siblingId (inserts directly below it)
+    const sheet = await this.getSheet();
+    const [major, minor] = String(taskId).split('.').map(Number);
+
+    // Walk backwards from minor-1 down to 1 to find the closest existing predecessor
+    let siblingId = null;
+    for (let prev = minor - 1; prev >= 1; prev--) {
+      const prevTaskId = `${major}.${prev}`;
+      const siblingRow = sheet.rows.find(r =>
+        r.cells.find(c => c.columnId === COL.taskId && String(c.value) === prevTaskId)
+      );
+      if (siblingRow) {
+        siblingId = siblingRow.id;
+        console.log(`📌 Inserting after task ${prevTaskId} (row ${siblingId})`);
+        break;
+      }
+    }
+
     const newRow = {
+      ...(siblingId ? { siblingId } : { toBottom: true }),
       cells: [
         { columnId: COL.taskId,   value: taskId },
         { columnId: COL.name,     value: title },
