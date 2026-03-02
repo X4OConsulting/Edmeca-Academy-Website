@@ -6,7 +6,32 @@ export const config = { maxDuration: 300 };
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+const ALLOWED_ORIGINS = [
+  'https://edmeca.co.za',
+  'https://edmecaacademy.netlify.app',
+  'https://staging--edmecaacademy.netlify.app',
+  'http://localhost:5173',
+  'http://localhost:4173',
+];
+
+function setCors(req: VercelRequest, res: VercelResponse): void {
+  const origin = req.headers.origin ?? '';
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Vary', 'Origin');
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  setCors(req, res);
+
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
