@@ -67,9 +67,11 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
 
 # Production context - login explicitly disabled
+# ignore = "exit 0" skips all builds on main branch (re-enable when ready to go live)
 [context.production]
   command = "npm run build"
   publish = "client/dist"
+  ignore = "exit 0"
 
 [context.production.environment]
   NODE_VERSION = "20.19.0"
