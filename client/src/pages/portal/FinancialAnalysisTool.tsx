@@ -123,20 +123,20 @@ export default function FinancialAnalysisTool() {
   const [step, setStep] = useState<Step>("idle");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [currentQuote, setCurrentQuote] = useState<{ text: string; author: string } | null>(null);
 
-  // Fire leadership quote toasts while the analysis runs
+  // Rotate leadership quotes inline while the analysis runs
   useEffect(() => {
-    if (!isAnalysing) return;
+    if (!isAnalysing) { setCurrentQuote(null); return; }
     let quoteIdx = Math.floor(Math.random() * QUOTES.length);
-    const fire = () => {
-      const q = QUOTES[quoteIdx % QUOTES.length];
-      toast({ title: `“${q.text}”`, description: `— ${q.author}`, duration: 7000 });
+    const show = () => {
+      setCurrentQuote(QUOTES[quoteIdx % QUOTES.length]);
       quoteIdx++;
     };
-    fire(); // show immediately
-    const id = setInterval(fire, 8000);
+    show(); // show immediately
+    const id = setInterval(show, 7000);
     return () => clearInterval(id);
-  }, [isAnalysing]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isAnalysing]);
 
   const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: profileService.getUserProfile });
   const companyName = companyNameOverride || profile?.businessName || "";
@@ -262,9 +262,14 @@ export default function FinancialAnalysisTool() {
                 </div>
 
                 {/* Quote card */}
-                <div className="rounded-xl border border-[#1f3a6e]/15 bg-gradient-to-br from-[#1f3a6e]/5 via-background to-transparent p-5 text-center">
-                  <p className="text-xs text-muted-foreground">Leadership quotes are appearing as notifications →</p>
-                </div>
+                {currentQuote && (
+                  <div className="rounded-xl border border-[#1f3a6e]/15 bg-gradient-to-br from-[#1f3a6e]/5 via-background to-transparent p-5 text-center space-y-2">
+                    <p className="text-sm text-foreground/80 italic leading-relaxed">
+                      &ldquo;{currentQuote.text}&rdquo;
+                    </p>
+                    <p className="text-xs text-muted-foreground font-medium">— {currentQuote.author}</p>
+                  </div>
+                )}
 
                 <p className="text-xs text-center text-muted-foreground">This may take 30–60 seconds…</p>
               </div>
