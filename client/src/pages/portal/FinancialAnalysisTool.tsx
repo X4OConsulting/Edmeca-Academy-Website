@@ -23,7 +23,10 @@ import {
   FileText,
   Clock,
   RefreshCw,
+  Download,
+  FileDown,
 } from "lucide-react";
+import { exportToWord, exportToPDF } from "@/lib/exportReport";
 
 interface AnalysisResult {
   success: boolean;
@@ -86,11 +89,15 @@ const mdComponents: Components = {
   code: ({ children }) => <code className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono text-[#1f3a6e]">{children}</code>,
 };
 
-interface UploadRecord {  id: string;
+interface UploadRecord {
+  id: string;
   file_name: string;
   file_type: string;
   company_name: string | null;
   analysed_at: string;
+  report_text: string | null;
+  model_categorisation: string | null;
+  model_analysis: string | null;
 }
 
 function parseSections(_report: string) { return []; } // kept for type-compat, no longer used
@@ -98,14 +105,21 @@ function parseSections(_report: string) { return []; } // kept for type-compat, 
 async function fetchUploadHistory(): Promise<UploadRecord[]> {
   const { data, error } = await supabase
     .from("financial_uploads")
-    .select("id, file_name, file_type, company_name, analysed_at")
+    .select("id, file_name, file_type, company_name, analysed_at, report_text, model_categorisation, model_analysis")
     .order("analysed_at", { ascending: false })
     .limit(10);
   if (error) throw error;
   return data ?? [];
 }
 
-async function saveUploadRecord(record: { file_name: string; file_type: string; company_name: string | null }) {
+async function saveUploadRecord(record: {
+  file_name: string;
+  file_type: string;
+  company_name: string | null;
+  report_text: string | null;
+  model_categorisation: string | null;
+  model_analysis: string | null;
+}) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
   await supabase.from("financial_uploads").insert({ user_id: user.id, ...record });
@@ -203,6 +217,9 @@ export default function FinancialAnalysisTool() {
         file_name: isPaste ? "(pasted text)" : uploadResult!.fileName,
         file_type: isPaste ? "paste" : uploadResult!.fileType,
         company_name: companyName || null,
+        report_text: data.report,
+        model_categorisation: data.meta.model_categorisation,
+        model_analysis: data.meta.model_analysis,
       });
 
       toast({ title: "Analysis complete!", description: "Your financial report is ready." });
@@ -216,6 +233,33 @@ export default function FinancialAnalysisTool() {
   };
 
   const handleReset = () => { setResult(null); setError(null); setStep("idle"); setStatements(""); setUploadResult(null); };
+
+  const handleLoadReport = (rec: UploadRecord) => {
+    if (!rec.report_text) {
+      toast({ title: "No saved report", description: "This analysis was run before reports were saved. Re-upload the file to re-analyse.", variant: "destructive" });
+      return;
+    }
+    setResult({
+      success: true,
+      report: rec.report_text,
+      meta: {
+        company: rec.company_name ?? "Business",
+        model_categorisation: rec.model_categorisation ?? "Claude Haiku",
+        model_analysis: rec.model_analysis ?? "Claude Sonnet",
+      },
+    });
+    setStep("done");
+  };
+
+  const handleExportPDF = () => {
+    if (!result) return;
+    exportToPDF(result.report, result.meta.company);
+  };
+
+  const handleExportWord = async () => {
+    if (!result) return;
+    await exportToWord(result.report, result.meta.company);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -348,9 +392,15 @@ export default function FinancialAnalysisTool() {
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
                 <span className="font-medium text-sm">Analysis complete for <span className="text-[#1f3a6e] font-semibold">{result.meta.company}</span></span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="outline" className="text-xs">{result.meta.model_categorisation}</Badge>
                 <Badge variant="outline" className="text-xs">{result.meta.model_analysis}</Badge>
+                <Button variant="outline" size="sm" onClick={handleExportPDF}>
+                  <Download className="h-3.5 w-3.5 mr-1.5" />Export PDF
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleExportWord}>
+                  <FileDown className="h-3.5 w-3.5 mr-1.5" />Export Word
+                </Button>
                 <Button variant="outline" size="sm" onClick={handleReset}>New Analysis</Button>
               </div>
             </div>
@@ -385,9 +435,11 @@ export default function FinancialAnalysisTool() {
                     <Badge variant="secondary" className="text-xs capitalize flex-shrink-0">{rec.file_type}</Badge>
                     {rec.company_name && <span className="text-xs text-muted-foreground hidden sm:block flex-shrink-0">{rec.company_name}</span>}
                     <span className="text-xs text-muted-foreground flex-shrink-0">{new Date(rec.analysed_at).toLocaleDateString()}</span>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0" title="Re-analyse"
-                      onClick={() => toast({ title: "Re-analyse coming soon", description: "Upload the file again to re-run the analysis." })}>
-                      <RefreshCw className="h-3.5 w-3.5" />
+                    <Button variant="ghost" size="sm" className="h-7 flex-shrink-0 text-xs" title="Load saved report"
+                      onClick={() => handleLoadReport(rec)}>
+                      {rec.report_text
+                        ? <><FileText className="h-3.5 w-3.5 mr-1" />Load</>  
+                        : <><RefreshCw className="h-3.5 w-3.5 mr-1" />Re-run</>}
                     </Button>
                   </li>
                 ))}
