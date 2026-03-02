@@ -70,7 +70,7 @@ function QuotesCarousel() {
 
   const quote = QUOTES[idx];
   return (
-    <div className={`transition-opacity duration-400 ${visible ? "opacity-100" : "opacity-0"}`}>
+    <div className={`transition-opacity duration-500 ${visible ? "opacity-100" : "opacity-0"}`}>
       <div className="flex gap-3 items-start">
         <Quote className="h-6 w-6 text-[#1f3a6e]/30 flex-shrink-0 mt-0.5" />
         <div>
@@ -288,16 +288,48 @@ export default function FinancialAnalysisTool() {
 
       <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
 
-        {step !== "done" && (
+        {/* ── Loading card — shown instead of input form while analysing ─────── */}
+        {isAnalysing && (
+          <Card className="border-[#1f3a6e]/20">
+            <CardContent className="pt-8 pb-8">
+              <div className="max-w-lg mx-auto space-y-8">
+                {/* Steps */}
+                <div className="flex flex-col gap-3">
+                  <div className={`flex items-center gap-3 text-sm ${step === "categorising" ? "text-foreground font-medium" : "text-muted-foreground"}`}>
+                    {step === "categorising" ? <Loader2 className="h-4 w-4 animate-spin text-[#1f3a6e]" /> : <CheckCircle2 className="h-4 w-4 text-green-500" />}
+                    Step 1 — Categorising transactions
+                    <Badge variant="outline" className="text-xs ml-auto">Claude Haiku</Badge>
+                  </div>
+                  <div className={`flex items-center gap-3 text-sm ${step === "analysing" ? "text-foreground font-medium" : step === "done" ? "text-muted-foreground" : "text-muted-foreground/40"}`}>
+                    {step === "analysing" ? <Loader2 className="h-4 w-4 animate-spin text-[#1f3a6e]" /> : step === "done" ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <div className="h-4 w-4 rounded-full border border-muted-foreground/30" />}
+                    Step 2 — Generating health report
+                    <Badge variant="outline" className="text-xs ml-auto">Claude Sonnet</Badge>
+                  </div>
+                </div>
+
+                {/* Quote card */}
+                <div className="rounded-xl border border-[#1f3a6e]/15 bg-gradient-to-br from-[#1f3a6e]/5 via-background to-transparent p-6">
+                  <p className="text-[10px] font-semibold text-[#1f3a6e] uppercase tracking-widest mb-4">While you wait</p>
+                  <QuotesCarousel />
+                </div>
+
+                <p className="text-xs text-center text-muted-foreground">This may take 30–60 seconds…</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* ── Input form — hidden while analysing ────────────────────────────── */}
+        {step !== "done" && !isAnalysing && (
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Financial Data Input</CardTitle>
               <div className="flex gap-1 mt-2 p-1 bg-muted rounded-lg w-fit">
-                <button onClick={() => setInputMode("paste")} disabled={isAnalysing}
+                <button onClick={() => setInputMode("paste")}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${inputMode === "paste" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
                   <ClipboardList className="h-3.5 w-3.5" />Paste Text
                 </button>
-                <button onClick={() => setInputMode("upload")} disabled={isAnalysing}
+                <button onClick={() => setInputMode("upload")}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${inputMode === "upload" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
                   <Upload className="h-3.5 w-3.5" />Upload File
                 </button>
@@ -307,7 +339,7 @@ export default function FinancialAnalysisTool() {
               <div>
                 <label className="text-sm font-medium text-muted-foreground mb-1 block">Company / Business Name</label>
                 <Input placeholder={profile?.businessName ?? "e.g. EdMeCa Academy"} value={companyNameOverride}
-                  onChange={e => setCompanyNameOverride(e.target.value)} className="max-w-sm" disabled={isAnalysing} />
+                  onChange={e => setCompanyNameOverride(e.target.value)} className="max-w-sm" />
               </div>
 
               {inputMode === "paste" && (
@@ -316,7 +348,7 @@ export default function FinancialAnalysisTool() {
                   <Textarea
                     placeholder={"Paste your bank statement, management accounts, or CSV export here.\n\nExample:\nDate, Description, Amount\n2026-01-01, Client Invoice #001, 15000\n2026-01-03, Office Rent, -8500\n..."}
                     value={statements} onChange={e => setStatements(e.target.value)}
-                    rows={14} className="font-mono text-sm resize-y" disabled={isAnalysing} />
+                    rows={14} className="font-mono text-sm resize-y" />
                   <p className="text-xs text-muted-foreground mt-1">Supports CSV, plain text, or copied bank rows. Max ~12 000 characters.</p>
                 </div>
               )}
@@ -324,35 +356,15 @@ export default function FinancialAnalysisTool() {
               {inputMode === "upload" && (
                 <div className="space-y-3">
                   <FileUploadZone onUpload={setUploadResult} onClear={() => setUploadResult(null)}
-                    currentFile={uploadResult?.fileName ?? null} disabled={isAnalysing} />
+                    currentFile={uploadResult?.fileName ?? null} />
                   {uploadResult?.text && (
                     <div className="rounded-lg bg-muted/50 p-3">
                       <p className="text-xs text-muted-foreground font-medium mb-1">Extracted preview:</p>
                       <pre className="text-xs font-mono overflow-auto max-h-32 whitespace-pre-wrap">
-                        {uploadResult.text.slice(0, 600)}{uploadResult.text.length > 600 ? "\n\u2026" : ""}
+                        {uploadResult.text.slice(0, 600)}{uploadResult.text.length > 600 ? "\n…" : ""}
                       </pre>
                     </div>
                   )}
-                </div>
-              )}
-
-              {isAnalysing && (
-                <div className="space-y-5 py-3">
-                  <div className="flex flex-col gap-3">
-                    <div className={`flex items-center gap-3 text-sm ${step === "categorising" ? "text-foreground font-medium" : "text-muted-foreground"}`}>
-                      {step === "categorising" ? <Loader2 className="h-4 w-4 animate-spin text-[#1f3a6e]" /> : <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                      Step 1 — Categorising transactions (Claude Haiku)
-                    </div>
-                    <div className={`flex items-center gap-3 text-sm ${(step as Step) === "analysing" ? "text-foreground font-medium" : (step as Step) === "done" ? "text-muted-foreground" : "text-muted-foreground/40"}`}>
-                      {(step as Step) === "analysing" ? <Loader2 className="h-4 w-4 animate-spin text-[#1f3a6e]" /> : (step as Step) === "done" ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <div className="h-4 w-4 rounded-full border border-muted-foreground/30" />}
-                      Step 2 — Generating health report (Claude Sonnet)
-                    </div>
-                  </div>
-                  <div className="border rounded-xl p-4 bg-gradient-to-br from-[#1f3a6e]/5 to-transparent">
-                    <p className="text-xs font-medium text-[#1f3a6e] mb-3 uppercase tracking-wide">While you wait…</p>
-                    <QuotesCarousel />
-                  </div>
-                  <p className="text-xs text-muted-foreground">This may take 30–60 seconds…</p>
                 </div>
               )}
 
@@ -363,11 +375,9 @@ export default function FinancialAnalysisTool() {
               )}
 
               <Button onClick={handleAnalyse}
-                disabled={isAnalysing || (inputMode === "paste" ? !statements.trim() : !uploadResult)}
+                disabled={inputMode === "paste" ? !statements.trim() : !uploadResult}
                 className="bg-[#1f3a6e] hover:bg-[#162d57] w-full sm:w-auto">
-                {isAnalysing
-                  ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Analysing…</>
-                  : <><TrendingUp className="h-4 w-4 mr-2" />Generate Financial Report</>}
+                <TrendingUp className="h-4 w-4 mr-2" />Generate Financial Report
               </Button>
             </CardContent>
           </Card>
