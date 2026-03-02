@@ -20,6 +20,7 @@ import SWOTPestleTool from "@/pages/portal/SWOTPestleTool";
 import ValuePropTool from "@/pages/portal/ValuePropTool";
 import PitchBuilderTool from "@/pages/portal/PitchBuilderTool";
 import ProgressTrackerTool from "@/pages/portal/ProgressTrackerTool";
+import FinancialAnalysisTool from "@/pages/portal/FinancialAnalysisTool";
 import Profile from "@/pages/portal/Profile";
 import NotFound from "@/pages/not-found";
 import { FloatingChat } from "@/components/FloatingChat";
@@ -98,6 +99,11 @@ function Router() {
       <Route path="/portal/tools/progress">
         <ProtectedRoute>
           <ProgressTrackerTool />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/portal/tools/financials">
+        <ProtectedRoute>
+          <FinancialAnalysisTool />
         </ProtectedRoute>
       </Route>
       <Route path="/portal/profile">

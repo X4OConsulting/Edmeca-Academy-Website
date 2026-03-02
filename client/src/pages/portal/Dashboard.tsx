@@ -67,6 +67,14 @@ const tools = [
     color: "text-pink-600",
     bgColor: "bg-pink-100 dark:bg-pink-900/30",
   },
+  {
+    icon: BarChart3,
+    title: "Financial Analysis",
+    description: "AI-powered financial health report from bank statements",
+    href: "/portal/tools/financials",
+    color: "text-emerald-600",
+    bgColor: "bg-emerald-100 dark:bg-emerald-900/30",
+  },
 ];
 
 export default function Dashboard() {
