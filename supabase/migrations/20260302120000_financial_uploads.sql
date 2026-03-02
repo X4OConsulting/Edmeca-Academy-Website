@@ -4,8 +4,8 @@
 CREATE TABLE public.financial_uploads (
   id           uuid         DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id      uuid         NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  file_name    text         NOT NULL,
-  file_type    text         NOT NULL DEFAULT 'paste',  -- 'paste' | 'csv' | 'xlsx' | 'pdf'
+  file_name    text         NOT NULL CHECK (char_length(file_name) <= 255),
+  file_type    text         NOT NULL DEFAULT 'paste' CHECK (file_type IN ('paste', 'csv', 'xlsx', 'pdf')),
   company_name text,
   analysed_at  timestamptz  NOT NULL DEFAULT now()
 );

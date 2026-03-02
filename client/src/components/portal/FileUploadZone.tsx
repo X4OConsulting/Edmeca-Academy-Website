@@ -86,19 +86,72 @@ export function FileUploadZone({ onUpload, onClear, currentFile, disabled }: Fil
         onUpload({ fileName: file.name, fileType, fileSize: file.size, text: allText });
 
       } else {
-        // PDF — extract text client-side with pdfjs-dist
+        // PDF — extract text client-side with pdfjs-dist.
+        // Uses x/y transform coordinates to reconstruct table rows so that
+        // bank statement columns (date, description, amount) are preserved.
         const buffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
         const pageTexts: string[] = [];
+
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const content = await page.getTextContent();
-          const pageText = content.items
-            .map((item: any) => ("str" in item ? item.str : ""))
-            .join(" ");
-          pageTexts.push(pageText);
+
+          // Collect items with their positions.
+          // transform = [a,b,c,d,x,y] — we need x (index 4) and y (index 5).
+          const items = content.items
+            .filter((item: any) => "str" in item && item.str.trim())
+            .map((item: any) => ({
+              text: item.str as string,
+              x: item.transform[4] as number,
+              y: item.transform[5] as number,
+              width: item.width as number,
+            }));
+
+          if (items.length === 0) continue;
+
+          // Group into rows by y coordinate (items within 3 units share a row).
+          const Y_TOLERANCE = 3;
+          const rows: typeof items[] = [];
+          let currentRow: typeof items = [];
+          let currentY: number | null = null;
+
+          // Sort top-to-bottom (PDF y is bottom-up, so sort descending).
+          items.sort((a, b) => b.y - a.y);
+
+          for (const item of items) {
+            if (currentY === null || Math.abs(item.y - currentY) > Y_TOLERANCE) {
+              if (currentRow.length > 0) rows.push(currentRow);
+              currentRow = [item];
+              currentY = item.y;
+            } else {
+              currentRow.push(item);
+            }
+          }
+          if (currentRow.length > 0) rows.push(currentRow);
+
+          // Build each row as a string. Within a row, insert tabs between
+          // items that are far apart (likely separate columns).
+          const lineStrings = rows.map(row => {
+            row.sort((a, b) => a.x - b.x);
+            let line = "";
+            for (let j = 0; j < row.length; j++) {
+              if (j === 0) {
+                line += row[j].text;
+              } else {
+                const gap = row[j].x - (row[j - 1].x + (row[j - 1].width || 0));
+                // Large gap = column boundary → tab; small gap = same word → space
+                line += gap > 10 ? "\t" : " ";
+                line += row[j].text;
+              }
+            }
+            return line;
+          });
+
+          pageTexts.push(lineStrings.join("\n"));
         }
-        const fullText = pageTexts.join("\n");
+
+        const fullText = pageTexts.join("\n\n");
         if (!fullText.trim()) {
           setExtractError("Could not extract text from this PDF. It may be a scanned image — please use a text-based PDF or paste the data manually.");
           return;
