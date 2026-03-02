@@ -6,6 +6,9 @@ export default defineConfig({
   plugins: [
     react(),
   ],
+  optimizeDeps: {
+    exclude: ["pdfjs-dist"],
+  },
   envDir: path.resolve(import.meta.dirname),
   resolve: {
     alias: {
