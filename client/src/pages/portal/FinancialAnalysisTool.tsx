@@ -128,7 +128,8 @@ export default function FinancialAnalysisTool() {
       await new Promise((r) => setTimeout(r, 600));
       setStep("analysing");
 
-      const response = await fetch(`${import.meta.env.VITE_AI_API_URL ?? ''}/api/analyze-financials`, {
+      const aiBase = (import.meta.env.VITE_AI_API_URL ?? '').replace(/\/$/, '');
+      const response = await fetch(`${aiBase}/api/analyze-financials`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
