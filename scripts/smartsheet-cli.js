@@ -147,57 +147,50 @@ class SmartsheetCLI {
     }
   }
 
-  async addTask(phase, title, description, priority = 'Medium') {
-    const sheet = await this.getSheet();
-    
-    // Generate next task ID in sequence
-    const taskIds = sheet.rows
-      .map(r => r.cells.find(c => c.value?.toString().match(/^\d+(\.\d+)?$/)))
-      .filter(Boolean)
-      .map(c => c.value.toString())
-      .sort();
-    
-    const nextId = this.generateNextTaskId(taskIds, phase);
-    
-    // Find column IDs
-    const columnMap = {};
-    sheet.columns.forEach(col => {
-      const title = col.title.toLowerCase();
-      if (title.includes('task id')) columnMap.taskId = col.id;
-      if (title.includes('task name')) columnMap.name = col.id;
-      if (title.includes('description')) columnMap.description = col.id;
-      if (title.includes('priority')) columnMap.priority = col.id;
-      if (title.includes('status')) columnMap.status = col.id;
-      if (title.includes('sdlc phase')) columnMap.phase = col.id;
-    });
-
-    // Create new row
-    const newRow = {
-      cells: [
-        { columnId: columnMap.taskId, value: parseFloat(nextId) }, // Convert to number
-        { columnId: columnMap.name, value: title },
-        { columnId: columnMap.description, value: description },
-        { columnId: columnMap.priority, value: priority },
-        { columnId: columnMap.status, value: 'Not Started' },
-        { columnId: columnMap.phase, value: phase }
-      ].filter(cell => cell.columnId) // Remove undefined columns
+  async addTask(taskId, title, category = 'Feature Development', priority = 'Medium', description = '', status = 'Complete', risk = 'Medium') {
+    // Hardcoded column IDs for EdMeCa Academy Website Development sheet (1413139749883780)
+    // NOTE: "Assigned To" column (8030198556217220) is CONTACT type — omit to avoid API 400 errors.
+    const COL = {
+      taskId:   148899208318852,
+      name:     4652498835689348,
+      phase:    2400699022004100,
+      category: 6904298649374596,
+      priority: 1274799115161476,
+      status:   5778398742531972,
+      pct:      3526598928846724,
+      desc:     1837749068582788,
+      risk:     2682173998714756,
     };
 
-    await this.request('POST', `/sheets/${this.sheetId}/rows`, { rows: [newRow] });
-    console.log(`✅ Added task ${nextId}: ${title}`);
-  }
+    // Derive SDLC phase label from task ID (e.g. "3.18" → "3 - Development")
+    const phaseLabels = {
+      '1': '1 - Planning',
+      '2': '2 - Design',
+      '3': '3 - Development',
+      '4': '4 - Testing',
+      '5': '5 - Deployment',
+      '6': '6 - Documentation',
+      '7': '7 - Maintenance',
+    };
+    const phaseKey = String(taskId).split('.')[0];
+    const phaseLabel = phaseLabels[phaseKey] || phaseKey;
 
-  generateNextTaskId(existingIds, phase) {
-    const phaseIds = existingIds.filter(id => id.startsWith(phase + '.'));
-    if (phaseIds.length === 0) {
-      return `${phase}.1`;
-    }
-    
-    const maxSubId = Math.max(...phaseIds.map(id => 
-      parseInt(id.split('.')[1])
-    ));
-    
-    return `${phase}.${maxSubId + 1}`;
+    const newRow = {
+      cells: [
+        { columnId: COL.taskId,   value: taskId },
+        { columnId: COL.name,     value: title },
+        { columnId: COL.phase,    value: phaseLabel },
+        { columnId: COL.category, value: category },
+        { columnId: COL.priority, value: priority },
+        { columnId: COL.status,   value: status },
+        { columnId: COL.pct,      value: status === 'Complete' ? 1 : 0 },
+        { columnId: COL.desc,     value: description },
+        { columnId: COL.risk,     value: risk },
+      ]
+    };
+
+    await this.request('POST', `/sheets/${this.sheetId}/rows`, newRow);
+    console.log(`✅ Added task ${taskId}: ${title}`);
   }
 
   async syncGitCommits() {
@@ -234,17 +227,22 @@ class SmartsheetCLI {
 🛠️  EDMECA Academy Smartsheet CLI
 
 📋 Commands:
-  status <taskId>           - Update task status
-  complete <taskId>         - Mark task as complete
-  add <phase> <title>       - Add new task
-  sync                      - Sync with git commits
-  sheet                     - View sheet info
+  status <taskId> <status>          - Update task status
+  complete <taskId>                  - Mark task as complete (100%)
+  add <taskId> <title> [category] [priority] [description] [status] [risk]
+                                     - Add new task row
+  sync                               - Show recent git commits
+  sheet                              - View sheet info
 
 📝 Examples:
-  node smartsheet-cli.js complete 1.1
-  node smartsheet-cli.js status 2.3 "In Progress"
-  node smartsheet-cli.js add 3 "Implement user authentication"
+  node smartsheet-cli.js complete 3.19
+  node smartsheet-cli.js status 3.19 "In Progress"
+  node smartsheet-cli.js add 3.19 "My Feature" "Feature Development" "High" "Description" "Complete" "Low"
   node smartsheet-cli.js sync
+
+⚠️  Notes:
+  - "Assigned To" column is CONTACT type — it is intentionally omitted from add/complete
+  - taskId must be a string like "3.19" (the phase prefix determines the SDLC Phase label)
 
 🔧 Setup:
   export SMARTSHEET_API_TOKEN=your-token
@@ -280,10 +278,11 @@ async function main() {
       
     case 'add':
       if (args.length < 2) {
-        console.error('❌ Usage: add <phase> <title> [description]');
+        console.error('❌ Usage: add <taskId> <title> [category] [priority] [description] [status] [risk]');
+        console.error('   Example: node smartsheet-cli.js add 3.19 "My Feature" "Feature Development" "High" "Description here" "Complete" "Low"');
         return;
       }
-      await cli.addTask(args[0], args[1], args[2] || '');
+      await cli.addTask(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
       break;
       
     case 'sync':
