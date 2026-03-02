@@ -1,15 +1,13 @@
 import { useRef, useState, useCallback } from "react";
 import * as XLSX from "xlsx";
 import * as pdfjsLib from "pdfjs-dist";
+import pdfjsWorkerUrl from "pdfjs-dist/build/pdf.worker.mjs?url";
 import { Upload, FileText, X, AlertTriangle, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-// Point pdfjs at its bundled worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.mjs",
-  import.meta.url
-).toString();
+// Point pdfjs at its bundled worker (Vite ?url import resolves correctly)
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 export interface UploadResult {
@@ -87,8 +85,7 @@ export function FileUploadZone({ onUpload, onClear, currentFile, disabled }: Fil
 
       } else {
         // PDF — extract text client-side with pdfjs-dist.
-        // Uses x/y transform coordinates to reconstruct table rows so that
-        // bank statement columns (date, description, amount) are preserved.
+        // Uses x/y transform coordinates to reconstruct table rows.
         const buffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
         const pageTexts: string[] = [];

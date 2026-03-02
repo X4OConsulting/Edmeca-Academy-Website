@@ -1,5 +1,7 @@
-﻿import { useState } from "react";
+﻿import { useState, useEffect } from "react";
 import { Link } from "wouter";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,6 +28,7 @@ import {
   ShieldAlert,
   Clock,
   RefreshCw,
+  Quote,
 } from "lucide-react";
 
 interface AnalysisResult {
@@ -35,6 +38,81 @@ interface AnalysisResult {
 }
 
 type Step = "idle" | "categorising" | "analysing" | "done";
+
+// ── Leadership quotes shown while analysis runs ────────────────────────────────
+const QUOTES = [
+  { text: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
+  { text: "Financial freedom is available to those who learn about it and work for it.", author: "Robert Kiyosaki" },
+  { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+  { text: "You must gain control over your money or the lack of it will forever control you.", author: "Dave Ramsey" },
+  { text: "Do not save what is left after spending, but spend what is left after saving.", author: "Warren Buffett" },
+  { text: "It's not about how much money you make, but how much money you keep.", author: "Robert Kiyosaki" },
+  { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
+  { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+  { text: "The function of leadership is to produce more leaders, not more followers.", author: "Ralph Nader" },
+  { text: "Price is what you pay. Value is what you get.", author: "Warren Buffett" },
+];
+
+function QuotesCarousel() {
+  const [idx, setIdx] = useState(() => Math.floor(Math.random() * QUOTES.length));
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setIdx(i => (i + 1) % QUOTES.length);
+        setVisible(true);
+      }, 400);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const quote = QUOTES[idx];
+  return (
+    <div className={`transition-opacity duration-400 ${visible ? "opacity-100" : "opacity-0"}`}>
+      <div className="flex gap-3 items-start">
+        <Quote className="h-6 w-6 text-[#1f3a6e]/30 flex-shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm italic text-muted-foreground leading-relaxed">"{quote.text}"</p>
+          <p className="text-xs font-medium text-[#1f3a6e] mt-1.5">— {quote.author}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Markdown renderer — styled to match the system design ─────────────────────
+const mdComponents: React.ComponentProps<typeof ReactMarkdown>["components"] = {
+  h1: ({ children }) => <h1 className="text-base font-bold text-[#1f3a6e] mb-2 mt-4 first:mt-0">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-sm font-bold text-[#1f3a6e] mb-1.5 mt-3 first:mt-0">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-sm font-semibold text-foreground mb-1 mt-3 first:mt-0 border-b pb-0.5">{children}</h3>,
+  p: ({ children }) => <p className="text-sm leading-relaxed mb-2 last:mb-0">{children}</p>,
+  strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+  em: ({ children }) => <em className="italic text-muted-foreground">{children}</em>,
+  ul: ({ children }) => <ul className="space-y-1 mb-2 pl-4 list-none">{children}</ul>,
+  ol: ({ children }) => <ol className="space-y-1 mb-2 pl-4 list-decimal">{children}</ol>,
+  li: ({ children }) => (
+    <li className="text-sm leading-relaxed flex gap-2">
+      <span className="text-[#1f3a6e] mt-1.5 flex-shrink-0">&#x2022;</span>
+      <span>{children}</span>
+    </li>
+  ),
+  table: ({ children }) => (
+    <div className="overflow-x-auto my-3 rounded-lg border">
+      <table className="w-full text-sm border-collapse">{children}</table>
+    </div>
+  ),
+  thead: ({ children }) => <thead className="bg-[#1f3a6e]/5">{children}</thead>,
+  th: ({ children }) => <th className="px-3 py-2 text-left text-xs font-semibold text-[#1f3a6e] border-b whitespace-nowrap">{children}</th>,
+  td: ({ children }) => <td className="px-3 py-2 text-xs border-b last:border-0 border-border/50">{children}</td>,
+  tr: ({ children }) => <tr className="hover:bg-muted/30 transition-colors">{children}</tr>,
+  blockquote: ({ children }) => (
+    <blockquote className="border-l-4 border-[#1f3a6e]/30 pl-3 my-2 text-muted-foreground italic">{children}</blockquote>
+  ),
+  hr: () => <hr className="border-border my-3" />,
+  code: ({ children }) => <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">{children}</code>,
+};
 
 interface UploadRecord {
   id: string;
@@ -259,14 +337,20 @@ export default function FinancialAnalysisTool() {
               )}
 
               {isAnalysing && (
-                <div className="flex flex-col gap-3 py-2">
-                  <div className={`flex items-center gap-3 text-sm ${step === "categorising" ? "text-foreground" : "text-muted-foreground"}`}>
-                    {step === "categorising" ? <Loader2 className="h-4 w-4 animate-spin text-[#1f3a6e]" /> : <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                    Step 1 — Categorising transactions (Claude Haiku)
+                <div className="space-y-5 py-3">
+                  <div className="flex flex-col gap-3">
+                    <div className={`flex items-center gap-3 text-sm ${step === "categorising" ? "text-foreground font-medium" : "text-muted-foreground"}`}>
+                      {step === "categorising" ? <Loader2 className="h-4 w-4 animate-spin text-[#1f3a6e]" /> : <CheckCircle2 className="h-4 w-4 text-green-500" />}
+                      Step 1 — Categorising transactions (Claude Haiku)
+                    </div>
+                    <div className={`flex items-center gap-3 text-sm ${(step as Step) === "analysing" ? "text-foreground font-medium" : (step as Step) === "done" ? "text-muted-foreground" : "text-muted-foreground/40"}`}>
+                      {(step as Step) === "analysing" ? <Loader2 className="h-4 w-4 animate-spin text-[#1f3a6e]" /> : (step as Step) === "done" ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <div className="h-4 w-4 rounded-full border border-muted-foreground/30" />}
+                      Step 2 — Generating health report (Claude Sonnet)
+                    </div>
                   </div>
-                  <div className={`flex items-center gap-3 text-sm ${(step as Step) === "analysing" ? "text-foreground" : (step as Step) === "done" ? "text-muted-foreground" : "text-muted-foreground/40"}`}>
-                    {(step as Step) === "analysing" ? <Loader2 className="h-4 w-4 animate-spin text-[#1f3a6e]" /> : (step as Step) === "done" ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <div className="h-4 w-4 rounded-full border border-muted-foreground/30" />}
-                    Step 2 — Generating health report (Claude Sonnet)
+                  <div className="border rounded-xl p-4 bg-gradient-to-br from-[#1f3a6e]/5 to-transparent">
+                    <p className="text-xs font-medium text-[#1f3a6e] mb-3 uppercase tracking-wide">While you wait…</p>
+                    <QuotesCarousel />
                   </div>
                   <p className="text-xs text-muted-foreground">This may take 30–60 seconds…</p>
                 </div>
@@ -307,13 +391,15 @@ export default function FinancialAnalysisTool() {
                 const Icon = section.icon;
                 return (
                   <Card key={section.key}>
-                    <CardHeader className="pb-3">
+                    <CardHeader className="pb-2">
                       <CardTitle className="text-sm flex items-center gap-2">
                         <Icon className={`h-4 w-4 ${section.color}`} />{section.label}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-sm leading-relaxed whitespace-pre-wrap">{section.content}</div>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+                        {section.content}
+                      </ReactMarkdown>
                     </CardContent>
                   </Card>
                 );
