@@ -1,8 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
+import pdfParse from 'pdf-parse';
 
-export const config = { maxDuration: 300 };
+export const config = {
+  maxDuration: 300,
+  api: { bodyParser: { sizeLimit: '15mb' } }, // allow base64-encoded PDFs up to ~10 MB
+};
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -48,12 +52,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (authError || !user) return res.status(401).json({ error: 'Invalid session' });
 
   // ── Parse request ──────────────────────────────────────────────────────────
-  const { statements, companyName = 'the business' } = req.body as {
-    statements: string;
+  const { statements, fileData, fileName, companyName = 'the business' } = req.body as {
+    statements?: string;
+    fileData?: string;   // base64-encoded PDF bytes
+    fileName?: string;
     companyName?: string;
   };
 
-  if (!statements) return res.status(400).json({ error: 'No financial data provided' });
+  // Resolve text from either pasted statements or uploaded file
+  let textToAnalyse = statements ?? '';
+
+  if (fileData && fileName?.toLowerCase().endsWith('.pdf')) {
+    try {
+      const buffer = Buffer.from(fileData, 'base64');
+      const parsed = await pdfParse(buffer);
+      textToAnalyse = parsed.text;
+    } catch (pdfErr: any) {
+      return res.status(422).json({ error: `Failed to parse PDF: ${pdfErr.message ?? 'unknown error'}` });
+    }
+  }
+
+  if (!textToAnalyse.trim()) return res.status(400).json({ error: 'No financial data provided' });
 
   try {
     // ── Step 1: Haiku — categorise and structure transactions ─────────────────
@@ -66,7 +85,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 Output a structured JSON summary with: income categories, expense categories, totals per category, and monthly trends.
 
 DATA:
-${statements.slice(0, 12000)}`,
+${textToAnalyse.slice(0, 12000)}`,
       }],
     });
 
@@ -107,6 +126,7 @@ ${categorisedData}`,
         model_categorisation: 'claude-haiku-4-5',
         model_analysis: 'claude-sonnet-4-5',
         company: companyName,
+        source: fileName ?? 'pasted text',
       },
     });
 
