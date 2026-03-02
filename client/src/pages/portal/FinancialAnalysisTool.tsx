@@ -25,13 +25,20 @@ import {
   RefreshCw,
   Download,
   FileDown,
+  Zap,
+  Brain,
 } from "lucide-react";
 import { exportToWord, exportToPDF } from "@/lib/exportReport";
 
 interface AnalysisResult {
   success: boolean;
   report: string;
-  meta: { model_categorisation: string; model_analysis: string; company: string; };
+  meta: {
+    model_categorisation: string;
+    model_analysis: string;
+    company: string;
+    analysis_mode?: "quick" | "deep";
+  };
 }
 
 type Step = "idle" | "categorising" | "analysing" | "done";
@@ -133,6 +140,7 @@ export default function FinancialAnalysisTool() {
   const [statements, setStatements] = useState("");
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
   const [companyNameOverride, setCompanyNameOverride] = useState("");
+  const [analysisMode, setAnalysisMode] = useState<"quick" | "deep">("deep");
   const [isAnalysing, setIsAnalysing] = useState(false);
   const [step, setStep] = useState<Step>("idle");
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -180,17 +188,28 @@ export default function FinancialAnalysisTool() {
     setIsAnalysing(true);
     setError(null);
     setResult(null);
-    setStep("categorising");
+
+    // Quick mode skips categorisation step; deep mode shows both steps
+    if (analysisMode === "deep") {
+      setStep("categorising");
+    } else {
+      setStep("analysing");
+    }
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Not authenticated");
 
-      await new Promise(r => setTimeout(r, 600));
-      setStep("analysing");
+      if (analysisMode === "deep") {
+        await new Promise(r => setTimeout(r, 600));
+        setStep("analysing");
+      }
 
       const aiBase = (import.meta.env.VITE_AI_API_URL ?? "").replace(/\/$/, "");
-      const body: Record<string, string> = { companyName: companyName || "the business" };
+      const body: Record<string, string> = {
+        companyName: companyName || "the business",
+        analysisMode,
+      };
 
       if (isPaste) {
         body.statements = statements.trim();
@@ -291,17 +310,21 @@ export default function FinancialAnalysisTool() {
           <Card className="border-[#1f3a6e]/20">
             <CardContent className="pt-8 pb-8">
               <div className="max-w-lg mx-auto space-y-8">
-                {/* Steps */}
+                {/* Steps — adapt based on mode */}
                 <div className="flex flex-col gap-3">
-                  <div className={`flex items-center gap-3 text-sm ${step === "categorising" ? "text-foreground font-medium" : "text-muted-foreground"}`}>
-                    {step === "categorising" ? <Loader2 className="h-4 w-4 animate-spin text-[#1f3a6e]" /> : <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                    Step 1 — Categorising transactions
-                    <Badge variant="outline" className="text-xs ml-auto">Claude Haiku</Badge>
-                  </div>
-                  <div className={`flex items-center gap-3 text-sm ${step === "analysing" ? "text-foreground font-medium" : step === "done" ? "text-muted-foreground" : "text-muted-foreground/40"}`}>
-                    {step === "analysing" ? <Loader2 className="h-4 w-4 animate-spin text-[#1f3a6e]" /> : step === "done" ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <div className="h-4 w-4 rounded-full border border-muted-foreground/30" />}
-                    Step 2 — Generating health report
-                    <Badge variant="outline" className="text-xs ml-auto">Claude Sonnet</Badge>
+                  {analysisMode === "deep" && (
+                    <div className={`flex items-center gap-3 text-sm ${step === "categorising" ? "text-foreground font-medium" : "text-muted-foreground"}`}>
+                      {step === "categorising" ? <Loader2 className="h-4 w-4 animate-spin text-[#1f3a6e]" /> : <CheckCircle2 className="h-4 w-4 text-green-500" />}
+                      Step 1 — Categorising transactions
+                      <Badge variant="outline" className="text-xs ml-auto">Claude Haiku</Badge>
+                    </div>
+                  )}
+                  <div className={`flex items-center gap-3 text-sm ${step === "analysing" ? "text-foreground font-medium" : "text-muted-foreground/40"}`}>
+                    {step === "analysing" ? <Loader2 className="h-4 w-4 animate-spin text-[#1f3a6e]" /> : <div className="h-4 w-4 rounded-full border border-muted-foreground/30" />}
+                    {analysisMode === "quick" ? "Generating quick snapshot" : "Step 2 — Generating health report"}
+                    <Badge variant="outline" className="text-xs ml-auto">
+                      {analysisMode === "quick" ? "Claude Haiku" : "Claude Sonnet"}
+                    </Badge>
                   </div>
                 </div>
 
@@ -315,7 +338,9 @@ export default function FinancialAnalysisTool() {
                   </div>
                 )}
 
-                <p className="text-xs text-center text-muted-foreground">This may take 30–60 seconds…</p>
+                <p className="text-xs text-center text-muted-foreground">
+                  {analysisMode === "quick" ? "This may take 5–10 seconds…" : "This may take 30–60 seconds…"}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -326,7 +351,40 @@ export default function FinancialAnalysisTool() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Financial Data Input</CardTitle>
-              <div className="flex gap-1 mt-2 p-1 bg-muted rounded-lg w-fit">
+
+              {/* ── Analysis mode selector ── */}
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setAnalysisMode("quick")}
+                  className={`flex items-start gap-3 rounded-xl border-2 p-3.5 text-left transition-all ${
+                    analysisMode === "quick"
+                      ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30"
+                      : "border-border hover:border-muted-foreground/40"
+                  }`}
+                >
+                  <Zap className={`h-5 w-5 mt-0.5 flex-shrink-0 ${analysisMode === "quick" ? "text-amber-500" : "text-muted-foreground"}`} />
+                  <div>
+                    <p className={`text-sm font-semibold ${analysisMode === "quick" ? "text-amber-700 dark:text-amber-400" : "text-foreground"}`}>Quick Snapshot</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">4-section summary · ~5 seconds · Haiku</p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setAnalysisMode("deep")}
+                  className={`flex items-start gap-3 rounded-xl border-2 p-3.5 text-left transition-all ${
+                    analysisMode === "deep"
+                      ? "border-[#1f3a6e] bg-[#1f3a6e]/5"
+                      : "border-border hover:border-muted-foreground/40"
+                  }`}
+                >
+                  <Brain className={`h-5 w-5 mt-0.5 flex-shrink-0 ${analysisMode === "deep" ? "text-[#1f3a6e]" : "text-muted-foreground"}`} />
+                  <div>
+                    <p className={`text-sm font-semibold ${analysisMode === "deep" ? "text-[#1f3a6e]" : "text-foreground"}`}>Deep Analysis</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">7-section full report · ~45 seconds · Haiku + Sonnet</p>
+                  </div>
+                </button>
+              </div>
+
+              <div className="flex gap-1 mt-3 p-1 bg-muted rounded-lg w-fit">
                 <button onClick={() => setInputMode("paste")}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${inputMode === "paste" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
                   <ClipboardList className="h-3.5 w-3.5" />Paste Text
@@ -378,8 +436,14 @@ export default function FinancialAnalysisTool() {
 
               <Button onClick={handleAnalyse}
                 disabled={inputMode === "paste" ? !statements.trim() : !uploadResult}
-                className="bg-[#1f3a6e] hover:bg-[#162d57] w-full sm:w-auto">
-                <TrendingUp className="h-4 w-4 mr-2" />Generate Financial Report
+                className={`w-full sm:w-auto ${
+                  analysisMode === "quick"
+                    ? "bg-amber-500 hover:bg-amber-600"
+                    : "bg-[#1f3a6e] hover:bg-[#162d57]"
+                }`}>
+                {analysisMode === "quick"
+                  ? <><Zap className="h-4 w-4 mr-2" />Quick Snapshot</>
+                  : <><Brain className="h-4 w-4 mr-2" />Deep Analysis</>}
               </Button>
             </CardContent>
           </Card>
@@ -393,6 +457,9 @@ export default function FinancialAnalysisTool() {
                 <span className="font-medium text-sm">Analysis complete for <span className="text-[#1f3a6e] font-semibold">{result.meta.company}</span></span>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
+                {result.meta.analysis_mode === "quick"
+                  ? <Badge className="text-xs bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-100"><Zap className="h-3 w-3 mr-1" />Quick Snapshot</Badge>
+                  : <Badge className="text-xs bg-[#1f3a6e]/10 text-[#1f3a6e] border-[#1f3a6e]/20 hover:bg-[#1f3a6e]/10"><Brain className="h-3 w-3 mr-1" />Deep Analysis</Badge>}
                 <Badge variant="outline" className="text-xs">{result.meta.model_categorisation}</Badge>
                 <Badge variant="outline" className="text-xs">{result.meta.model_analysis}</Badge>
                 <Button variant="outline" size="sm" onClick={handleExportPDF}>

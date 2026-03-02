@@ -50,15 +50,68 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (authError || !user) return res.status(401).json({ error: 'Invalid session' });
 
   // ── Parse request ──────────────────────────────────────────────────────────
-  const { statements, companyName = 'the business' } = req.body as {
+  const { statements, companyName = 'the business', analysisMode = 'deep' } = req.body as {
     statements?: string;
     companyName?: string;
+    analysisMode?: 'quick' | 'deep';
   };
 
   const textToAnalyse = (statements ?? '').trim();
   if (!textToAnalyse) return res.status(400).json({ error: 'No financial data provided' });
 
   try {
+    // ════════════════════════════════════════════════════════════════════════
+    // QUICK MODE — single Haiku step, fast 4-section snapshot (~5s)
+    // ════════════════════════════════════════════════════════════════════════
+    if (analysisMode === 'quick') {
+      const quickAnalysis = await client.messages.create({
+        model: 'claude-haiku-4-5',
+        max_tokens: 2048,
+        messages: [{
+          role: 'user',
+          content: `You are a concise financial advisor. Analyse the following financial data for ${companyName} and produce a quick-scan snapshot.
+
+Use this exact markdown structure:
+
+## Executive Summary
+2–3 sentences on overall financial health.
+
+## Revenue vs Expenses Snapshot
+Key income and expense figures; net position.
+
+## Top Risk Flags
+Up to 3 bullet points of the most urgent concerns.
+
+## Quick Wins
+Up to 3 actionable recommendations achievable within 30 days.
+
+Keep each section brief and practical. Avoid unnecessary detail.
+
+DATA:
+${textToAnalyse.slice(0, 8000)}`,
+        }],
+      });
+
+      const report = quickAnalysis.content[0].type === 'text'
+        ? quickAnalysis.content[0].text
+        : '';
+
+      return res.status(200).json({
+        success: true,
+        report,
+        meta: {
+          model_categorisation: 'claude-haiku-4-5',
+          model_analysis: 'claude-haiku-4-5',
+          company: companyName,
+          analysis_mode: 'quick',
+        },
+      });
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // DEEP MODE — Haiku categorise → Sonnet full 7-section report (~45s)
+    // ════════════════════════════════════════════════════════════════════════
+
     // ── Step 1: Haiku — categorise and structure transactions ─────────────────
     const categorisation = await client.messages.create({
       model: 'claude-haiku-4-5',
@@ -110,7 +163,7 @@ ${categorisedData}`,
         model_categorisation: 'claude-haiku-4-5',
         model_analysis: 'claude-sonnet-4-5',
         company: companyName,
-        source: 'uploaded file or pasted text',
+        analysis_mode: 'deep',
       },
     });
 
