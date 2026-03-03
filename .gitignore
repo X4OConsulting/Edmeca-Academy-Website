@@ -12,3 +12,12 @@ vite.config.ts.*
 client/.env
 client/.env.local
 client/.env.*.local
+.vercel
+.env*.local
+
+# Playwright generated output
+playwright-report/
+test-results/
+
+# Smartsheet local sync files — not version controlled
+smartsheet/
