@@ -175,26 +175,56 @@ class SmartsheetCLI {
     const phaseKey = String(taskId).split('.')[0];
     const phaseLabel = phaseLabels[phaseKey] || phaseKey;
 
-    // Find the preceding task row to use as siblingId (inserts directly below it)
+    // Find the correct insertion point for a top-level task (e.g. 3.25 after 3.24 + all its children)
     const sheet = await this.getSheet();
     const [major, minor] = String(taskId).split('.').map(Number);
 
     // Walk backwards from minor-1 down to 1 to find the closest existing predecessor
-    let siblingId = null;
+    let insertOptions = { toBottom: true };
     for (let prev = minor - 1; prev >= 1; prev--) {
       const prevTaskId = `${major}.${prev}`;
       const siblingRow = sheet.rows.find(r =>
         r.cells.find(c => c.columnId === COL.taskId && String(c.value) === prevTaskId)
       );
       if (siblingRow) {
-        siblingId = siblingRow.id;
-        console.log(`📌 Inserting after task ${prevTaskId} (row ${siblingId})`);
+        // Gather ALL descendants of this predecessor (children, grandchildren, etc.)
+        const isDescendant = (row) => {
+          let current = row;
+          while (current.parentId) {
+            if (current.parentId === siblingRow.id) return true;
+            current = sheet.rows.find(r => r.id === current.parentId) || { parentId: null };
+          }
+          return false;
+        };
+        const descendants = sheet.rows.filter(r => isDescendant(r));
+
+        if (descendants.length > 0) {
+          // Find the last descendant's position in the sheet rows array (display order)
+          const lastDescendantId = descendants[descendants.length - 1].id;
+          const lastDescIdx = sheet.rows.findIndex(r => r.id === lastDescendantId);
+
+          // Find the next row AFTER all descendants — insert our row BEFORE it (above: true)
+          // That makes our new row a top-level sibling at the same level as the predecessor
+          const nextRow = sheet.rows[lastDescIdx + 1];
+          if (nextRow) {
+            insertOptions = { siblingId: nextRow.id, above: true };
+            const nextTaskVal = nextRow.cells.find(c => c.columnId === COL.taskId)?.value;
+            console.log(`📌 Inserting before row ${nextRow.id} (${nextTaskVal}) — after last descendant of ${prevTaskId}`);
+          } else {
+            insertOptions = { toBottom: true };
+            console.log(`📌 No row after descendants — appending to bottom`);
+          }
+        } else {
+          // No children — simple sibling insert after the predecessor
+          insertOptions = { siblingId: siblingRow.id };
+          console.log(`📌 Inserting after task ${prevTaskId} (row ${siblingRow.id})`);
+        }
         break;
       }
     }
 
     const newRow = {
-      ...(siblingId ? { siblingId } : { toBottom: true }),
+      ...insertOptions,
       cells: [
         { columnId: COL.taskId,   value: taskId },
         { columnId: COL.name,     value: title },
