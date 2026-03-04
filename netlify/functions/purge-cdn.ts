@@ -15,9 +15,10 @@ import { purgeCache } from "@netlify/functions";
 import type { Context } from "@netlify/functions";
 
 export default async (req: Request, context: Context) => {
-  // Require a secret token to prevent unauthorized use
+  // Require a secret token to prevent unauthorized use.
+  // Header-only — never accept secret in URL params (URL params appear in access logs).
   const secret = process.env.PURGE_SECRET;
-  const provided = req.headers.get('x-purge-secret') ?? new URL(req.url).searchParams.get('secret');
+  const provided = req.headers.get('x-purge-secret');
   if (!secret || provided !== secret) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
   }

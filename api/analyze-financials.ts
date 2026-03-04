@@ -50,11 +50,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (authError || !user) return res.status(401).json({ error: 'Invalid session' });
 
   // ── Parse request ──────────────────────────────────────────────────────────
-  const { statements, companyName = 'the business', analysisMode = 'deep' } = req.body as {
+  const { statements, companyName: rawCompanyName = 'the business', analysisMode = 'deep' } = req.body as {
     statements?: string;
     companyName?: string;
     analysisMode?: 'quick' | 'deep';
   };
+
+  // Sanitise companyName — max 200 chars, strip control characters
+  const companyName = String(rawCompanyName ?? 'the business').replace(/[\x00-\x1F\x7F]/g, '').slice(0, 200) || 'the business';
 
   const textToAnalyse = (statements ?? '').trim();
   if (!textToAnalyse) return res.status(400).json({ error: 'No financial data provided' });

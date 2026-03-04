@@ -12,11 +12,45 @@ if (!supabaseUrl || !supabaseServiceKey) {
 // Create Supabase client with service role key for server-side operations
 const supabase = createClient<Database>(supabaseUrl, supabaseServiceKey);
 
+// CORS origins that are permitted to call this function
+const ALLOWED_ORIGINS = [
+  'https://edmeca.co.za',
+  'https://edmecaacademy.netlify.app',
+  'https://staging--edmecaacademy.netlify.app',
+  'http://localhost:5173',
+  'http://localhost:4173',
+];
+
+function corsHeaders(origin: string | undefined): Record<string, string> {
+  const allowed = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': allowed,
+    'Vary': 'Origin',
+  };
+}
+
 const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
+  const origin = event.headers['origin'] ?? event.headers['Origin'];
+
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers: {
+        ...corsHeaders(origin),
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+      body: '',
+    };
+  }
+
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
+      headers: corsHeaders(origin),
       body: JSON.stringify({ message: 'Method Not Allowed' }),
     };
   }
@@ -30,6 +64,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     if (!name || !email || !audienceType || !message) {
       return {
         statusCode: 400,
+        headers: corsHeaders(origin),
         body: JSON.stringify({ 
           message: 'Missing required fields: name, email, audienceType, message' 
         }),
@@ -40,6 +75,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     if (name.length > 100 || email.length > 200 || (company && company.length > 200) || message.length > 5000) {
       return {
         statusCode: 400,
+        headers: corsHeaders(origin),
         body: JSON.stringify({ message: 'Input exceeds maximum allowed length' }),
       };
     }
@@ -49,6 +85,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     if (!emailRegex.test(email)) {
       return {
         statusCode: 400,
+        headers: corsHeaders(origin),
         body: JSON.stringify({ message: 'Invalid email format' }),
       };
     }
@@ -58,6 +95,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     if (!allowedAudienceTypes.includes(audienceType)) {
       return {
         statusCode: 400,
+        headers: corsHeaders(origin),
         body: JSON.stringify({ message: 'Invalid audience type' }),
       };
     }
@@ -76,34 +114,30 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       .single();
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error('Supabase error saving contact submission');
       return {
         statusCode: 500,
+        headers: corsHeaders(origin),
         body: JSON.stringify({ message: 'Failed to save contact submission' }),
       };
     }
 
-    // TODO: Add email notification here
-    // You can integrate with SendGrid, Mailgun, or Gmail SMTP
-    // For now, we'll just log it
-    console.log('Contact form submission:', { name, email, company, audienceType, message });
+    // Log minimal audit info — never log message content (PII)
+    console.log('Contact form submission received', { id: data.id, audienceType });
 
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': 'https://edmeca.co.za',
-        'Vary': 'Origin',
-      },
+      headers: corsHeaders(origin),
       body: JSON.stringify({ 
         message: 'Contact form submitted successfully',
         id: data.id 
       }),
     };
   } catch (error) {
-    console.error('Contact form error:', error);
+    console.error('Contact form error');
     return {
       statusCode: 500,
+      headers: corsHeaders(origin),
       body: JSON.stringify({ message: 'Internal server error' }),
     };
   }
