@@ -81,6 +81,17 @@ export function Footer() {
             <p className="text-sm text-muted-foreground">
               &copy; {new Date().getFullYear()} EdMeCa Digital Academy. All rights reserved.
             </p>
+            <p className="text-sm text-muted-foreground">
+              Powered by{" "}
+              <a
+                href="https://x4o.co.za"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-foreground hover:text-primary transition-colors"
+              >
+                X4O Consulting
+              </a>
+            </p>
             <div className="flex gap-6">
               <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
                 Privacy Policy
