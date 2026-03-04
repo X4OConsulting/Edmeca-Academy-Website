@@ -67,37 +67,56 @@ const ChartContainer = React.forwardRef<
 })
 ChartContainer.displayName = "Chart"
 
+// Sanitise a CSS identifier or value: strip characters that could break out of a
+// <style> block (< > ") before injecting into the CSS string via textContent.
+// Note: values are set via element.textContent (not innerHTML), so they are never
+// parsed as HTML — this layer is a defence-in-depth guard against CSS injection.
+function sanitizeCSSValue(value: string): string {
+  return value.replace(/[<>"]/g, "")
+}
+
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
+  const styleRef = React.useRef<HTMLStyleElement>(null)
+
   const colorConfig = Object.entries(config).filter(
     ([, config]) => config.theme || config.color
   )
 
-  if (!colorConfig.length) {
-    return null
-  }
-
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
+  const cssText = React.useMemo(() => {
+    if (!colorConfig.length) return ""
+    const safeId = sanitizeCSSValue(id)
+    return Object.entries(THEMES)
+      .map(
+        ([theme, prefix]) => `
+${prefix} [data-chart=${safeId}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color
-    return color ? `  --color-${key}: ${color};` : null
+    return color ? `  --color-${sanitizeCSSValue(key)}: ${sanitizeCSSValue(color)};` : null
   })
+  .filter(Boolean)
   .join("\n")}
 }
 `
-          )
-          .join("\n"),
-      }}
-    />
-  )
+      )
+      .join("\n")
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, config])
+
+  React.useEffect(() => {
+    if (styleRef.current) {
+      // textContent is plain text — never parsed as HTML, safe from XSS.
+      styleRef.current.textContent = cssText
+    }
+  }, [cssText])
+
+  if (!colorConfig.length) {
+    return null
+  }
+
+  return <style ref={styleRef} />
 }
 
 const ChartTooltip = RechartsPrimitive.Tooltip
