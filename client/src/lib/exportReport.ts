@@ -226,17 +226,18 @@ export function exportToPDF(markdown: string, companyName: string): void {
   const date = new Date().toLocaleDateString("en-ZA", { day: "2-digit", month: "long", year: "numeric" });
   const htmlBody = markdownToHTML(markdown);
 
-  const printWin = window.open("", "_blank", "width=900,height=700");
-  if (!printWin) {
-    alert("Pop-up blocked. Please allow pop-ups for this page and try again.");
-    return;
-  }
-
-  printWin.document.write(`<!DOCTYPE html>
+  // Build the full HTML document as a string.
+  // All user-supplied values (companyName, date) are passed through escapeHtml()
+  // before injection. htmlBody is produced by markdownToHTML() which runs every
+  // line through inlineToHTML() — escaping &, <, > before wrapping in tags.
+  // The string is rendered via a Blob URL (see below) rather than the deprecated
+  // document-write API, preventing DOM-injection XSS vectors.
+  const safeCompany = escapeHtml(companyName || "Business");
+  const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>${escapeHtml(companyName || "Business")} — Financial Health Report</title>
+  <title>${safeCompany} \u2014 Financial Health Report</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body  { font-family: "Segoe UI", Helvetica, Arial, sans-serif; font-size: 11pt; color: #1a1a1a; line-height: 1.55; padding: 2cm; }
@@ -265,15 +266,35 @@ export function exportToPDF(markdown: string, companyName: string): void {
 <body>
   <div class="cover">
     <div class="cover-title">Financial Health Report</div>
-    <div class="cover-company">${escapeHtml(companyName || "Business")}</div>
-    <div class="cover-date">Generated: ${date}</div>
+    <div class="cover-company">${safeCompany}</div>
+    <div class="cover-date">Generated: ${escapeHtml(date)}</div>
   </div>
   ${htmlBody}
-  <div class="footer">EdMeCa Academy &nbsp;·&nbsp; Financial Analysis Tool &nbsp;·&nbsp; ${date}</div>
+  <div class="footer">EdMeCa Academy &nbsp;\u00b7&nbsp; Financial Analysis Tool &nbsp;\u00b7&nbsp; ${escapeHtml(date)}</div>
   <script>window.onload = function () { window.print(); };<\/script>
 </body>
-</html>`);
-  printWin.document.close();
+</html>`;
+
+  // Create a Blob URL and navigate a new window to it — the modern, safe alternative
+  // to the deprecated DOM-write API. Blob URLs have a unique origin, preventing
+  // cross-origin access from other pages.
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const blobUrl = URL.createObjectURL(blob);
+
+  const printWin = window.open(blobUrl, "_blank", "width=900,height=700");
+  if (!printWin) {
+    URL.revokeObjectURL(blobUrl);
+    alert("Pop-up blocked. Please allow pop-ups for this page and try again.");
+    return;
+  }
+
+  // Revoke the object URL after the window has loaded to free memory.
+  // afterprint fires after the print dialog closes; fallback via load event.
+  printWin.addEventListener("load", () => {
+    printWin.addEventListener("afterprint", () => URL.revokeObjectURL(blobUrl));
+    // Fallback: revoke after 5 min in case afterprint never fires (e.g. cancelled)
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 5 * 60 * 1000);
+  });
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────

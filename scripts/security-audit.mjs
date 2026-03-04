@@ -86,19 +86,25 @@ const files = readFilesRecursively(SOURCE_DIRS, SOURCE_EXTS);
 console.log(`Scanning ${files.length} source files...`);
 
 // Test 1: XSS — direct DOM injection
-const xssHits = grepFiles(files, 'dangerouslySetInnerHTML|innerHTML\\s*=\\s*[^=]|document\\.write\\(|eval\\s*\\(');
+// Exclusions: lines that are source code comments — the pattern word may appear
+// in a comment explaining why a safe alternative was used.
+const xssAllHits = grepFiles(files, 'dangerouslySetInnerHTML|innerHTML\\s*=\\s*[^=]|document\\.write\\(|eval\\s*\\(');
+const xssHits = xssAllHits.filter(h => {
+  const trimmed = h.content.trim();
+  return !trimmed.startsWith('//') && !trimmed.startsWith('*');
+});
 const xssResult = {
   id: 'SEC-001',
   name: 'Cross-Site Scripting (XSS)',
   category: 'Injection',
-  description: 'Checks for direct DOM manipulation patterns that bypass React\'s built-in XSS protection (dangerouslySetInnerHTML, innerHTML assignment, eval(), document.write()). React escapes content by default; these patterns override that protection.',
+  description: 'Checks for direct DOM manipulation patterns that bypass React\'s built-in XSS protection (dangerouslySetInnerHTML, innerHTML assignment, eval(), document.write()). React escapes content by default; these patterns override that protection. Comment lines are excluded from the scan.',
   cweId: 'CWE-79',
   owaspCategory: 'A03:2021 - Injection',
   hits: xssHits,
   status: xssHits.length === 0 ? 'PASS' : 'FAIL',
   risk: xssHits.length === 0 ? 'None' : 'High',
   finding: xssHits.length === 0
-    ? 'No direct DOM injection patterns found. React JSX rendering is used throughout, which escapes all user-supplied content by default.'
+    ? 'No direct DOM injection patterns found. React JSX rendering is used throughout, which escapes all user-supplied content by default. The PDF export function uses the Blob URL API instead of document.write().'
     : `${xssHits.length} potential XSS vector(s) found requiring review.`,
   recommendation: 'Maintain use of React JSX. If HTML rendering from external sources is required, use the DOMPurify library to sanitise content before using dangerouslySetInnerHTML.'
 };
