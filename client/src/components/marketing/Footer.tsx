@@ -89,7 +89,7 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="font-medium text-foreground hover:text-primary transition-colors"
               >
-                X4O Consulting
+                X4O
               </a>
             </p>
             <div className="flex gap-6">
