@@ -47,10 +47,14 @@ const C = {
   blueBg:      'DBEAFE',
 };
 
-// ─── EMU helpers ─────────────────────────────────────────────────────────────
-const IN  = (n) => Math.round(n * 914400);   // inches → EMU
-const PT  = (n) => Math.round(n * 12700);    // points → EMU (half-points * 2 / 2)
-const HF  = (n) => n * 2;                    // pts → half-pts (font size)
+// ─── Size helpers ────────────────────────────────────────────────────────────
+// docx ImageRun.transformation uses PIXELS (library converts to EMU internally)
+// TableCell.margins, Paragraph.spacing, Paragraph.indent use TWIPS (1pt = 20 twip)
+const PX  = (inches) => Math.round(inches * 96);  // inches → pixels (96dpi)
+const TW  = (pts)    => Math.round(pts * 20);      // points → twips (cell margins, spacing)
+const HF  = (n)      => n * 2;                     // pts → half-pts (font size)
+// Alias kept for backward compat within this file
+const PT  = TW;
 
 // ─── Spacing helper ───────────────────────────────────────────────────────────
 const sp = (before = 0, after = 120) => ({ spacing: { before, after, line: 276, lineRule: 'auto' } });
@@ -179,13 +183,13 @@ const divider = (color = C.midGrey) => new Paragraph({
 });
 
 // ─── Logo image ───────────────────────────────────────────────────────────────
-// 2000×1125 → scale to 2.2 in wide
-const logoW = IN(2.2);
-const logoH = Math.round(logoW * (1125 / 2000));
+// 2000×1125 → scale to 2.2 in wide (pixels for docx ImageRun)
+const LOGO_W_PX = PX(2.2);                               // 211 px
+const LOGO_H_PX = Math.round(LOGO_W_PX * (1125 / 2000)); // 119 px
 const logoImg = () => new Paragraph({
   children: [new ImageRun({
     data:    LOGO_BUF,
-    transformation: { width: logoW, height: logoH },
+    transformation: { width: LOGO_W_PX, height: LOGO_H_PX },
     type:    'png',
   })],
   alignment: AlignmentType.LEFT,
@@ -386,7 +390,7 @@ function buildExecutiveSummary() {
     scoreTable,
     emptyLine(120),
     callout(
-      'Overall Security Posture: GOOD  ·  9 of 10 checks passing  ·  0 critical / 0 high vulnerabilities in application code  ·  ' +
+      'Overall Security Posture: GOOD  |  9 of 10 checks passing  |  0 critical / 0 high vulnerabilities in application code  |  ' + +
       'The platform is suitable for continued controlled rollout. A dynamic penetration test is recommended prior to full public launch.',
       C.navyLight, C.navy
     ),
@@ -632,7 +636,7 @@ function buildFindings() {
           margins: { top: PT(5), bottom: PT(5), left: PT(10), right: PT(10) },
           children: [new Paragraph({
             children: [
-              run(`${f.id}  ·  `, { bold: true, size: HF(10), color: C.gold, font: 'Calibri' }),
+              run(`${f.id}  |  `, { bold: true, size: HF(10), color: C.gold, font: 'Calibri' }),
               run(f.name, { bold: true, size: HF(10), color: C.white, font: 'Calibri' }),
             ],
             spacing: { after: 0 },
@@ -1016,7 +1020,7 @@ function buildConclusion() {
       new TableRow({ children: [
         dCell('Raymond Crown (Supervisor)', { w: 33 }),
         dCell('EDMECA Digital Academy',    { w: 33, bg: C.offWhite }),
-        dCell('v1.0  ·  ' + DATE_LONG,    { w: 34 }),
+        dCell('v1.0  |  ' + DATE_LONG,    { w: 34 }),
       ]}),
     ]
   });
@@ -1051,11 +1055,11 @@ function buildConclusion() {
     divider(C.gold),
     new Paragraph({
       children: [
-        run('EDMECA Digital Academy  ·  Security Audit Report  ·  ' + DATE_LONG + '  ·  ', {
+        run('EDMECA Digital Academy  |  Security Audit Report  |  ' + DATE_LONG + '  |  ', {
           size: HF(8.5), color: C.darkGrey, font: 'Calibri', italics: true,
         }),
         run('CONFIDENTIAL', { size: HF(8.5), color: C.red, font: 'Calibri', bold: true }),
-        run('  ·  Powered by X4O', { size: HF(8.5), color: C.darkGrey, font: 'Calibri', italics: true }),
+        run('  |  Powered by X4O', { size: HF(8.5), color: C.darkGrey, font: 'Calibri', italics: true }),
       ],
       alignment: AlignmentType.CENTER,
       spacing:   { after: 0 },
@@ -1128,7 +1132,7 @@ async function main() {
                   children: [new Paragraph({
                     children: [new ImageRun({
                       data: LOGO_BUF,
-                      transformation: { width: Math.round(IN(1.1)), height: Math.round(IN(1.1) * 1125/2000) },
+                      transformation: { width: PX(1.1), height: Math.round(PX(1.1) * 1125/2000) },
                       type: 'png',
                     })],
                     spacing: { after: 0 },
@@ -1139,7 +1143,7 @@ async function main() {
                   margins: { bottom: PT(4) },
                   verticalAlign: 'bottom',
                   children: [new Paragraph({
-                    children: [run('Security Audit Report  ·  CONFIDENTIAL', {
+                    children: [run('Security Audit Report  |  CONFIDENTIAL', {
                       size: HF(8.5), color: C.darkGrey, font: 'Calibri', italics: true,
                     })],
                     alignment: AlignmentType.RIGHT,
@@ -1162,7 +1166,7 @@ async function main() {
                   width:   { size: 60, type: WidthType.PERCENTAGE },
                   margins: { top: PT(4) },
                   children: [new Paragraph({
-                    children: [run(`EDMECA Digital Academy  ·  ${DATE_LONG}  ·  Powered by X4O`, {
+                    children: [run(`EDMECA Digital Academy  |  ${DATE_LONG}  |  Powered by X4O`, {
                       size: HF(8), color: C.darkGrey, font: 'Calibri', italics: true,
                     })],
                     spacing: { after: 0 },
