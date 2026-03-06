@@ -34,6 +34,20 @@
       </select>
       <textarea name="message"></textarea>
     </form>
+
+    <!-- Hidden form for Netlify Forms — Access Applications -->
+    <form name="signup" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="tel" name="phone" />
+      <input type="text" name="organisation" />
+      <select name="interestType">
+        <option value="entrepreneur">An Entrepreneur</option>
+        <option value="programme">A Programme / Incubator</option>
+        <option value="other">Other</option>
+      </select>
+      <textarea name="motivation"></textarea>
+    </form>
     
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

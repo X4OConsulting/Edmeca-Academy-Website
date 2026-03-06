@@ -14,6 +14,7 @@ import Frameworks from "@/pages/Frameworks";
 import Engagement from "@/pages/Engagement";
 import Contact from "@/pages/Contact";
 import Login from "@/pages/Login";
+import Signup from "@/pages/Signup";
 import Dashboard from "@/pages/portal/Dashboard";
 import BMCTool from "@/pages/portal/BMCTool";
 import SWOTPestleTool from "@/pages/portal/SWOTPestleTool";
@@ -68,6 +69,7 @@ function Router() {
       <Route path="/frameworks" component={Frameworks} />
       <Route path="/engagement" component={Engagement} />
       <Route path="/contact" component={Contact} />
+      <Route path="/signup" component={Signup} />
       <Route path="/login" component={Login} />
 
       {/* Portal Routes (Protected) */}

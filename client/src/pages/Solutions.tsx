@@ -4,8 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { ArrowRight, Lightbulb, Users, CheckCircle2, Rocket, BarChart3, FileText, Target } from "lucide-react";
 
-const isLoginEnabled = import.meta.env.VITE_ENABLE_LOGIN === "true";
-
 const entrepreneurBenefits = [
   {
     icon: Lightbulb,
@@ -111,7 +109,7 @@ export default function Solutions() {
               </div>
               
               <div className="mt-8">
-                <Link href={isLoginEnabled ? "/login" : "/contact"} asChild>
+                <Link href="/signup" asChild>
                   <Button size="lg" data-testid="button-entrepreneur-start">
                     Start Free
                     <ArrowRight className="ml-2 h-4 w-4" />

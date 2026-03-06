@@ -3,8 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 
-const isLoginEnabled = import.meta.env.VITE_ENABLE_LOGIN === "true";
-
 import {
   ArrowRight,
   Lightbulb,
@@ -290,7 +288,7 @@ export default function Home() {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-              <Link href={isLoginEnabled ? "/login" : "/contact"} asChild>
+              <Link href="/signup" asChild>
                 <Button variant="outline" size="lg" data-testid="button-final-register">
                   Register Free
                 </Button>

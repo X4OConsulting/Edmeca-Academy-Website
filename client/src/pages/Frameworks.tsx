@@ -6,8 +6,6 @@ import {
   Sparkles,
 } from "lucide-react";
 
-const isLoginEnabled = import.meta.env.VITE_ENABLE_LOGIN === "true";
-
 
 const aiFeatures = [
   {
@@ -123,7 +121,7 @@ export default function Frameworks() {
             Create your free account and start building your business with AI-powered guidance.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href={isLoginEnabled ? "/login" : "/contact"} asChild>
+            <Link href="/signup" asChild>
               <Button size="lg" variant="secondary" data-testid="button-frameworks-start">
                 Get Started Free
                 <ArrowRight className="ml-2 h-4 w-4" />
