@@ -22,6 +22,10 @@ import {
   Sparkles,
   LogOut,
   LifeBuoy,
+  CheckCircle2,
+  Circle,
+  Activity,
+  BookOpen,
 } from "lucide-react";
 import type { Artifact } from "@shared/schema";
 import logoImage from "@assets/EdMeCa_LOGO.png";
@@ -163,6 +167,24 @@ export default function Dashboard() {
     return labels[status] || "Draft";
   };
 
+  const LEARNING_PATH = [
+    { type: "bmc",               label: "Business Model Canvas",  href: "/portal/tools/bmc",       description: "Map your business model across 9 building blocks." },
+    { type: "swot_pestle",       label: "SWOT & PESTLE Analysis", href: "/portal/tools/analysis",  description: "Identify strengths, threats and market forces." },
+    { type: "value_proposition", label: "Value Proposition",      href: "/portal/tools/value-prop",description: "Define your customer fit and unique offering." },
+    { type: "pitch_builder",     label: "Pitch Builder",           href: "/portal/tools/pitch",     description: "Build an investor-ready pitch deck." },
+  ];
+
+  const nextStepIndex = LEARNING_PATH.findIndex(step => latestByType?.[step.type]?.status !== "complete");
+  const nextStep = nextStepIndex >= 0 ? LEARNING_PATH[nextStepIndex] : null;
+
+  const allActivities = [...(artifacts ?? [])]
+    .sort((a, b) => {
+      const ad = new Date((a as any).updated_at ?? a.updatedAt ?? 0).getTime();
+      const bd = new Date((b as any).updated_at ?? b.updatedAt ?? 0).getTime();
+      return bd - ad;
+    })
+    .slice(0, 8);
+
   const getRelativeTime = (dateStr: string | undefined) => {
     if (!dateStr) return "Recently";
     const date = new Date(dateStr);
@@ -288,6 +310,66 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Learning Path */}
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <BookOpen className="h-5 w-5 text-primary" />
+            <h2 className="font-serif text-xl font-semibold">Learning Path</h2>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {LEARNING_PATH.map((step, i) => {
+              const done = latestByType?.[step.type]?.status === "complete";
+              const isNext = nextStepIndex === i;
+              return (
+                <Link key={step.type} href={step.href}>
+                  <Card className={`h-full cursor-pointer group transition-all border-2 ${
+                    done ? "border-green-200 dark:border-green-900" :
+                    isNext ? "border-primary shadow-md" :
+                    "border-transparent"
+                  }`}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0 ${
+                          done ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" :
+                          isNext ? "bg-primary text-primary-foreground" :
+                          "bg-muted text-muted-foreground"
+                        }`}>{i + 1}</span>
+                        {done
+                          ? <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 ml-auto" />
+                          : isNext
+                            ? <span className="ml-auto text-xs font-medium text-primary">Up next</span>
+                            : <Circle className="h-4 w-4 text-muted-foreground ml-auto" />
+                        }
+                      </div>
+                      <p className={`text-sm font-semibold group-hover:text-primary transition-colors ${
+                        done ? "text-muted-foreground line-through" : ""
+                      }`}>{step.label}</p>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{step.description}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+          {nextStep && (
+            <div className="mt-3 flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
+              <Sparkles className="h-4 w-4 text-primary shrink-0" />
+              <p className="text-sm">
+                <span className="font-medium">Recommended next: </span>
+                <Link href={nextStep.href} className="text-primary underline underline-offset-2 hover:no-underline">
+                  {nextStep.label}
+                </Link>
+              </p>
+            </div>
+          )}
+          {!nextStep && (
+            <div className="mt-3 flex items-center gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+              <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+              <p className="text-sm font-medium text-green-700 dark:text-green-400">All core tools completed — you're pitch-ready!</p>
+            </div>
+          )}
+        </div>
+
         {/* Recent Artifacts */}
         <div>
           <div className="flex items-center justify-between mb-4">
@@ -396,6 +478,52 @@ export default function Dashboard() {
             </Card>
           )}
         </div>
+
+        {/* Activity Feed */}
+        {allActivities.length > 0 && (
+          <div className="mt-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Activity className="h-5 w-5 text-primary" />
+              <h2 className="font-serif text-xl font-semibold">Activity</h2>
+            </div>
+            <Card>
+              <CardContent className="p-0">
+                <ul className="divide-y">
+                  {allActivities.map((artifact, idx) => {
+                    const toolType = (artifact as any).tool_type ?? artifact.toolType;
+                    const updatedAt = (artifact as any).updated_at ?? artifact.updatedAt;
+                    const createdAt = (artifact as any).created_at ?? artifact.createdAt;
+                    const isNew = updatedAt === createdAt;
+                    const title = (artifact.title ?? "").startsWith("Untitled")
+                      ? getToolTypeLabel(toolType)
+                      : artifact.title;
+                    return (
+                      <li key={artifact.id} className="flex items-center gap-4 px-5 py-3 hover:bg-muted/40 transition-colors">
+                        <div className="w-2 h-2 rounded-full bg-primary shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm">
+                            <span className="font-medium">{isNew ? "Created" : "Updated"}</span>
+                            {" "}<span className="text-muted-foreground">{getToolTypeLabel(toolType)}</span>
+                            {title && !title.startsWith(getToolTypeLabel(toolType)) && (
+                              <span className="text-muted-foreground"> — {title}</span>
+                            )}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
+                          <Clock className="h-3 w-3" />
+                          {getRelativeTime(updatedAt)}
+                        </div>
+                        <Badge variant="secondary" className={`text-xs shrink-0 ${getStatusBadge(artifact.status || "draft")}`}>
+                          {getStatusLabel(artifact.status || "draft")}
+                        </Badge>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </main>
     </div>
   );
