@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import type { Artifact } from "@shared/schema";
 import logoImage from "@assets/EdMeCa_LOGO.png";
+import { PageError } from "@/components/portal/PageStates";
 
 const tools = [
   {
@@ -94,7 +95,7 @@ export default function Dashboard() {
     navigate("/");
   };
 
-  const { data: artifacts, isLoading: artifactsLoading } = useQuery<Artifact[]>({
+  const { data: artifacts, isLoading: artifactsLoading, isError: artifactsError, refetch } = useQuery<Artifact[]>({
     queryKey: ["artifacts"],
     queryFn: () => artifactsService.getArtifacts(),
     enabled: !!user,
@@ -167,7 +168,7 @@ export default function Dashboard() {
     return labels[status] || "Draft";
   };
 
-  const LEARNING_PATH = [
+  if (artifactsError) return <PageError message="Could not load your work. Please check your connection." onRetry={refetch} />;
     { type: "bmc",               label: "Business Model Canvas",  href: "/portal/tools/bmc",       description: "Map your business model across 9 building blocks." },
     { type: "swot_pestle",       label: "SWOT & PESTLE Analysis", href: "/portal/tools/analysis",  description: "Identify strengths, threats and market forces." },
     { type: "value_proposition", label: "Value Proposition",      href: "/portal/tools/value-prop",description: "Define your customer fit and unique offering." },

@@ -34,6 +34,7 @@ import FinancialAnalysisTool from "@/pages/portal/FinancialAnalysisTool";
 import Profile from "@/pages/portal/Profile";
 import NotFound from "@/pages/not-found";
 import { FloatingChat } from "@/components/FloatingChat";
+import { ErrorBoundary } from "@/components/portal/ErrorBoundary";
 
 // CI/CD Automation Test - This PR will be auto-reviewed and approved if all checks pass
 
@@ -86,42 +87,42 @@ function Router() {
       {/* Portal Routes (Protected) */}
       <Route path="/portal">
         <ProtectedRoute>
-          <Dashboard />
+          <ErrorBoundary><Dashboard /></ErrorBoundary>
         </ProtectedRoute>
       </Route>
       <Route path="/portal/tools/bmc">
         <ProtectedRoute>
-          <BMCTool />
+          <ErrorBoundary><BMCTool /></ErrorBoundary>
         </ProtectedRoute>
       </Route>
       <Route path="/portal/tools/analysis">
         <ProtectedRoute>
-          <SWOTPestleTool />
+          <ErrorBoundary><SWOTPestleTool /></ErrorBoundary>
         </ProtectedRoute>
       </Route>
       <Route path="/portal/tools/value-prop">
         <ProtectedRoute>
-          <ValuePropTool />
+          <ErrorBoundary><ValuePropTool /></ErrorBoundary>
         </ProtectedRoute>
       </Route>
       <Route path="/portal/tools/pitch">
         <ProtectedRoute>
-          <PitchBuilderTool />
+          <ErrorBoundary><PitchBuilderTool /></ErrorBoundary>
         </ProtectedRoute>
       </Route>
       <Route path="/portal/tools/progress">
         <ProtectedRoute>
-          <ProgressTrackerTool />
+          <ErrorBoundary><ProgressTrackerTool /></ErrorBoundary>
         </ProtectedRoute>
       </Route>
       <Route path="/portal/tools/financials">
         <ProtectedRoute>
-          <FinancialAnalysisTool />
+          <ErrorBoundary><FinancialAnalysisTool /></ErrorBoundary>
         </ProtectedRoute>
       </Route>
       <Route path="/portal/profile">
         <ProtectedRoute>
-          <Profile />
+          <ErrorBoundary><Profile /></ErrorBoundary>
         </ProtectedRoute>
       </Route>
 

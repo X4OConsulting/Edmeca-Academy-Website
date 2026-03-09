@@ -11,6 +11,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { artifactsService, progressService } from "@/lib/services";
 import { queryKeys } from "@/lib/queryKeys";
 import { useAuth } from "@/hooks/use-auth";
+import { PageError, PageLoader } from "@/components/portal/PageStates";
 import {
   ArrowLeft,
   TrendingUp,
@@ -66,19 +67,20 @@ export default function ProgressTrackerTool() {
   const [view, setView] = useState<ViewType>("overview");
   const [form, setForm] = useState<MilestoneForm>({ milestone: "", evidence: "", completed: false });
 
-  const { data: artifacts } = useQuery({
+  const { data: artifacts, isError: artifactsError } = useQuery({
     queryKey: queryKeys.artifacts.all,
     queryFn: () => artifactsService.getArtifacts(),
     enabled: !!user,
   });
 
-  const { data: entries, isLoading: entriesLoading } = useQuery({
+  const { data: entries, isLoading: entriesLoading, isError: entriesError, refetch: refetchEntries } = useQuery({
     queryKey: queryKeys.progress.all,
     queryFn: () => progressService.getProgressEntries(),
     enabled: !!user,
   });
 
-  // Compute overall score
+  if (entriesLoading) return <PageLoader message="Loading progress tracker..." />;
+  if (artifactsError || entriesError) return <PageError message="Could not load progress data." onRetry={refetchEntries} />;
   const toolStatuses = toolDefinitions.map(t => toolStatus(artifacts, t.toolType));
   const completedTools = toolStatuses.filter(s => s.status === "complete").length;
   const inProgressTools = toolStatuses.filter(s => s.status === "in_progress").length;
