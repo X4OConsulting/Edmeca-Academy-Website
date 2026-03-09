@@ -28,7 +28,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import type { Artifact } from "@shared/schema";
-import logoImage from "@assets/EdMeCa_LOGO.png";
+import logoImage from "@assets/logo.png";
 import { PageError, PageLoader } from "@/components/portal/PageStates";
 import { ThemeToggle } from "@/components/ThemeToggle";
 

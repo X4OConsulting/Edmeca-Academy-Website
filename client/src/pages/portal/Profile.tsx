@@ -25,7 +25,7 @@ import {
   Clock,
   FileText,
 } from "lucide-react";
-import logoImage from "@assets/EdMeCa_LOGO.png";
+import logoImage from "@assets/logo.png";
 
 export default function Profile() {
   const { user } = useAuth();
