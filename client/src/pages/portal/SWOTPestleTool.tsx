@@ -457,7 +457,7 @@ export default function SWOTPestleTool() {
                 <CardTitle className="text-base">SWOT Summary — {data.companyName || "Your Business"}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {swotConfig.map(({ key, label, icon: Icon, color, bg }) => (
                     <div key={key} className={`rounded-lg p-4 ${bg}`}>
                       <div className={`flex items-center gap-2 font-semibold text-sm mb-2 ${color}`}>
@@ -482,7 +482,7 @@ export default function SWOTPestleTool() {
                 <CardTitle className="text-base">PESTLE Summary</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {pestleConfig.map(({ key, label, icon: Icon, color, bg }) => (
                     <div key={key} className={`rounded-lg p-4 ${bg}`}>
                       <div className={`flex items-center gap-2 font-semibold text-sm mb-2 ${color}`}>

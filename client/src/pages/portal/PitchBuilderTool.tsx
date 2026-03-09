@@ -356,7 +356,7 @@ export default function PitchBuilderTool() {
             {/* Cover slide */}
             <Card className="bg-primary text-primary-foreground">
               <CardContent className="py-10 text-center">
-                <h1 className="font-serif text-4xl font-bold mb-2">{data.companyName || "Your Company"}</h1>
+                <h1 className="font-serif text-2xl sm:text-4xl font-bold mb-2">{data.companyName || "Your Company"}</h1>
                 <p className="text-primary-foreground/80 text-lg">{data.tagline || "Your tagline goes here"}</p>
               </CardContent>
             </Card>

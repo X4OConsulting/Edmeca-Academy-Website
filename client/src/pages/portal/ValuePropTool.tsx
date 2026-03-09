@@ -363,7 +363,7 @@ export default function ValuePropTool() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Customer Pains</p>
                       {data.customer.pains.length === 0 ? <p className="text-xs text-muted-foreground italic">None added</p> : data.customer.pains.map((p, i) => <p key={i} className="text-sm mb-1 flex gap-1.5"><span className="text-red-400">•</span>{p}</p>)}
@@ -386,7 +386,7 @@ export default function ValuePropTool() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Customer Gains</p>
                       {data.customer.gains.length === 0 ? <p className="text-xs text-muted-foreground italic">None added</p> : data.customer.gains.map((g, i) => <p key={i} className="text-sm mb-1 flex gap-1.5"><span className="text-green-400">•</span>{g}</p>)}

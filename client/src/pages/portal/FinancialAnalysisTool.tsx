@@ -59,9 +59,9 @@ const QUOTES = [
 
 // ── Markdown renderer — styled to match the system design ─────────────────────
 const mdComponents: Components = {
-  h1: ({ children }) => <h1 className="text-lg font-bold text-[#1f3a6e] mt-6 mb-2 first:mt-0">{children}</h1>,
+  h1: ({ children }) => <h1 className="text-lg font-bold text-primary mt-6 mb-2 first:mt-0">{children}</h1>,
   h2: ({ children }) => (
-    <h2 className="text-base font-bold text-[#1f3a6e] mt-5 mb-2 first:mt-0 flex items-center gap-2 border-b border-[#1f3a6e]/10 pb-1">
+    <h2 className="text-base font-bold text-primary mt-5 mb-2 first:mt-0 flex items-center gap-2 border-b border-primary/10 pb-1">
       {children}
     </h2>
   ),
@@ -73,7 +73,7 @@ const mdComponents: Components = {
   ol: ({ children }) => <ol className="mb-3 space-y-1 list-decimal pl-5">{children}</ol>,
   li: ({ children }) => (
     <li className="text-sm leading-relaxed flex gap-2">
-      <span className="text-[#1f3a6e] font-bold flex-shrink-0 mt-px">•</span>
+      <span className="text-primary font-bold flex-shrink-0 mt-px">•</span>
       <span>{children}</span>
     </li>
   ),
@@ -82,18 +82,18 @@ const mdComponents: Components = {
       <table className="w-full text-sm border-collapse min-w-[400px]">{children}</table>
     </div>
   ),
-  thead: ({ children }) => <thead className="bg-[#1f3a6e] text-white">{children}</thead>,
+  thead: ({ children }) => <thead className="bg-primary text-primary-foreground">{children}</thead>,
   th: ({ children }) => <th className="px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap">{children}</th>,
   tbody: ({ children }) => <tbody className="divide-y divide-border">{children}</tbody>,
   tr: ({ children }) => <tr className="hover:bg-muted/40 transition-colors">{children}</tr>,
   td: ({ children }) => <td className="px-4 py-2 text-xs text-foreground">{children}</td>,
   blockquote: ({ children }) => (
-    <blockquote className="border-l-4 border-[#1f3a6e]/30 pl-4 my-3 text-muted-foreground italic bg-muted/20 rounded-r-md py-2">
+    <blockquote className="border-l-4 border-primary/30 pl-4 my-3 text-muted-foreground italic bg-muted/20 rounded-r-md py-2">
       {children}
     </blockquote>
   ),
   hr: () => <hr className="border-border my-5" />,
-  code: ({ children }) => <code className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono text-[#1f3a6e]">{children}</code>,
+  code: ({ children }) => <code className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono text-primary">{children}</code>,
 };
 
 interface UploadRecord {
@@ -283,44 +283,43 @@ export default function FinancialAnalysisTool() {
   return (
     <div className="min-h-screen bg-background">
 
-      <div className="bg-[#1f3a6e] text-white px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center gap-4">
-          <Link href="/portal">
-            <Button variant="ghost" size="sm" className="text-white hover:bg-white/10 -ml-2">
-              <ArrowLeft className="h-4 w-4 mr-1" />Dashboard
-            </Button>
-          </Link>
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="bg-white/10 rounded-lg p-2"><TrendingUp className="h-5 w-5" /></div>
-            <div>
-              <h1 className="text-lg font-semibold">Financial Analysis</h1>
-              <p className="text-xs text-blue-200">AI-powered financial health report</p>
+            <Link href="/portal">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </Button>
+            </Link>
+            <div className="h-4 w-px bg-border" />
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-emerald-600" />
+              <span className="font-medium text-sm">Financial Analysis</span>
             </div>
           </div>
-          <div className="ml-auto">
-            <Badge variant="secondary" className="bg-white/10 text-white border-0 text-xs">Claude Haiku + Sonnet</Badge>
-          </div>
+          <Badge variant="secondary" className="text-xs hidden sm:inline-flex">Claude Haiku + Sonnet</Badge>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
         {/* ── Loading card — shown instead of input form while analysing ─────── */}
         {isAnalysing && (
-          <Card className="border-[#1f3a6e]/20">
+          <Card className="border-primary/20">
             <CardContent className="pt-8 pb-8">
               <div className="max-w-lg mx-auto space-y-8">
                 {/* Steps — adapt based on mode */}
                 <div className="flex flex-col gap-3">
                   {analysisMode === "deep" && (
                     <div className={`flex items-center gap-3 text-sm ${step === "categorising" ? "text-foreground font-medium" : "text-muted-foreground"}`}>
-                      {step === "categorising" ? <Loader2 className="h-4 w-4 animate-spin text-[#1f3a6e]" /> : <CheckCircle2 className="h-4 w-4 text-green-500" />}
+                      {step === "categorising" ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : <CheckCircle2 className="h-4 w-4 text-green-500" />}
                       Step 1 — Categorising transactions
                       <Badge variant="outline" className="text-xs ml-auto">Claude Haiku</Badge>
                     </div>
                   )}
                   <div className={`flex items-center gap-3 text-sm ${step === "analysing" ? "text-foreground font-medium" : "text-muted-foreground/40"}`}>
-                    {step === "analysing" ? <Loader2 className="h-4 w-4 animate-spin text-[#1f3a6e]" /> : <div className="h-4 w-4 rounded-full border border-muted-foreground/30" />}
+                    {step === "analysing" ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : <div className="h-4 w-4 rounded-full border border-muted-foreground/30" />}
                     {analysisMode === "quick" ? "Generating quick snapshot" : "Step 2 — Generating health report"}
                     <Badge variant="outline" className="text-xs ml-auto">
                       {analysisMode === "quick" ? "Claude Haiku" : "Claude Sonnet"}
@@ -330,7 +329,7 @@ export default function FinancialAnalysisTool() {
 
                 {/* Quote card */}
                 {currentQuote && (
-                  <div className="rounded-xl border border-[#1f3a6e]/15 bg-gradient-to-br from-[#1f3a6e]/5 via-background to-transparent p-5 text-center space-y-2">
+                  <div className="rounded-xl border border-primary/15 bg-gradient-to-br from-primary/5 via-background to-transparent p-5 text-center space-y-2">
                     <p className="text-sm text-foreground/80 italic leading-relaxed">
                       &ldquo;{currentQuote.text}&rdquo;
                     </p>
@@ -372,13 +371,13 @@ export default function FinancialAnalysisTool() {
                   onClick={() => setAnalysisMode("deep")}
                   className={`flex items-start gap-3 rounded-xl border-2 p-3.5 text-left transition-all ${
                     analysisMode === "deep"
-                      ? "border-[#1f3a6e] bg-[#1f3a6e]/5"
+                      ? "border-primary bg-primary/5"
                       : "border-border hover:border-muted-foreground/40"
                   }`}
                 >
-                  <Brain className={`h-5 w-5 mt-0.5 flex-shrink-0 ${analysisMode === "deep" ? "text-[#1f3a6e]" : "text-muted-foreground"}`} />
+                  <Brain className={`h-5 w-5 mt-0.5 flex-shrink-0 ${analysisMode === "deep" ? "text-primary" : "text-muted-foreground"}`} />
                   <div>
-                    <p className={`text-sm font-semibold ${analysisMode === "deep" ? "text-[#1f3a6e]" : "text-foreground"}`}>Deep Analysis</p>
+                    <p className={`text-sm font-semibold ${analysisMode === "deep" ? "text-primary" : "text-foreground"}`}>Deep Analysis</p>
                     <p className="text-xs text-muted-foreground mt-0.5">7-section full report · ~45 seconds · Haiku + Sonnet</p>
                   </div>
                 </button>
@@ -439,7 +438,7 @@ export default function FinancialAnalysisTool() {
                 className={`w-full sm:w-auto ${
                   analysisMode === "quick"
                     ? "bg-amber-500 hover:bg-amber-600"
-                    : "bg-[#1f3a6e] hover:bg-[#162d57]"
+                    : "bg-primary hover:bg-primary/90"
                 }`}>
                 {analysisMode === "quick"
                   ? <><Zap className="h-4 w-4 mr-2" />Quick Snapshot</>
@@ -454,12 +453,12 @@ export default function FinancialAnalysisTool() {
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
-                <span className="font-medium text-sm">Analysis complete for <span className="text-[#1f3a6e] font-semibold">{result.meta.company}</span></span>
+                <span className="font-medium text-sm">Analysis complete for <span className="text-primary font-semibold">{result.meta.company}</span></span>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 {result.meta.analysis_mode === "quick"
                   ? <Badge className="text-xs bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-100"><Zap className="h-3 w-3 mr-1" />Quick Snapshot</Badge>
-                  : <Badge className="text-xs bg-[#1f3a6e]/10 text-[#1f3a6e] border-[#1f3a6e]/20 hover:bg-[#1f3a6e]/10"><Brain className="h-3 w-3 mr-1" />Deep Analysis</Badge>}
+                  : <Badge className="text-xs bg-primary/10 text-primary border-primary/20 hover:bg-primary/10"><Brain className="h-3 w-3 mr-1" />Deep Analysis</Badge>}
                 <Badge variant="outline" className="text-xs">{result.meta.model_categorisation}</Badge>
                 <Badge variant="outline" className="text-xs">{result.meta.model_analysis}</Badge>
                 <Button variant="outline" size="sm" onClick={handleExportPDF}>
