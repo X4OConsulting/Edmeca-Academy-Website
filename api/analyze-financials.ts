@@ -62,6 +62,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const textToAnalyse = (statements ?? '').trim();
   if (!textToAnalyse) return res.status(400).json({ error: 'No financial data provided' });
 
+  // Guard: reject oversized input to prevent runaway Anthropic API costs and prompt injection.
+  // 50 000 chars ≈ 12 500 tokens — ample for any real financial statement paste.
+  if (textToAnalyse.length > 50_000) {
+    return res.status(400).json({ error: 'Financial data exceeds maximum allowed size (50 000 characters)' });
+  }
+
   try {
     // ════════════════════════════════════════════════════════════════════════
     // QUICK MODE — single Haiku step, fast 4-section snapshot (~5s)
