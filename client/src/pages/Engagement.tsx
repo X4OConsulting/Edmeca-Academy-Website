@@ -75,10 +75,6 @@ const faq = [
     answer: "Absolutely. We work with enterprise development programmes, incubators, and accelerators on custom engagements that include multi-cohort access, M&E reporting, and white-label options. Contact us for a tailored proposal.",
   },
   {
-    question: "Is there a free trial?",
-    answer: "Yes! You can create a free account to explore the platform and see how the tools work. The free tier gives you limited access to our core frameworks.",
-  },
-  {
     question: "What kind of support is included?",
     answer: "All tiers include access to our help resources and community. Mid-Tier includes email support, and Full Journey includes priority support with dedicated check-ins.",
   },
