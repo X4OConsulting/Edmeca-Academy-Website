@@ -236,7 +236,7 @@ export default function Dashboard() {
                 </Button>
               </Link>
               <Link href="/portal/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                <Avatar className="h-9 w-9">
+                <Avatar className="h-9 w-9" data-testid="avatar-user">
                   <AvatarImage src={user?.user_metadata?.avatar_url || undefined} />
                   <AvatarFallback className="text-sm">
                     {getInitials(user?.user_metadata?.full_name || user?.email)}

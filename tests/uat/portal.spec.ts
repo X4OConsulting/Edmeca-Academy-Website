@@ -296,8 +296,16 @@ test.describe('TC-004 Portal Dashboard', () => {
     await page.goto('/portal');
     await page.waitForLoadState('networkidle');
 
-    const userName = page.getByTestId('text-user-name');
-    await expect(userName).toBeVisible();
+    const vp = page.viewportSize();
+    const isMobile = vp !== null && vp.width < 640;
+
+    if (isMobile) {
+      // On mobile (<640 px) the name text is hidden (hidden sm:block) —
+      // the avatar is the visible identity indicator instead.
+      await expect(page.getByTestId('avatar-user')).toBeVisible();
+    } else {
+      await expect(page.getByTestId('text-user-name')).toBeVisible();
+    }
   });
 
   test('theme toggle is present in portal header', async ({ page }) => {
@@ -348,6 +356,14 @@ test.describe('TC-005 BMC Tool', () => {
   });
 
   test('view switcher buttons are visible in the BMC header', async ({ page }) => {
+    const vp = page.viewportSize();
+    if (vp !== null && vp.width < 640) {
+      // View switcher is intentionally hidden on mobile (hidden sm:flex).
+      // Mobile responsiveness is validated separately in task 4.5.
+      test.skip();
+      return;
+    }
+
     await page.goto('/portal/tools/bmc');
     await page.waitForLoadState('networkidle');
 
