@@ -169,10 +169,12 @@ export default function Dashboard() {
   };
 
   if (artifactsError) return <PageError message="Could not load your work. Please check your connection." onRetry={refetch} />;
-    { type: "bmc",               label: "Business Model Canvas",  href: "/portal/tools/bmc",       description: "Map your business model across 9 building blocks." },
-    { type: "swot_pestle",       label: "SWOT & PESTLE Analysis", href: "/portal/tools/analysis",  description: "Identify strengths, threats and market forces." },
-    { type: "value_proposition", label: "Value Proposition",      href: "/portal/tools/value-prop",description: "Define your customer fit and unique offering." },
-    { type: "pitch_builder",     label: "Pitch Builder",           href: "/portal/tools/pitch",     description: "Build an investor-ready pitch deck." },
+
+  const LEARNING_PATH = [
+    { type: "bmc",               label: "Business Model Canvas",  href: "/portal/tools/bmc",        description: "Map your business model across 9 building blocks." },
+    { type: "swot_pestle",       label: "SWOT & PESTLE Analysis", href: "/portal/tools/analysis",   description: "Identify strengths, threats and market forces." },
+    { type: "value_proposition", label: "Value Proposition",      href: "/portal/tools/value-prop", description: "Define your customer fit and unique offering." },
+    { type: "pitch_builder",     label: "Pitch Builder",          href: "/portal/tools/pitch",      description: "Build an investor-ready pitch deck." },
   ];
 
   const nextStepIndex = LEARNING_PATH.findIndex(step => latestByType?.[step.type]?.status !== "complete");
