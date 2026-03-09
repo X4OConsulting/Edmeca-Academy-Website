@@ -189,7 +189,7 @@ export default function PitchBuilderTool() {
     const timer = setTimeout(async () => {
       try {
         const id = await artifactsService.saveArtifact(existingIdRef.current, {
-          tool_type: "pitch_builder",
+          toolType: "pitch_builder",
           title: `${data.companyName || profileNameRef.current || "Untitled"} — Pitch Deck`,
           content: data as unknown as Record<string, unknown>,
           status: "in_progress",
@@ -205,7 +205,7 @@ export default function PitchBuilderTool() {
     return () => {
       if (!hasLoadedRef.current || isFinalizedRef.current) return;
       artifactsService.saveArtifact(existingIdRef.current, {
-        tool_type: "pitch_builder",
+        toolType: "pitch_builder",
         title: `${dataRef.current.companyName || profileNameRef.current || "Untitled"} — Pitch Deck`,
         content: dataRef.current as unknown as Record<string, unknown>,
         status: "in_progress",
@@ -221,7 +221,7 @@ export default function PitchBuilderTool() {
   const saveMutation = useMutation({
     mutationFn: async (finalize: boolean) => {
       const id = await artifactsService.saveArtifact(existingIdRef.current, {
-        tool_type: "pitch_builder",
+        toolType: "pitch_builder",
         title: `${data.companyName || profileNameRef.current || "Untitled"} — Pitch Deck`,
         content: data as unknown as Record<string, unknown>,
         status: finalize ? "complete" : "in_progress",
@@ -246,7 +246,7 @@ export default function PitchBuilderTool() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link href="/portal">
-              <Button variant="ghost" size="sm" className="gap-2"><ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">Dashboard</span></Button>
+              <Button variant="ghost" size="sm" className="gap-2" data-testid="button-back-dashboard"><ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">Dashboard</span></Button>
             </Link>
             <div className="h-4 w-px bg-border" />
             <div className="flex items-center gap-2">
@@ -256,14 +256,14 @@ export default function PitchBuilderTool() {
             {isFinalized && <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 text-xs">Finalized</Badge>}
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setView(view === "editor" ? "preview" : "editor")} className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => setView(view === "editor" ? "preview" : "editor")} className="gap-2" data-testid="button-toggle-preview">
               {view === "editor" ? <><Eye className="h-3.5 w-3.5" /><span className="hidden sm:inline">Preview</span></> : <><Edit3 className="h-3.5 w-3.5" /><span className="hidden sm:inline">Edit</span></>}
             </Button>
-            <Button variant="outline" size="sm" className="gap-2" onClick={() => saveMutation.mutate(false)} disabled={saveMutation.isPending}>
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => saveMutation.mutate(false)} disabled={saveMutation.isPending} data-testid="button-save-draft">
               <Save className="h-3.5 w-3.5" /><span className="hidden sm:inline">Save</span>
             </Button>
             {!isFinalized && (
-              <Button size="sm" className="gap-2" onClick={() => saveMutation.mutate(true)} disabled={saveMutation.isPending || completedSections < 5}>
+              <Button size="sm" className="gap-2" onClick={() => saveMutation.mutate(true)} disabled={saveMutation.isPending || completedSections < 5} data-testid="button-finalize">
                 <CheckCircle className="h-3.5 w-3.5" />Finalize
               </Button>
             )}
@@ -274,8 +274,8 @@ export default function PitchBuilderTool() {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Company + tagline */}
         <div className="mb-6 flex flex-wrap gap-3 items-center">
-          <Input value={data.companyName} onChange={e => set("companyName", e.target.value)} placeholder="Company name…" className="max-w-48 font-medium" disabled={isFinalized} />
-          <Input value={data.tagline} onChange={e => set("tagline", e.target.value)} placeholder="One-line tagline…" className="max-w-72" disabled={isFinalized} />
+          <Input value={data.companyName} onChange={e => updateField("companyName", e.target.value)} placeholder="Company name…" className="max-w-48 font-medium" disabled={isFinalized} data-testid="input-company-name" />
+          <Input value={data.tagline} onChange={e => updateField("tagline", e.target.value)} placeholder="One-line tagline…" className="max-w-72" disabled={isFinalized} />
           <span className="text-sm text-muted-foreground ml-auto">{completedSections} / {sections.length} sections complete</span>
         </div>
 
@@ -322,7 +322,7 @@ export default function PitchBuilderTool() {
                           key={s}
                           onClick={() => {
                             const cur = (data as any)[current.id] || "";
-                            set(current.id as keyof PitchData, cur ? `${cur}\n${s}` : s);
+                            updateField(current.id as keyof PitchData, cur ? `${cur}\n${s}` : s);
                           }}
                           className="text-xs px-2 py-0.5 rounded-full border border-dashed border-muted-foreground/40 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
                         >
@@ -333,7 +333,7 @@ export default function PitchBuilderTool() {
                   )}
                   <Textarea
                     value={(data as any)[current.id]}
-                    onChange={e => set(current.id as keyof PitchData, e.target.value)}
+                    onChange={e => updateField(current.id as keyof PitchData, e.target.value)}
                     placeholder={current.placeholder}
                     className="min-h-40 text-sm resize-none"
                     disabled={isFinalized}

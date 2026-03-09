@@ -1,0 +1,402 @@
+﻿
+Running 45 tests using 1 worker
+
+  Ô£ô   1 [chromium] ÔÇ║ tests\uat\portal.spec.ts:142:5 ÔÇ║ TC-001 Marketing smoke tests ÔÇ║ Home page (/) renders without fatal JS errors (2.4s)
+  Ô£ô   2 [chromium] ÔÇ║ tests\uat\portal.spec.ts:142:5 ÔÇ║ TC-001 Marketing smoke tests ÔÇ║ About page (/about) renders without fatal JS errors (2.3s)
+  Ô£ô   3 [chromium] ÔÇ║ tests\uat\portal.spec.ts:142:5 ÔÇ║ TC-001 Marketing smoke tests ÔÇ║ Solutions page (/solutions) renders without fatal JS errors (2.1s)
+  Ô£ô   4 [chromium] ÔÇ║ tests\uat\portal.spec.ts:142:5 ÔÇ║ TC-001 Marketing smoke tests ÔÇ║ Frameworks page (/frameworks) renders without fatal JS errors (2.1s)
+  Ô£ô   5 [chromium] ÔÇ║ tests\uat\portal.spec.ts:142:5 ÔÇ║ TC-001 Marketing smoke tests ÔÇ║ Engagement page (/engagement) renders without fatal JS errors (2.3s)
+  Ô£ô   6 [chromium] ÔÇ║ tests\uat\portal.spec.ts:142:5 ÔÇ║ TC-001 Marketing smoke tests ÔÇ║ Contact page (/contact) renders without fatal JS errors (2.1s)
+  Ô£ô   7 [chromium] ÔÇ║ tests\uat\portal.spec.ts:167:3 ÔÇ║ TC-001 Marketing smoke tests ÔÇ║ Contact page form inputs are present (2.3s)
+  Ô£ô   8 [chromium] ÔÇ║ tests\uat\portal.spec.ts:182:3 ÔÇ║ TC-002 Theme toggle ÔÇ║ theme toggle button is present in the marketing header (2.4s)
+  Ô£ô   9 [chromium] ÔÇ║ tests\uat\portal.spec.ts:189:3 ÔÇ║ TC-002 Theme toggle ÔÇ║ clicking theme toggle applies dark class to <html> (2.8s)
+  Ô£ô  10 [chromium] ÔÇ║ tests\uat\portal.spec.ts:203:3 ÔÇ║ TC-002 Theme toggle ÔÇ║ theme preference persists across navigation (3.2s)
+  Ô£ô  11 [chromium] ÔÇ║ tests\uat\portal.spec.ts:229:3 ÔÇ║ TC-003 Auth redirect ÔÇ║ unauthenticated visit to /portal redirects to /login (1.6s)
+  Ô£ô  12 [chromium] ÔÇ║ tests\uat\portal.spec.ts:237:3 ÔÇ║ TC-003 Auth redirect ÔÇ║ login page email and password inputs are visible (2.0s)
+  Ô£ô  13 [chromium] ÔÇ║ tests\uat\portal.spec.ts:246:3 ÔÇ║ TC-003 Auth redirect ÔÇ║ login form validates empty submission (button remains enabled) (2.0s)
+  Ô£ô  14 [chromium] ÔÇ║ tests\uat\portal.spec.ts:267:3 ÔÇ║ TC-004 Portal Dashboard ÔÇ║ dashboard renders header navigation elements (1.9s)
+  Ô£ô  15 [chromium] ÔÇ║ tests\uat\portal.spec.ts:276:3 ÔÇ║ TC-004 Portal Dashboard ÔÇ║ dashboard shows user name or email (1.9s)
+  Ô£ô  16 [chromium] ÔÇ║ tests\uat\portal.spec.ts:284:3 ÔÇ║ TC-004 Portal Dashboard ÔÇ║ theme toggle is present in portal header (2.0s)
+  Ô£ô  17 [chromium] ÔÇ║ tests\uat\portal.spec.ts:291:3 ÔÇ║ TC-004 Portal Dashboard ÔÇ║ clicking New Artifact button opens the tool picker dialog (2.2s)
+  Ô£ô  18 [chromium] ÔÇ║ tests\uat\portal.spec.ts:309:3 ÔÇ║ TC-005 BMC Tool ÔÇ║ BMC tool shows welcome screen with company name input (2.1s)
+  Ô£ô  19 [chromium] ÔÇ║ tests\uat\portal.spec.ts:319:3 ÔÇ║ TC-005 BMC Tool ÔÇ║ entering a company name and Continue enters guided view (2.1s)
+  Ô£ô  20 [chromium] ÔÇ║ tests\uat\portal.spec.ts:331:3 ÔÇ║ TC-005 BMC Tool ÔÇ║ view switcher buttons are visible in the BMC header (2.5s)
+  Ô£ô  21 [chromium] ÔÇ║ tests\uat\portal.spec.ts:345:3 ÔÇ║ TC-005 BMC Tool ÔÇ║ BMC back-to-dashboard button navigates to /portal (2.6s)
+  Ô£ÿ  22 [chromium] ÔÇ║ tests\uat\portal.spec.ts:367:3 ÔÇ║ TC-006 SWOT & PESTLE Tool ÔÇ║ SWOT tool renders all header and tab controls (7.0s)
+  Ô£ÿ  23 [chromium] ÔÇ║ tests\uat\portal.spec.ts:379:3 ÔÇ║ TC-006 SWOT & PESTLE Tool ÔÇ║ switching to PESTLE tab renders PESTLE content (30.1s)
+  Ô£ÿ  24 [chromium] ÔÇ║ tests\uat\portal.spec.ts:390:3 ÔÇ║ TC-006 SWOT & PESTLE Tool ÔÇ║ SWOT back button navigates to /portal (30.2s)
+  Ô£ÿ  25 [chromium] ÔÇ║ tests\uat\portal.spec.ts:408:3 ÔÇ║ TC-007 Value Proposition Tool ÔÇ║ Value Prop tool renders header, company input, and tab controls (7.2s)
+  Ô£ÿ  26 [chromium] ÔÇ║ tests\uat\portal.spec.ts:420:3 ÔÇ║ TC-007 Value Proposition Tool ÔÇ║ switching to Value Map tab renders value-side content (30.1s)
+  Ô£ÿ  27 [chromium] ÔÇ║ tests\uat\portal.spec.ts:440:3 ÔÇ║ TC-008 Pitch Builder Tool ÔÇ║ Pitch Builder renders header controls and company input (7.1s)
+  Ô£ÿ  28 [chromium] ÔÇ║ tests\uat\portal.spec.ts:450:3 ÔÇ║ TC-008 Pitch Builder Tool ÔÇ║ Preview toggle switches the view label to Edit (30.1s)
+  Ô£ÿ  29 [chromium] ÔÇ║ tests\uat\portal.spec.ts:461:3 ÔÇ║ TC-008 Pitch Builder Tool ÔÇ║ Pitch Builder back button navigates to /portal (30.1s)
+  Ô£ô  30 [chromium] ÔÇ║ tests\uat\portal.spec.ts:479:3 ÔÇ║ TC-009 Financial Analysis Tool ÔÇ║ Financial tool renders mode selector and analyse button (2.0s)
+  Ô£ô  31 [chromium] ÔÇ║ tests\uat\portal.spec.ts:489:3 ÔÇ║ TC-009 Financial Analysis Tool ÔÇ║ selecting Quick Snapshot changes analyse button label (2.2s)
+  Ô£ô  32 [chromium] ÔÇ║ tests\uat\portal.spec.ts:499:3 ÔÇ║ TC-009 Financial Analysis Tool ÔÇ║ selecting Deep Analysis changes analyse button label (2.5s)
+  Ô£ÿ  33 [chromium] ÔÇ║ tests\uat\portal.spec.ts:521:3 ÔÇ║ TC-010 Progress Tracker Tool ÔÇ║ Progress Tracker renders header and view tab controls (6.8s)
+  Ô£ÿ  34 [chromium] ÔÇ║ tests\uat\portal.spec.ts:530:3 ÔÇ║ TC-010 Progress Tracker Tool ÔÇ║ switching to Milestones tab shows milestone log form (30.1s)
+  Ô£ÿ  35 [chromium] ÔÇ║ tests\uat\portal.spec.ts:541:3 ÔÇ║ TC-010 Progress Tracker Tool ÔÇ║ Log Milestone button is disabled when input is empty (30.1s)
+  Ô£ÿ  36 [chromium] ÔÇ║ tests\uat\portal.spec.ts:551:3 ÔÇ║ TC-010 Progress Tracker Tool ÔÇ║ Log Milestone button enables after typing in milestone input (30.1s)
+  Ô£ô  37 [chromium] ÔÇ║ tests\uat\portal.spec.ts:572:3 ÔÇ║ TC-011 Profile Page ÔÇ║ Profile page renders account and business form fields (2.3s)
+  Ô£ô  38 [chromium] ÔÇ║ tests\uat\portal.spec.ts:583:3 ÔÇ║ TC-011 Profile Page ÔÇ║ Profile back button navigates to /portal (2.1s)
+  Ô£ô  39 [chromium] ÔÇ║ tests\uat\portal.spec.ts:599:3 ÔÇ║ TC-012 Mobile viewport (375 px) ÔÇ║ Home page has no horizontal overflow at 375 px (1.9s)
+  Ô£ô  40 [chromium] ÔÇ║ tests\uat\portal.spec.ts:607:3 ÔÇ║ TC-012 Mobile viewport (375 px) ÔÇ║ Contact page renders at 375 px without overflow (1.9s)
+  Ô£ô  41 [chromium] ÔÇ║ tests\uat\portal.spec.ts:615:3 ÔÇ║ TC-012 Mobile viewport (375 px) ÔÇ║ Portal Dashboard renders at 375 px without overflow (2.0s)
+  Ô£ô  42 [chromium] ÔÇ║ tests\uat\portal.spec.ts:625:3 ÔÇ║ TC-012 Mobile viewport (375 px) ÔÇ║ BMC Tool welcome screen renders at 375 px without overflow (1.9s)
+  Ô£ÿ  43 [chromium] ÔÇ║ tests\uat\portal.spec.ts:634:3 ÔÇ║ TC-012 Mobile viewport (375 px) ÔÇ║ SWOT tool renders at 375 px ÔÇö SWOT grid stacks vertically (6.9s)
+  Ô£ô  44 [chromium] ÔÇ║ tests\uat\portal.spec.ts:651:3 ÔÇ║ TC-013 Not Found page ÔÇ║ visiting an unknown route renders the 404 page with home button (2.2s)
+  Ô£ô  45 [chromium] ÔÇ║ tests\uat\portal.spec.ts:659:3 ÔÇ║ TC-013 Not Found page ÔÇ║ 404 home button navigates back to / (2.3s)
+
+
+  1) [chromium] ÔÇ║ tests\uat\portal.spec.ts:367:3 ÔÇ║ TC-006 SWOT & PESTLE Tool ÔÇ║ SWOT tool renders all header and tab controls 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('button-back-dashboard')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('button-back-dashboard')[22m
+
+
+      369 |     await page.waitForLoadState('networkidle');
+      370 |
+    > 371 |     await expect(page.getByTestId('button-back-dashboard')).toBeVisible();
+          |                                                             ^
+      372 |     await expect(page.getByTestId('input-company-name')).toBeVisible();
+      373 |     await expect(page.getByTestId('button-tab-swot')).toBeVisible();
+      374 |     await expect(page.getByTestId('button-tab-pestle')).toBeVisible();
+        at C:\Users\keena\Projects\Edmeca-Website\tests\uat\portal.spec.ts:371:61
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\uat-portal-TC-006-SWOT-PES-533e7-all-header-and-tab-controls-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    Error Context: test-results\uat-portal-TC-006-SWOT-PES-533e7-all-header-and-tab-controls-chromium\error-context.md
+
+  2) [chromium] ÔÇ║ tests\uat\portal.spec.ts:379:3 ÔÇ║ TC-006 SWOT & PESTLE Tool ÔÇ║ switching to PESTLE tab renders PESTLE content 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('button-tab-pestle')[22m
+
+
+      381 |     await page.waitForLoadState('networkidle');
+      382 |
+    > 383 |     await page.getByTestId('button-tab-pestle').click();
+          |                                                 ^
+      384 |     await page.waitForTimeout(300);
+      385 |
+      386 |     // PESTLE has a card grid ÔÇö ensure at least one card is rendered
+        at C:\Users\keena\Projects\Edmeca-Website\tests\uat\portal.spec.ts:383:49
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\uat-portal-TC-006-SWOT-PES-432ed--tab-renders-PESTLE-content-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    Error Context: test-results\uat-portal-TC-006-SWOT-PES-432ed--tab-renders-PESTLE-content-chromium\error-context.md
+
+  3) [chromium] ÔÇ║ tests\uat\portal.spec.ts:390:3 ÔÇ║ TC-006 SWOT & PESTLE Tool ÔÇ║ SWOT back button navigates to /portal 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('button-back-dashboard')[22m
+
+
+      392 |     await page.waitForLoadState('networkidle');
+      393 |
+    > 394 |     await page.getByTestId('button-back-dashboard').click();
+          |                                                     ^
+      395 |     await expect(page).toHaveURL(/\/portal$/);
+      396 |   });
+      397 | });
+        at C:\Users\keena\Projects\Edmeca-Website\tests\uat\portal.spec.ts:394:53
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\uat-portal-TC-006-SWOT-PES-1516c--button-navigates-to-portal-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    Error Context: test-results\uat-portal-TC-006-SWOT-PES-1516c--button-navigates-to-portal-chromium\error-context.md
+
+  4) [chromium] ÔÇ║ tests\uat\portal.spec.ts:408:3 ÔÇ║ TC-007 Value Proposition Tool ÔÇ║ Value Prop tool renders header, company input, and tab controls 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('button-back-dashboard')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('button-back-dashboard')[22m
+
+
+      410 |     await page.waitForLoadState('networkidle');
+      411 |
+    > 412 |     await expect(page.getByTestId('button-back-dashboard')).toBeVisible();
+          |                                                             ^
+      413 |     await expect(page.getByTestId('input-company-name')).toBeVisible();
+      414 |     await expect(page.getByTestId('button-tab-customer')).toBeVisible();
+      415 |     await expect(page.getByTestId('button-tab-value')).toBeVisible();
+        at C:\Users\keena\Projects\Edmeca-Website\tests\uat\portal.spec.ts:412:61
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\uat-portal-TC-007-Value-Pr-eb43a-pany-input-and-tab-controls-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    Error Context: test-results\uat-portal-TC-007-Value-Pr-eb43a-pany-input-and-tab-controls-chromium\error-context.md
+
+  5) [chromium] ÔÇ║ tests\uat\portal.spec.ts:420:3 ÔÇ║ TC-007 Value Proposition Tool ÔÇ║ switching to Value Map tab renders value-side content 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('button-tab-value')[22m
+
+
+      422 |     await page.waitForLoadState('networkidle');
+      423 |
+    > 424 |     await page.getByTestId('button-tab-value').click();
+          |                                                ^
+      425 |     await page.waitForTimeout(300);
+      426 |
+      427 |     await expect(page.getByText('Products & Services').first()).toBeVisible();
+        at C:\Users\keena\Projects\Edmeca-Website\tests\uat\portal.spec.ts:424:48
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\uat-portal-TC-007-Value-Pr-d9962--renders-value-side-content-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    Error Context: test-results\uat-portal-TC-007-Value-Pr-d9962--renders-value-side-content-chromium\error-context.md
+
+  6) [chromium] ÔÇ║ tests\uat\portal.spec.ts:440:3 ÔÇ║ TC-008 Pitch Builder Tool ÔÇ║ Pitch Builder renders header controls and company input 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('button-back-dashboard')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('button-back-dashboard')[22m
+
+
+      442 |     await page.waitForLoadState('networkidle');
+      443 |
+    > 444 |     await expect(page.getByTestId('button-back-dashboard')).toBeVisible();
+          |                                                             ^
+      445 |     await expect(page.getByTestId('input-company-name')).toBeVisible();
+      446 |     await expect(page.getByTestId('button-toggle-preview')).toBeVisible();
+      447 |     await expect(page.getByTestId('button-save-draft')).toBeVisible();
+        at C:\Users\keena\Projects\Edmeca-Website\tests\uat\portal.spec.ts:444:61
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\uat-portal-TC-008-Pitch-Bu-72b38--controls-and-company-input-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    Error Context: test-results\uat-portal-TC-008-Pitch-Bu-72b38--controls-and-company-input-chromium\error-context.md
+
+  7) [chromium] ÔÇ║ tests\uat\portal.spec.ts:450:3 ÔÇ║ TC-008 Pitch Builder Tool ÔÇ║ Preview toggle switches the view label to Edit 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('button-toggle-preview')[22m
+
+
+      452 |     await page.waitForLoadState('networkidle');
+      453 |
+    > 454 |     await page.getByTestId('button-toggle-preview').click();
+          |                                                     ^
+      455 |     await page.waitForTimeout(350);
+      456 |
+      457 |     // After switching to preview mode the button should say "Edit"
+        at C:\Users\keena\Projects\Edmeca-Website\tests\uat\portal.spec.ts:454:53
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\uat-portal-TC-008-Pitch-Bu-6fa55-ches-the-view-label-to-Edit-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    Error Context: test-results\uat-portal-TC-008-Pitch-Bu-6fa55-ches-the-view-label-to-Edit-chromium\error-context.md
+
+  8) [chromium] ÔÇ║ tests\uat\portal.spec.ts:461:3 ÔÇ║ TC-008 Pitch Builder Tool ÔÇ║ Pitch Builder back button navigates to /portal 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('button-back-dashboard')[22m
+
+
+      463 |     await page.waitForLoadState('networkidle');
+      464 |
+    > 465 |     await page.getByTestId('button-back-dashboard').click();
+          |                                                     ^
+      466 |     await expect(page).toHaveURL(/\/portal$/);
+      467 |   });
+      468 | });
+        at C:\Users\keena\Projects\Edmeca-Website\tests\uat\portal.spec.ts:465:53
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\uat-portal-TC-008-Pitch-Bu-f8cb9--button-navigates-to-portal-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    Error Context: test-results\uat-portal-TC-008-Pitch-Bu-f8cb9--button-navigates-to-portal-chromium\error-context.md
+
+  9) [chromium] ÔÇ║ tests\uat\portal.spec.ts:521:3 ÔÇ║ TC-010 Progress Tracker Tool ÔÇ║ Progress Tracker renders header and view tab controls 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('button-back-dashboard')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('button-back-dashboard')[22m
+
+
+      523 |     await page.waitForLoadState('networkidle');
+      524 |
+    > 525 |     await expect(page.getByTestId('button-back-dashboard')).toBeVisible();
+          |                                                             ^
+      526 |     await expect(page.getByTestId('button-tab-overview')).toBeVisible();
+      527 |     await expect(page.getByTestId('button-tab-milestones')).toBeVisible();
+      528 |   });
+        at C:\Users\keena\Projects\Edmeca-Website\tests\uat\portal.spec.ts:525:61
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\uat-portal-TC-010-Progress-63adf-eader-and-view-tab-controls-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    Error Context: test-results\uat-portal-TC-010-Progress-63adf-eader-and-view-tab-controls-chromium\error-context.md
+
+  10) [chromium] ÔÇ║ tests\uat\portal.spec.ts:530:3 ÔÇ║ TC-010 Progress Tracker Tool ÔÇ║ switching to Milestones tab shows milestone log form 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('button-tab-milestones')[22m
+
+
+      532 |     await page.waitForLoadState('networkidle');
+      533 |
+    > 534 |     await page.getByTestId('button-tab-milestones').click();
+          |                                                     ^
+      535 |     await page.waitForTimeout(300);
+      536 |
+      537 |     await expect(page.getByTestId('input-milestone')).toBeVisible();
+        at C:\Users\keena\Projects\Edmeca-Website\tests\uat\portal.spec.ts:534:53
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\uat-portal-TC-010-Progress-0ff4d-ab-shows-milestone-log-form-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    Error Context: test-results\uat-portal-TC-010-Progress-0ff4d-ab-shows-milestone-log-form-chromium\error-context.md
+
+  11) [chromium] ÔÇ║ tests\uat\portal.spec.ts:541:3 ÔÇ║ TC-010 Progress Tracker Tool ÔÇ║ Log Milestone button is disabled when input is empty 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('button-tab-milestones')[22m
+
+
+      543 |     await page.waitForLoadState('networkidle');
+      544 |
+    > 545 |     await page.getByTestId('button-tab-milestones').click();
+          |                                                     ^
+      546 |     await page.waitForTimeout(300);
+      547 |
+      548 |     await expect(page.getByTestId('button-log-milestone')).toBeDisabled();
+        at C:\Users\keena\Projects\Edmeca-Website\tests\uat\portal.spec.ts:545:53
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\uat-portal-TC-010-Progress-99b2c-isabled-when-input-is-empty-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    Error Context: test-results\uat-portal-TC-010-Progress-99b2c-isabled-when-input-is-empty-chromium\error-context.md
+
+  12) [chromium] ÔÇ║ tests\uat\portal.spec.ts:551:3 ÔÇ║ TC-010 Progress Tracker Tool ÔÇ║ Log Milestone button enables after typing in milestone input 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('button-tab-milestones')[22m
+
+
+      553 |     await page.waitForLoadState('networkidle');
+      554 |
+    > 555 |     await page.getByTestId('button-tab-milestones').click();
+          |                                                     ^
+      556 |     await page.waitForTimeout(300);
+      557 |
+      558 |     await page.getByTestId('input-milestone').fill('Completed customer discovery interviews');
+        at C:\Users\keena\Projects\Edmeca-Website\tests\uat\portal.spec.ts:555:53
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\uat-portal-TC-010-Progress-648c4-r-typing-in-milestone-input-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    Error Context: test-results\uat-portal-TC-010-Progress-648c4-r-typing-in-milestone-input-chromium\error-context.md
+
+  13) [chromium] ÔÇ║ tests\uat\portal.spec.ts:634:3 ÔÇ║ TC-012 Mobile viewport (375 px) ÔÇ║ SWOT tool renders at 375 px ÔÇö SWOT grid stacks vertically 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('button-tab-swot')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('button-tab-swot')[22m
+
+
+      637 |     await page.waitForLoadState('networkidle');
+      638 |
+    > 639 |     await expect(page.getByTestId('button-tab-swot')).toBeVisible();
+          |                                                       ^
+      640 |
+      641 |     const scrollWidth = await page.locator('body').evaluate((el) => el.scrollWidth);
+      642 |     expect(scrollWidth).toBeLessThanOrEqual(376);
+        at C:\Users\keena\Projects\Edmeca-Website\tests\uat\portal.spec.ts:639:55
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\uat-portal-TC-012-Mobile-v-e9ba5-SWOT-grid-stacks-vertically-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    Error Context: test-results\uat-portal-TC-012-Mobile-v-e9ba5-SWOT-grid-stacks-vertically-chromium\error-context.md
+
+  13 failed
+    [chromium] ÔÇ║ tests\uat\portal.spec.ts:367:3 ÔÇ║ TC-006 SWOT & PESTLE Tool ÔÇ║ SWOT tool renders all header and tab controls 
+    [chromium] ÔÇ║ tests\uat\portal.spec.ts:379:3 ÔÇ║ TC-006 SWOT & PESTLE Tool ÔÇ║ switching to PESTLE tab renders PESTLE content 
+    [chromium] ÔÇ║ tests\uat\portal.spec.ts:390:3 ÔÇ║ TC-006 SWOT & PESTLE Tool ÔÇ║ SWOT back button navigates to /portal 
+    [chromium] ÔÇ║ tests\uat\portal.spec.ts:408:3 ÔÇ║ TC-007 Value Proposition Tool ÔÇ║ Value Prop tool renders header, company input, and tab controls 
+    [chromium] ÔÇ║ tests\uat\portal.spec.ts:420:3 ÔÇ║ TC-007 Value Proposition Tool ÔÇ║ switching to Value Map tab renders value-side content 
+    [chromium] ÔÇ║ tests\uat\portal.spec.ts:440:3 ÔÇ║ TC-008 Pitch Builder Tool ÔÇ║ Pitch Builder renders header controls and company input 
+    [chromium] ÔÇ║ tests\uat\portal.spec.ts:450:3 ÔÇ║ TC-008 Pitch Builder Tool ÔÇ║ Preview toggle switches the view label to Edit 
+    [chromium] ÔÇ║ tests\uat\portal.spec.ts:461:3 ÔÇ║ TC-008 Pitch Builder Tool ÔÇ║ Pitch Builder back button navigates to /portal 
+    [chromium] ÔÇ║ tests\uat\portal.spec.ts:521:3 ÔÇ║ TC-010 Progress Tracker Tool ÔÇ║ Progress Tracker renders header and view tab controls 
+    [chromium] ÔÇ║ tests\uat\portal.spec.ts:530:3 ÔÇ║ TC-010 Progress Tracker Tool ÔÇ║ switching to Milestones tab shows milestone log form 
+    [chromium] ÔÇ║ tests\uat\portal.spec.ts:541:3 ÔÇ║ TC-010 Progress Tracker Tool ÔÇ║ Log Milestone button is disabled when input is empty 
+    [chromium] ÔÇ║ tests\uat\portal.spec.ts:551:3 ÔÇ║ TC-010 Progress Tracker Tool ÔÇ║ Log Milestone button enables after typing in milestone input 
+    [chromium] ÔÇ║ tests\uat\portal.spec.ts:634:3 ÔÇ║ TC-012 Mobile viewport (375 px) ÔÇ║ SWOT tool renders at 375 px ÔÇö SWOT grid stacks vertically 
+  32 passed (6.2m)

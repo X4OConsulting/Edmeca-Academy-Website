@@ -138,6 +138,7 @@ export default function Login() {
                         type="email"
                         required
                         placeholder="your@email.com"
+                        data-testid="input-signin-email"
                       />
                     </div>
                     <div className="space-y-2">
@@ -148,12 +149,14 @@ export default function Login() {
                         type="password"
                         required
                         placeholder="Enter your password"
+                        data-testid="input-signin-password"
                       />
                     </div>
                     <Button
                       type="submit"
                       className="w-full"
                       disabled={isSubmitting}
+                      data-testid="button-signin-submit"
                     >
                       {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Sign In

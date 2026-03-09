@@ -1,0 +1,2312 @@
+﻿{
+  "config": {
+    "configFile": "C:\\Users\\keena\\Projects\\Edmeca-Website\\playwright.config.ts",
+    "rootDir": "C:/Users/keena/Projects/Edmeca-Website/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/keena/Projects/Edmeca-Website/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/keena/Projects/Edmeca-Website/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/keena/Projects/Edmeca-Website/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-chrome",
+        "name": "mobile-chrome",
+        "testDir": "C:/Users/keena/Projects/Edmeca-Website/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/uat/**"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:5173",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "uat\\portal.spec.ts",
+      "file": "uat/portal.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "TC-001 Marketing smoke tests",
+          "file": "uat/portal.spec.ts",
+          "line": 131,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Home page (/) renders without fatal JS errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2288,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:24.604Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-001-Marketin-3b058-ers-without-fatal-JS-errors-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-2fbe6b0fb17b165bf0d9",
+              "file": "uat/portal.spec.ts",
+              "line": 142,
+              "column": 5
+            },
+            {
+              "title": "About page (/about) renders without fatal JS errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2203,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:27.058Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-001-Marketin-5004e-ers-without-fatal-JS-errors-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-c04ca03ef1302edd2059",
+              "file": "uat/portal.spec.ts",
+              "line": 142,
+              "column": 5
+            },
+            {
+              "title": "Solutions page (/solutions) renders without fatal JS errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2048,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:29.283Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-001-Marketin-4bcdc-ers-without-fatal-JS-errors-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-9b8f878ad8c3be8f81dc",
+              "file": "uat/portal.spec.ts",
+              "line": 142,
+              "column": 5
+            },
+            {
+              "title": "Frameworks page (/frameworks) renders without fatal JS errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2032,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:31.351Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-001-Marketin-9492d-ers-without-fatal-JS-errors-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-38496b10448c46654c15",
+              "file": "uat/portal.spec.ts",
+              "line": 142,
+              "column": 5
+            },
+            {
+              "title": "Engagement page (/engagement) renders without fatal JS errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2120,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:33.404Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-001-Marketin-39091-ers-without-fatal-JS-errors-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-82349d73b5de65083a87",
+              "file": "uat/portal.spec.ts",
+              "line": 142,
+              "column": 5
+            },
+            {
+              "title": "Contact page (/contact) renders without fatal JS errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2085,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:35.545Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-001-Marketin-f41f2-ers-without-fatal-JS-errors-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-32fb538bf7d334ef557b",
+              "file": "uat/portal.spec.ts",
+              "line": 142,
+              "column": 5
+            },
+            {
+              "title": "Contact page form inputs are present",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2246,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:37.649Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-001-Marketin-eb41b-age-form-inputs-are-present-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-0660c6c14cafdfe6f9ae",
+              "file": "uat/portal.spec.ts",
+              "line": 167,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "TC-002 Theme toggle",
+          "file": "uat/portal.spec.ts",
+          "line": 181,
+          "column": 6,
+          "specs": [
+            {
+              "title": "theme toggle button is present in the marketing header",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2318,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:39.919Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-002-Theme-to-58173-ent-in-the-marketing-header-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-bc5a569c8619db8dec0c",
+              "file": "uat/portal.spec.ts",
+              "line": 182,
+              "column": 3
+            },
+            {
+              "title": "clicking theme toggle applies dark class to <html>",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2470,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:42.258Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-002-Theme-to-49f2c-applies-dark-class-to-html--chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-2d5d4ef379b5774c953c",
+              "file": "uat/portal.spec.ts",
+              "line": 189,
+              "column": 3
+            },
+            {
+              "title": "theme preference persists across navigation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3289,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:44.750Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-002-Theme-to-30020--persists-across-navigation-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-4ee0fb3a3b1fabd2ceb0",
+              "file": "uat/portal.spec.ts",
+              "line": 203,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "TC-003 Auth redirect",
+          "file": "uat/portal.spec.ts",
+          "line": 228,
+          "column": 6,
+          "specs": [
+            {
+              "title": "unauthenticated visit to /portal redirects to /login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1391,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:48.059Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-003-Auth-red-39d2f-o-portal-redirects-to-login-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-eb2ad492b39848635ddc",
+              "file": "uat/portal.spec.ts",
+              "line": 229,
+              "column": 3
+            },
+            {
+              "title": "login page email and password inputs are visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1971,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:49.472Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-003-Auth-red-021b2-password-inputs-are-visible-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-c5617c592c5543192409",
+              "file": "uat/portal.spec.ts",
+              "line": 237,
+              "column": 3
+            },
+            {
+              "title": "login form validates empty submission (button remains enabled)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2136,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:51.463Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-003-Auth-red-e9325-ion-button-remains-enabled--chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-645bf6c3911c7f23b136",
+              "file": "uat/portal.spec.ts",
+              "line": 246,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "TC-004 Portal Dashboard",
+          "file": "uat/portal.spec.ts",
+          "line": 262,
+          "column": 6,
+          "specs": [
+            {
+              "title": "dashboard renders header navigation elements",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2332,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:53.619Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-004-Portal-D-20771--header-navigation-elements-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-1b21d9063ba97d3eac80",
+              "file": "uat/portal.spec.ts",
+              "line": 267,
+              "column": 3
+            },
+            {
+              "title": "dashboard shows user name or email",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2193,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:55.975Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-004-Portal-D-9d041-rd-shows-user-name-or-email-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-0ab1068871a2c0e3a857",
+              "file": "uat/portal.spec.ts",
+              "line": 276,
+              "column": 3
+            },
+            {
+              "title": "theme toggle is present in portal header",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1937,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:26:58.187Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-004-Portal-D-e7cc8-is-present-in-portal-header-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-2fce7176b8afb3b7906b",
+              "file": "uat/portal.spec.ts",
+              "line": 284,
+              "column": 3
+            },
+            {
+              "title": "clicking New Artifact button opens the tool picker dialog",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2181,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:27:00.147Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-004-Portal-D-78f11-pens-the-tool-picker-dialog-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-427e26fc57b76f5d576f",
+              "file": "uat/portal.spec.ts",
+              "line": 291,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "TC-005 BMC Tool",
+          "file": "uat/portal.spec.ts",
+          "line": 304,
+          "column": 6,
+          "specs": [
+            {
+              "title": "BMC tool shows welcome screen with company name input",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1832,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:27:02.355Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-005-BMC-Tool-551cc-een-with-company-name-input-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-eb44c0b35d6d281c0c5d",
+              "file": "uat/portal.spec.ts",
+              "line": 309,
+              "column": 3
+            },
+            {
+              "title": "entering a company name and Continue enters guided view",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2090,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:27:04.203Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-005-BMC-Tool-e731c-Continue-enters-guided-view-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-68967c612293af3ed0a7",
+              "file": "uat/portal.spec.ts",
+              "line": 319,
+              "column": 3
+            },
+            {
+              "title": "view switcher buttons are visible in the BMC header",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2456,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:27:06.312Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-005-BMC-Tool-d302c-e-visible-in-the-BMC-header-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-43697571ccff6f7e6e40",
+              "file": "uat/portal.spec.ts",
+              "line": 331,
+              "column": 3
+            },
+            {
+              "title": "BMC back-to-dashboard button navigates to /portal",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2737,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:27:08.786Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-005-BMC-Tool-9e767--button-navigates-to-portal-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-6e199c0ca25f60cc9072",
+              "file": "uat/portal.spec.ts",
+              "line": 345,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "TC-006 SWOT & PESTLE Tool",
+          "file": "uat/portal.spec.ts",
+          "line": 362,
+          "column": 6,
+          "specs": [
+            {
+              "title": "SWOT tool renders all header and tab controls",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 6879,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('button-back-dashboard')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('button-back-dashboard')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('button-back-dashboard')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('button-back-dashboard')\u001b[22m\n\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:371:61",
+                        "location": {
+                          "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                          "column": 61,
+                          "line": 371
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 369 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'networkidle'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 370 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 371 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'button-back-dashboard'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 372 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'input-company-name'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 373 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'button-tab-swot'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 374 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'button-tab-pestle'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                            "column": 61,
+                            "line": 371
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('button-back-dashboard')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('button-back-dashboard')\u001b[22m\n\n\n  369 |     await page.waitForLoadState('networkidle');\n  370 |\n> 371 |     await expect(page.getByTestId('button-back-dashboard')).toBeVisible();\n      |                                                             ^\n  372 |     await expect(page.getByTestId('input-company-name')).toBeVisible();\n  373 |     await expect(page.getByTestId('button-tab-swot')).toBeVisible();\n  374 |     await expect(page.getByTestId('button-tab-pestle')).toBeVisible();\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:371:61"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:27:11.543Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-006-SWOT-PES-533e7-all-header-and-tab-controls-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-006-SWOT-PES-533e7-all-header-and-tab-controls-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                        "column": 61,
+                        "line": 371
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-21e681200aa0785dd8b6",
+              "file": "uat/portal.spec.ts",
+              "line": 367,
+              "column": 3
+            },
+            {
+              "title": "switching to PESTLE tab renders PESTLE content",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30130,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                            "column": 49,
+                            "line": 383
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByTestId('button-tab-pestle')\u001b[22m\n\n\n  381 |     await page.waitForLoadState('networkidle');\n  382 |\n> 383 |     await page.getByTestId('button-tab-pestle').click();\n      |                                                 ^\n  384 |     await page.waitForTimeout(300);\n  385 |\n  386 |     // PESTLE has a card grid ÔÇö ensure at least one card is rendered\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:383:49"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:27:19.881Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-006-SWOT-PES-432ed--tab-renders-PESTLE-content-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-006-SWOT-PES-432ed--tab-renders-PESTLE-content-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-7f38718e726fc57bd575",
+              "file": "uat/portal.spec.ts",
+              "line": 379,
+              "column": 3
+            },
+            {
+              "title": "SWOT back button navigates to /portal",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30137,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                            "column": 53,
+                            "line": 394
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByTestId('button-back-dashboard')\u001b[22m\n\n\n  392 |     await page.waitForLoadState('networkidle');\n  393 |\n> 394 |     await page.getByTestId('button-back-dashboard').click();\n      |                                                     ^\n  395 |     await expect(page).toHaveURL(/\\/portal$/);\n  396 |   });\n  397 | });\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:394:53"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:27:51.731Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-006-SWOT-PES-1516c--button-navigates-to-portal-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-006-SWOT-PES-1516c--button-navigates-to-portal-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-ae1819b860b7268d3f36",
+              "file": "uat/portal.spec.ts",
+              "line": 390,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "TC-007 Value Proposition Tool",
+          "file": "uat/portal.spec.ts",
+          "line": 403,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Value Prop tool renders header, company input, and tab controls",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 7084,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('button-back-dashboard')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('button-back-dashboard')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('button-back-dashboard')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('button-back-dashboard')\u001b[22m\n\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:412:61",
+                        "location": {
+                          "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                          "column": 61,
+                          "line": 412
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 410 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'networkidle'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 411 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 412 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'button-back-dashboard'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 413 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'input-company-name'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 414 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'button-tab-customer'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 415 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'button-tab-value'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                            "column": 61,
+                            "line": 412
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('button-back-dashboard')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('button-back-dashboard')\u001b[22m\n\n\n  410 |     await page.waitForLoadState('networkidle');\n  411 |\n> 412 |     await expect(page.getByTestId('button-back-dashboard')).toBeVisible();\n      |                                                             ^\n  413 |     await expect(page.getByTestId('input-company-name')).toBeVisible();\n  414 |     await expect(page.getByTestId('button-tab-customer')).toBeVisible();\n  415 |     await expect(page.getByTestId('button-tab-value')).toBeVisible();\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:412:61"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:28:23.444Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-007-Value-Pr-eb43a-pany-input-and-tab-controls-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-007-Value-Pr-eb43a-pany-input-and-tab-controls-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                        "column": 61,
+                        "line": 412
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-41f6b929e2a9b9ac3bf0",
+              "file": "uat/portal.spec.ts",
+              "line": 408,
+              "column": 3
+            },
+            {
+              "title": "switching to Value Map tab renders value-side content",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30130,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                            "column": 48,
+                            "line": 424
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByTestId('button-tab-value')\u001b[22m\n\n\n  422 |     await page.waitForLoadState('networkidle');\n  423 |\n> 424 |     await page.getByTestId('button-tab-value').click();\n      |                                                ^\n  425 |     await page.waitForTimeout(300);\n  426 |\n  427 |     await expect(page.getByText('Products & Services').first()).toBeVisible();\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:424:48"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:28:32.129Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-007-Value-Pr-d9962--renders-value-side-content-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-007-Value-Pr-d9962--renders-value-side-content-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-f52833bf41b2e7931b8c",
+              "file": "uat/portal.spec.ts",
+              "line": 420,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "TC-008 Pitch Builder Tool",
+          "file": "uat/portal.spec.ts",
+          "line": 435,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Pitch Builder renders header controls and company input",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 6941,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('button-back-dashboard')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('button-back-dashboard')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('button-back-dashboard')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('button-back-dashboard')\u001b[22m\n\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:444:61",
+                        "location": {
+                          "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                          "column": 61,
+                          "line": 444
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 442 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'networkidle'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 443 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 444 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'button-back-dashboard'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 445 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'input-company-name'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 446 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'button-toggle-preview'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 447 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'button-save-draft'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                            "column": 61,
+                            "line": 444
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('button-back-dashboard')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('button-back-dashboard')\u001b[22m\n\n\n  442 |     await page.waitForLoadState('networkidle');\n  443 |\n> 444 |     await expect(page.getByTestId('button-back-dashboard')).toBeVisible();\n      |                                                             ^\n  445 |     await expect(page.getByTestId('input-company-name')).toBeVisible();\n  446 |     await expect(page.getByTestId('button-toggle-preview')).toBeVisible();\n  447 |     await expect(page.getByTestId('button-save-draft')).toBeVisible();\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:444:61"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:29:03.837Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-008-Pitch-Bu-72b38--controls-and-company-input-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-008-Pitch-Bu-72b38--controls-and-company-input-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                        "column": 61,
+                        "line": 444
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-15bc4da10badf1218ba1",
+              "file": "uat/portal.spec.ts",
+              "line": 440,
+              "column": 3
+            },
+            {
+              "title": "Preview toggle switches the view label to Edit",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30125,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                            "column": 53,
+                            "line": 454
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByTestId('button-toggle-preview')\u001b[22m\n\n\n  452 |     await page.waitForLoadState('networkidle');\n  453 |\n> 454 |     await page.getByTestId('button-toggle-preview').click();\n      |                                                     ^\n  455 |     await page.waitForTimeout(350);\n  456 |\n  457 |     // After switching to preview mode the button should say \"Edit\"\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:454:53"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:29:12.397Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-008-Pitch-Bu-6fa55-ches-the-view-label-to-Edit-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-008-Pitch-Bu-6fa55-ches-the-view-label-to-Edit-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-3e9d4f27707622722c3d",
+              "file": "uat/portal.spec.ts",
+              "line": 450,
+              "column": 3
+            },
+            {
+              "title": "Pitch Builder back button navigates to /portal",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30143,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                            "column": 53,
+                            "line": 465
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByTestId('button-back-dashboard')\u001b[22m\n\n\n  463 |     await page.waitForLoadState('networkidle');\n  464 |\n> 465 |     await page.getByTestId('button-back-dashboard').click();\n      |                                                     ^\n  466 |     await expect(page).toHaveURL(/\\/portal$/);\n  467 |   });\n  468 | });\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:465:53"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:29:44.113Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-008-Pitch-Bu-f8cb9--button-navigates-to-portal-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-008-Pitch-Bu-f8cb9--button-navigates-to-portal-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-17a15f4789b6fcb08a98",
+              "file": "uat/portal.spec.ts",
+              "line": 461,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "TC-009 Financial Analysis Tool",
+          "file": "uat/portal.spec.ts",
+          "line": 474,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Financial tool renders mode selector and analyse button",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2109,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:30:16.119Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-009-Financia-4c439-selector-and-analyse-button-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-9152f815c48101af0dd2",
+              "file": "uat/portal.spec.ts",
+              "line": 479,
+              "column": 3
+            },
+            {
+              "title": "selecting Quick Snapshot changes analyse button label",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2352,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:30:18.407Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-009-Financia-aa974-hanges-analyse-button-label-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-724f21d3759c9bf012a9",
+              "file": "uat/portal.spec.ts",
+              "line": 489,
+              "column": 3
+            },
+            {
+              "title": "selecting Deep Analysis changes analyse button label",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2159,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:30:20.786Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-009-Financia-45a56-hanges-analyse-button-label-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-e41e077976c0a93d6e8c",
+              "file": "uat/portal.spec.ts",
+              "line": 499,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "TC-010 Progress Tracker Tool",
+          "file": "uat/portal.spec.ts",
+          "line": 516,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Progress Tracker renders header and view tab controls",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 7192,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('button-back-dashboard')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('button-back-dashboard')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('button-back-dashboard')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('button-back-dashboard')\u001b[22m\n\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:525:61",
+                        "location": {
+                          "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                          "column": 61,
+                          "line": 525
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 523 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'networkidle'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 524 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 525 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'button-back-dashboard'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 526 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'button-tab-overview'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 527 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'button-tab-milestones'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 528 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                            "column": 61,
+                            "line": 525
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('button-back-dashboard')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('button-back-dashboard')\u001b[22m\n\n\n  523 |     await page.waitForLoadState('networkidle');\n  524 |\n> 525 |     await expect(page.getByTestId('button-back-dashboard')).toBeVisible();\n      |                                                             ^\n  526 |     await expect(page.getByTestId('button-tab-overview')).toBeVisible();\n  527 |     await expect(page.getByTestId('button-tab-milestones')).toBeVisible();\n  528 |   });\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:525:61"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:30:22.964Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-010-Progress-63adf-eader-and-view-tab-controls-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-010-Progress-63adf-eader-and-view-tab-controls-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                        "column": 61,
+                        "line": 525
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-59f5031f5251b972608c",
+              "file": "uat/portal.spec.ts",
+              "line": 521,
+              "column": 3
+            },
+            {
+              "title": "switching to Milestones tab shows milestone log form",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30138,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                            "column": 53,
+                            "line": 534
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByTestId('button-tab-milestones')\u001b[22m\n\n\n  532 |     await page.waitForLoadState('networkidle');\n  533 |\n> 534 |     await page.getByTestId('button-tab-milestones').click();\n      |                                                     ^\n  535 |     await page.waitForTimeout(300);\n  536 |\n  537 |     await expect(page.getByTestId('input-milestone')).toBeVisible();\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:534:53"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:30:31.775Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-010-Progress-0ff4d-ab-shows-milestone-log-form-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-010-Progress-0ff4d-ab-shows-milestone-log-form-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-7613162230e81f053e66",
+              "file": "uat/portal.spec.ts",
+              "line": 530,
+              "column": 3
+            },
+            {
+              "title": "Log Milestone button is disabled when input is empty",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30153,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                            "column": 53,
+                            "line": 545
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByTestId('button-tab-milestones')\u001b[22m\n\n\n  543 |     await page.waitForLoadState('networkidle');\n  544 |\n> 545 |     await page.getByTestId('button-tab-milestones').click();\n      |                                                     ^\n  546 |     await page.waitForTimeout(300);\n  547 |\n  548 |     await expect(page.getByTestId('button-log-milestone')).toBeDisabled();\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:545:53"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:31:03.509Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-010-Progress-99b2c-isabled-when-input-is-empty-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-010-Progress-99b2c-isabled-when-input-is-empty-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-0a07bd26a50e063b9d37",
+              "file": "uat/portal.spec.ts",
+              "line": 541,
+              "column": 3
+            },
+            {
+              "title": "Log Milestone button enables after typing in milestone input",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30124,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                            "column": 53,
+                            "line": 555
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByTestId('button-tab-milestones')\u001b[22m\n\n\n  553 |     await page.waitForLoadState('networkidle');\n  554 |\n> 555 |     await page.getByTestId('button-tab-milestones').click();\n      |                                                     ^\n  556 |     await page.waitForTimeout(300);\n  557 |\n  558 |     await page.getByTestId('input-milestone').fill('Completed customer discovery interviews');\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:555:53"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:31:35.361Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-010-Progress-648c4-r-typing-in-milestone-input-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-010-Progress-648c4-r-typing-in-milestone-input-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-2b612ca38bb5fb0e7586",
+              "file": "uat/portal.spec.ts",
+              "line": 551,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "TC-011 Profile Page",
+          "file": "uat/portal.spec.ts",
+          "line": 567,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Profile page renders account and business form fields",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2159,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:32:07.114Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-011-Profile--6a76d-nt-and-business-form-fields-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-508e85cc09e65bf53758",
+              "file": "uat/portal.spec.ts",
+              "line": 572,
+              "column": 3
+            },
+            {
+              "title": "Profile back button navigates to /portal",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2194,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:32:09.445Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-011-Profile--f3094--button-navigates-to-portal-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-a8d0f7299402985a098c",
+              "file": "uat/portal.spec.ts",
+              "line": 583,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "TC-012 Mobile viewport (375 px)",
+          "file": "uat/portal.spec.ts",
+          "line": 596,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Home page has no horizontal overflow at 375 px",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1952,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:32:11.656Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-012-Mobile-v-5e42f-rizontal-overflow-at-375-px-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-8d4d124ab9ef4cb35e80",
+              "file": "uat/portal.spec.ts",
+              "line": 599,
+              "column": 3
+            },
+            {
+              "title": "Contact page renders at 375 px without overflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2017,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:32:13.628Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-012-Mobile-v-3cc30--at-375-px-without-overflow-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-c665e55d433d2a612aa3",
+              "file": "uat/portal.spec.ts",
+              "line": 607,
+              "column": 3
+            },
+            {
+              "title": "Portal Dashboard renders at 375 px without overflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1928,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:32:15.662Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-012-Mobile-v-1e01a--at-375-px-without-overflow-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-536a81cea270f4cbc3ba",
+              "file": "uat/portal.spec.ts",
+              "line": 615,
+              "column": 3
+            },
+            {
+              "title": "BMC Tool welcome screen renders at 375 px without overflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1929,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:32:17.610Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-012-Mobile-v-e2a60--at-375-px-without-overflow-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-e87add7e7a7c6320869e",
+              "file": "uat/portal.spec.ts",
+              "line": 625,
+              "column": 3
+            },
+            {
+              "title": "SWOT tool renders at 375 px ÔÇö SWOT grid stacks vertically",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 6928,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('button-tab-swot')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('button-tab-swot')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('button-tab-swot')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('button-tab-swot')\u001b[22m\n\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:639:55",
+                        "location": {
+                          "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                          "column": 55,
+                          "line": 639
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 637 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'networkidle'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 638 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 639 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'button-tab-swot'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 640 |\u001b[39m\n \u001b[90m 641 |\u001b[39m     \u001b[36mconst\u001b[39m scrollWidth \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m)\u001b[33m.\u001b[39mevaluate((el) \u001b[33m=>\u001b[39m el\u001b[33m.\u001b[39mscrollWidth)\u001b[33m;\u001b[39m\n \u001b[90m 642 |\u001b[39m     expect(scrollWidth)\u001b[33m.\u001b[39mtoBeLessThanOrEqual(\u001b[35m376\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                            "column": 55,
+                            "line": 639
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('button-tab-swot')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('button-tab-swot')\u001b[22m\n\n\n  637 |     await page.waitForLoadState('networkidle');\n  638 |\n> 639 |     await expect(page.getByTestId('button-tab-swot')).toBeVisible();\n      |                                                       ^\n  640 |\n  641 |     const scrollWidth = await page.locator('body').evaluate((el) => el.scrollWidth);\n  642 |     expect(scrollWidth).toBeLessThanOrEqual(376);\n    at C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts:639:55"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:32:19.557Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-012-Mobile-v-e9ba5-SWOT-grid-stacks-vertically-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-012-Mobile-v-e9ba5-SWOT-grid-stacks-vertically-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\keena\\Projects\\Edmeca-Website\\tests\\uat\\portal.spec.ts",
+                        "column": 55,
+                        "line": 639
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-d5142b6329112fc23468",
+              "file": "uat/portal.spec.ts",
+              "line": 634,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "TC-013 Not Found page",
+          "file": "uat/portal.spec.ts",
+          "line": 650,
+          "column": 6,
+          "specs": [
+            {
+              "title": "visiting an unknown route renders the 404 page with home button",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2177,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:32:28.010Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-013-Not-Foun-87abc-e-404-page-with-home-button-chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-931ad3e737431d8a7f77",
+              "file": "uat/portal.spec.ts",
+              "line": 651,
+              "column": 3
+            },
+            {
+              "title": "404 home button navigates back to /",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2276,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T11:32:30.339Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\keena\\Projects\\Edmeca-Website\\test-results\\uat-portal-TC-013-Not-Foun-b3d85-e-button-navigates-back-to--chromium\\test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "931fe932b34fe7cd20c4-cb581d53c88080f3b418",
+              "file": "uat/portal.spec.ts",
+              "line": 659,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-03-09T11:26:23.157Z",
+    "duration": 369593.515,
+    "expected": 32,
+    "skipped": 0,
+    "unexpected": 13,
+    "flaky": 0
+  }
+}

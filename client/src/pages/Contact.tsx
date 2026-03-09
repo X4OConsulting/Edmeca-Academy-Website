@@ -74,7 +74,7 @@ export default function Contact() {
           name: data.name,
           email: data.email,
           company: data.company || null,
-          audience_type: data.audienceType,
+          audienceType: data.audienceType,
           message: data.message,
         });
       } catch {

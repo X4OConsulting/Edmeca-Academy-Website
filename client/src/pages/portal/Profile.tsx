@@ -57,8 +57,8 @@ export default function Profile() {
   // Populate business form fields once profile loads
   useEffect(() => {
     if (profile && !profileLoaded) {
-      setBusinessName((profile as any).business_name || "");
-      setBusinessDescription((profile as any).business_description || "");
+      setBusinessName((profile as any).businessName || "");
+      setBusinessDescription((profile as any).businessDescription || "");
       setProfileLoaded(true);
     }
   }, [profile, profileLoaded]);
@@ -117,8 +117,8 @@ export default function Profile() {
     mutationFn: async () => {
       // profileService.upsertUserProfile handles user_id injection
       await profileService.upsertUserProfile({
-        business_name: businessName,
-        business_description: businessDescription,
+        businessName: businessName,
+        businessDescription: businessDescription,
       });
 
       // Re-title all artifacts to reflect the business name
@@ -205,7 +205,7 @@ export default function Profile() {
               </span>
             </Link>
             <Link href="/portal">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" data-testid="button-back-dashboard">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Dashboard
               </Button>
@@ -294,12 +294,14 @@ export default function Profile() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Your full name"
+                data-testid="input-full-name"
               />
             </div>
             <Button
               onClick={() => updateNameMutation.mutate()}
               disabled={updateNameMutation.isPending}
               size="sm"
+              data-testid="button-save-name"
             >
               {updateNameMutation.isPending ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -334,6 +336,7 @@ export default function Profile() {
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
                     placeholder="Your business or venture name"
+                    data-testid="input-business-name"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -350,6 +353,7 @@ export default function Profile() {
                   onClick={() => updateBusinessMutation.mutate()}
                   disabled={updateBusinessMutation.isPending}
                   size="sm"
+                  data-testid="button-save-business"
                 >
                   {updateBusinessMutation.isPending ? (
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />

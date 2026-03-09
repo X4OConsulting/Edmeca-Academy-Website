@@ -277,7 +277,7 @@ export default function SWOTPestleTool() {
     const timer = setTimeout(async () => {
       try {
         const id = await artifactsService.saveArtifact(existingIdRef.current, {
-          tool_type: "swot_pestle",
+          toolType: "swot_pestle",
           title: `${data.companyName || profileNameRef.current || "Untitled"} — SWOT & PESTLE Analysis`,
           content: data as unknown as Record<string, unknown>,
           status: "in_progress",
@@ -293,7 +293,7 @@ export default function SWOTPestleTool() {
     return () => {
       if (!hasLoadedRef.current || isFinalizedRef.current) return;
       artifactsService.saveArtifact(existingIdRef.current, {
-        tool_type: "swot_pestle",
+        toolType: "swot_pestle",
         title: `${dataRef.current.companyName || profileNameRef.current || "Untitled"} — SWOT & PESTLE Analysis`,
         content: dataRef.current as unknown as Record<string, unknown>,
         status: "in_progress",
@@ -313,7 +313,7 @@ export default function SWOTPestleTool() {
   const saveMutation = useMutation({
     mutationFn: async (finalize: boolean) => {
       const id = await artifactsService.saveArtifact(existingIdRef.current, {
-        tool_type: "swot_pestle",
+        toolType: "swot_pestle",
         title: `${data.companyName || profileNameRef.current || "Untitled"} — SWOT & PESTLE Analysis`,
         content: data as unknown as Record<string, unknown>,
         status: finalize ? "complete" : "in_progress",
@@ -340,7 +340,7 @@ export default function SWOTPestleTool() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link href="/portal">
-              <Button variant="ghost" size="sm" className="gap-2">
+              <Button variant="ghost" size="sm" className="gap-2" data-testid="button-back-dashboard">
                 <ArrowLeft className="h-4 w-4" />
                 <span className="hidden sm:inline">Dashboard</span>
               </Button>
@@ -353,12 +353,12 @@ export default function SWOTPestleTool() {
             {isFinalized && <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 text-xs">Finalized</Badge>}
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2" onClick={() => saveMutation.mutate(false)} disabled={saveMutation.isPending}>
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => saveMutation.mutate(false)} disabled={saveMutation.isPending} data-testid="button-save-draft">
               <Save className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Save Draft</span>
             </Button>
             {!isFinalized && (
-              <Button size="sm" className="gap-2 bg-primary" onClick={() => saveMutation.mutate(true)} disabled={saveMutation.isPending || totalSwotItems < 4}>
+              <Button size="sm" className="gap-2 bg-primary" onClick={() => saveMutation.mutate(true)} disabled={saveMutation.isPending || totalSwotItems < 4} data-testid="button-finalize">
                 <CheckCircle className="h-3.5 w-3.5" />
                 Finalize
               </Button>
@@ -376,6 +376,7 @@ export default function SWOTPestleTool() {
             placeholder="Enter your company / venture name…"
             className="max-w-xs font-medium"
             disabled={isFinalized}
+            data-testid="input-company-name"
           />
           <span className="text-sm text-muted-foreground">
             {totalSwotItems} SWOT · {totalPestleItems} PESTLE items
@@ -391,6 +392,7 @@ export default function SWOTPestleTool() {
               size="sm"
               onClick={() => setView(v)}
               className="capitalize"
+              data-testid={`button-tab-${v}`}
             >
               {v === "summary" ? "Summary" : v.toUpperCase()}
             </Button>

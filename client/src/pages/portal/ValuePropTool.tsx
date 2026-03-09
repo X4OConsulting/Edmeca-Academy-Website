@@ -165,7 +165,7 @@ export default function ValuePropTool() {
     const timer = setTimeout(async () => {
       try {
         const id = await artifactsService.saveArtifact(existingIdRef.current, {
-          tool_type: "value_proposition",
+          toolType: "value_proposition",
           title: `${data.companyName || profileNameRef.current || "Untitled"} — Value Proposition`,
           content: data as unknown as Record<string, unknown>,
           status: "in_progress",
@@ -181,7 +181,7 @@ export default function ValuePropTool() {
     return () => {
       if (!hasLoadedRef.current || isFinalizedRef.current) return;
       artifactsService.saveArtifact(existingIdRef.current, {
-        tool_type: "value_proposition",
+        toolType: "value_proposition",
         title: `${dataRef.current.companyName || profileNameRef.current || "Untitled"} — Value Proposition`,
         content: dataRef.current as unknown as Record<string, unknown>,
         status: "in_progress",
@@ -201,7 +201,7 @@ export default function ValuePropTool() {
   const saveMutation = useMutation({
     mutationFn: async (finalize: boolean) => {
       const id = await artifactsService.saveArtifact(existingIdRef.current, {
-        tool_type: "value_proposition",
+        toolType: "value_proposition",
         title: `${data.companyName || profileNameRef.current || "Untitled"} — Value Proposition`,
         content: data as unknown as Record<string, unknown>,
         status: finalize ? "complete" : "in_progress",
@@ -229,7 +229,7 @@ export default function ValuePropTool() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link href="/portal">
-              <Button variant="ghost" size="sm" className="gap-2">
+              <Button variant="ghost" size="sm" className="gap-2" data-testid="button-back-dashboard">
                 <ArrowLeft className="h-4 w-4" />
                 <span className="hidden sm:inline">Dashboard</span>
               </Button>
@@ -242,12 +242,12 @@ export default function ValuePropTool() {
             {isFinalized && <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 text-xs">Finalized</Badge>}
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2" onClick={() => saveMutation.mutate(false)} disabled={saveMutation.isPending}>
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => saveMutation.mutate(false)} disabled={saveMutation.isPending} data-testid="button-save-draft">
               <Save className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Save Draft</span>
             </Button>
             {!isFinalized && (
-              <Button size="sm" className="gap-2" onClick={() => saveMutation.mutate(true)} disabled={saveMutation.isPending || !canFinalize}>
+              <Button size="sm" className="gap-2" onClick={() => saveMutation.mutate(true)} disabled={saveMutation.isPending || !canFinalize} data-testid="button-finalize">
                 <CheckCircle className="h-3.5 w-3.5" />
                 Finalize
               </Button>
@@ -258,7 +258,7 @@ export default function ValuePropTool() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="mb-6 flex flex-wrap items-center gap-3">
-          <Input value={data.companyName} onChange={e => setData(p => ({ ...p, companyName: e.target.value }))} placeholder="Company / venture name…" className="max-w-48 font-medium" disabled={isFinalized} />
+          <Input value={data.companyName} onChange={e => setData(p => ({ ...p, companyName: e.target.value }))} placeholder="Company / venture name…" className="max-w-48 font-medium" disabled={isFinalized} data-testid="input-company-name" />
           <Input value={data.customerSegment} onChange={e => setData(p => ({ ...p, customerSegment: e.target.value }))} placeholder="Target customer segment…" className="max-w-64" disabled={isFinalized} />
           <span className="text-sm text-muted-foreground ml-auto">{totalCustomer} customer · {totalValue} value items</span>
         </div>
@@ -269,7 +269,7 @@ export default function ValuePropTool() {
             { v: "value" as ViewType, label: "Value Map" },
             { v: "fit" as ViewType, label: "Value Fit" },
           ]).map(({ v, label }) => (
-            <Button key={v} variant={view === v ? "default" : "outline"} size="sm" onClick={() => setView(v)}>{label}</Button>
+            <Button key={v} variant={view === v ? "default" : "outline"} size="sm" onClick={() => setView(v)} data-testid={`button-tab-${v}`}>{label}</Button>
           ))}
         </div>
 

@@ -79,18 +79,6 @@ export default function ProgressTrackerTool() {
     enabled: !!user,
   });
 
-  if (entriesLoading) return <PageLoader message="Loading progress tracker..." />;
-  if (artifactsError || entriesError) return <PageError message="Could not load progress data." onRetry={refetchEntries} />;
-  const toolStatuses = toolDefinitions.map(t => toolStatus(artifacts, t.toolType));
-  const completedTools = toolStatuses.filter(s => s.status === "complete").length;
-  const inProgressTools = toolStatuses.filter(s => s.status === "in_progress").length;
-  const overallPercent = Math.round(
-    toolStatuses.reduce((sum, s) => sum + (s.status === "complete" ? 100 : s.status === "in_progress" ? 40 : 0), 0) / toolDefinitions.length
-  );
-
-  const completedMilestones = entries?.filter(e => e.completed_at).length || 0;
-  const totalMilestones = entries?.length || 0;
-
   const addMutation = useMutation({
     mutationFn: async () => {
       return progressService.createProgressEntry({
@@ -119,13 +107,25 @@ export default function ProgressTrackerTool() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.progress.all }),
   });
 
+  if (entriesLoading) return <PageLoader message="Loading progress tracker..." />;
+  if (artifactsError || entriesError) return <PageError message="Could not load progress data." onRetry={refetchEntries} />;
+  const toolStatuses = toolDefinitions.map(t => toolStatus(artifacts, t.toolType));
+  const completedTools = toolStatuses.filter(s => s.status === "complete").length;
+  const inProgressTools = toolStatuses.filter(s => s.status === "in_progress").length;
+  const overallPercent = Math.round(
+    toolStatuses.reduce((sum, s) => sum + (s.status === "complete" ? 100 : s.status === "in_progress" ? 40 : 0), 0) / toolDefinitions.length
+  );
+
+  const completedMilestones = entries?.filter(e => e.completedAt).length || 0;
+  const totalMilestones = entries?.length || 0;
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link href="/portal">
-              <Button variant="ghost" size="sm" className="gap-2"><ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">Dashboard</span></Button>
+              <Button variant="ghost" size="sm" className="gap-2" data-testid="button-back-dashboard"><ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">Dashboard</span></Button>
             </Link>
             <div className="h-4 w-px bg-border" />
             <div className="flex items-center gap-2">
@@ -155,8 +155,8 @@ export default function ProgressTrackerTool() {
         </Card>
 
         <div className="flex gap-2 mb-6">
-          <Button variant={view === "overview" ? "default" : "outline"} size="sm" onClick={() => setView("overview")}>Tool Overview</Button>
-          <Button variant={view === "milestones" ? "default" : "outline"} size="sm" onClick={() => setView("milestones")}>My Milestones</Button>
+          <Button variant={view === "overview" ? "default" : "outline"} size="sm" onClick={() => setView("overview")} data-testid="button-tab-overview">Tool Overview</Button>
+          <Button variant={view === "milestones" ? "default" : "outline"} size="sm" onClick={() => setView("milestones")} data-testid="button-tab-milestones">My Milestones</Button>
         </div>
 
         {/* Tool Overview */}
@@ -241,6 +241,7 @@ export default function ProgressTrackerTool() {
                   value={form.milestone}
                   onChange={e => setForm(p => ({ ...p, milestone: e.target.value }))}
                   placeholder="What milestone did you reach? (e.g. Completed customer interviews, Validated revenue model…)"
+                  data-testid="input-milestone"
                 />
                 <Textarea
                   value={form.evidence}
@@ -258,7 +259,7 @@ export default function ProgressTrackerTool() {
                     />
                     Mark as completed
                   </label>
-                  <Button size="sm" className="gap-2" onClick={() => addMutation.mutate()} disabled={!form.milestone.trim() || addMutation.isPending}>
+                  <Button size="sm" className="gap-2" onClick={() => addMutation.mutate()} disabled={!form.milestone.trim() || addMutation.isPending} data-testid="button-log-milestone">
                     <Plus className="h-4 w-4" />Log Milestone
                   </Button>
                 </div>
@@ -277,28 +278,28 @@ export default function ProgressTrackerTool() {
                 </Card>
               )}
               {entries?.map((entry: any) => (
-                <Card key={entry.id} className={`group ${entry.completed_at ? "opacity-80" : ""}`}>
+                <Card key={entry.id} className={`group ${entry.completedAt ? "opacity-80" : ""}`}>
                   <CardContent className="py-3">
                     <div className="flex items-start gap-3">
                       <button
-                        onClick={() => toggleMutation.mutate({ id: entry.id, completed: !entry.completed_at })}
+                        onClick={() => toggleMutation.mutate({ id: entry.id, completed: !entry.completedAt })}
                         className="mt-0.5 shrink-0 text-muted-foreground hover:text-green-600 transition-colors"
                       >
-                        {entry.completed_at
+                        {entry.completedAt
                           ? <CheckCircle2 className="h-5 w-5 text-green-600" />
                           : <Circle className="h-5 w-5" />}
                       </button>
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-medium ${entry.completed_at ? "line-through text-muted-foreground" : ""}`}>
+                        <p className={`text-sm font-medium ${entry.completedAt ? "line-through text-muted-foreground" : ""}`}>
                           {entry.milestone}
                         </p>
                         {entry.evidence && (
                           <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{entry.evidence}</p>
                         )}
                         <p className="text-xs text-muted-foreground mt-1">
-                          {entry.completed_at
-                            ? `Completed ${new Date(entry.completed_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}`
-                            : `Logged ${new Date(entry.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}`}
+                          {entry.completedAt
+                            ? `Completed ${new Date(entry.completedAt).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}`
+                            : `Logged ${new Date(entry.createdAt).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}`}
                         </p>
                       </div>
                       <button

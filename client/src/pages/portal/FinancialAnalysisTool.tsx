@@ -287,7 +287,7 @@ export default function FinancialAnalysisTool() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link href="/portal">
-              <Button variant="ghost" size="sm" className="gap-2">
+              <Button variant="ghost" size="sm" className="gap-2" data-testid="button-back-dashboard">
                 <ArrowLeft className="h-4 w-4" />
                 <span className="hidden sm:inline">Dashboard</span>
               </Button>
@@ -355,6 +355,7 @@ export default function FinancialAnalysisTool() {
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setAnalysisMode("quick")}
+                  data-testid="button-mode-quick"
                   className={`flex items-start gap-3 rounded-xl border-2 p-3.5 text-left transition-all ${
                     analysisMode === "quick"
                       ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30"
@@ -369,6 +370,7 @@ export default function FinancialAnalysisTool() {
                 </button>
                 <button
                   onClick={() => setAnalysisMode("deep")}
+                  data-testid="button-mode-deep"
                   className={`flex items-start gap-3 rounded-xl border-2 p-3.5 text-left transition-all ${
                     analysisMode === "deep"
                       ? "border-primary bg-primary/5"
@@ -434,6 +436,7 @@ export default function FinancialAnalysisTool() {
               )}
 
               <Button onClick={handleAnalyse}
+                data-testid="button-analyse"
                 disabled={inputMode === "paste" ? !statements.trim() : !uploadResult}
                 className={`w-full sm:w-auto ${
                   analysisMode === "quick"
