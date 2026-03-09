@@ -29,7 +29,8 @@ import {
 } from "lucide-react";
 import type { Artifact } from "@shared/schema";
 import logoImage from "@assets/EdMeCa_LOGO.png";
-import { PageError } from "@/components/portal/PageStates";
+import { PageError, PageLoader } from "@/components/portal/PageStates";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const tools = [
   {
@@ -95,10 +96,11 @@ export default function Dashboard() {
     navigate("/");
   };
 
-  const { data: artifacts, isLoading: artifactsLoading, isError: artifactsError, refetch } = useQuery<Artifact[]>({
+  const { data: artifacts, isLoading: artifactsLoading, isFetching: artifactsFetching, isError: artifactsError, refetch } = useQuery<Artifact[]>({
     queryKey: ["artifacts"],
     queryFn: () => artifactsService.getArtifacts(),
     enabled: !!user,
+    networkMode: "always",
   });
 
   // Deduplicate: keep only the most recently updated artifact per tool type
@@ -168,6 +170,7 @@ export default function Dashboard() {
     return labels[status] || "Draft";
   };
 
+  if (artifactsLoading || artifactsFetching) return <PageLoader message="Loading your dashboard..." />;
   if (artifactsError) return <PageError message="Could not load your work. Please check your connection." onRetry={refetch} />;
 
   const LEARNING_PATH = [
@@ -246,6 +249,7 @@ export default function Dashboard() {
                   <p className="text-xs text-muted-foreground">{user?.email}</p>
                 </div>
               </Link>
+              <ThemeToggle />
               <Button variant="ghost" size="icon" data-testid="button-logout" onClick={handleLogout}>
                 <LogOut className="h-4 w-4" />
               </Button>
