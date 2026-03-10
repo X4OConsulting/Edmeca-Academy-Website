@@ -1,5 +1,5 @@
 import { Switch, Route, useLocation } from "wouter";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -16,23 +16,23 @@ function ScrollToTop() {
   return null;
 }
 
-import Home from "@/pages/Home";
-import About from "@/pages/About";
-import Solutions from "@/pages/Solutions";
-import Frameworks from "@/pages/Frameworks";
-import Engagement from "@/pages/Engagement";
-import Contact from "@/pages/Contact";
-import Login from "@/pages/Login";
-import Signup from "@/pages/Signup";
-import Dashboard from "@/pages/portal/Dashboard";
-import BMCTool from "@/pages/portal/BMCTool";
-import SWOTPestleTool from "@/pages/portal/SWOTPestleTool";
-import ValuePropTool from "@/pages/portal/ValuePropTool";
-import PitchBuilderTool from "@/pages/portal/PitchBuilderTool";
-import ProgressTrackerTool from "@/pages/portal/ProgressTrackerTool";
-import FinancialAnalysisTool from "@/pages/portal/FinancialAnalysisTool";
-import Profile from "@/pages/portal/Profile";
-import NotFound from "@/pages/not-found";
+const Home = lazy(() => import("@/pages/Home"));
+const About = lazy(() => import("@/pages/About"));
+const Solutions = lazy(() => import("@/pages/Solutions"));
+const Frameworks = lazy(() => import("@/pages/Frameworks"));
+const Engagement = lazy(() => import("@/pages/Engagement"));
+const Contact = lazy(() => import("@/pages/Contact"));
+const Login = lazy(() => import("@/pages/Login"));
+const Signup = lazy(() => import("@/pages/Signup"));
+const Dashboard = lazy(() => import("@/pages/portal/Dashboard"));
+const BMCTool = lazy(() => import("@/pages/portal/BMCTool"));
+const SWOTPestleTool = lazy(() => import("@/pages/portal/SWOTPestleTool"));
+const ValuePropTool = lazy(() => import("@/pages/portal/ValuePropTool"));
+const PitchBuilderTool = lazy(() => import("@/pages/portal/PitchBuilderTool"));
+const ProgressTrackerTool = lazy(() => import("@/pages/portal/ProgressTrackerTool"));
+const FinancialAnalysisTool = lazy(() => import("@/pages/portal/FinancialAnalysisTool"));
+const Profile = lazy(() => import("@/pages/portal/Profile"));
+const NotFound = lazy(() => import("@/pages/not-found"));
 import { FloatingChat } from "@/components/FloatingChat";
 import { ErrorBoundary } from "@/components/portal/ErrorBoundary";
 
@@ -69,7 +69,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function Router() {
   return (
-    <>
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
     <ScrollToTop />
     <Switch>
       {/* Marketing Pages */}
@@ -129,7 +133,7 @@ function Router() {
       {/* Fallback */}
       <Route component={NotFound} />
     </Switch>
-    </>
+    </Suspense>
   );
 }
 

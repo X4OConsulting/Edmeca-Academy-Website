@@ -71,7 +71,7 @@ export default function Frameworks() {
                 <div key={feature.title} className="flex items-start gap-4">
                   <div className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold">{feature.title}</h4>
+                    <h3 className="font-semibold">{feature.title}</h3>
                     <p className="text-sm text-muted-foreground">{feature.description}</p>
                   </div>
                 </div>

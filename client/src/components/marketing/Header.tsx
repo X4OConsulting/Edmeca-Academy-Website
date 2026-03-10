@@ -26,7 +26,9 @@ export function Header() {
           <Link href="/" className="flex items-center gap-3" data-testid="link-home">
             <img 
               src={logoImage} 
-              alt="EdMeCa" 
+              alt="EdMeCa"
+              width="100"
+              height="56"
               className="h-14 w-auto dark:brightness-0 dark:invert"
             />
           </Link>

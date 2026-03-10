@@ -21,6 +21,21 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "client", "dist"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return;
+          if (id.includes('pdfjs-dist')) return 'vendor-pdf';
+          if (id.includes('@supabase')) return 'vendor-supabase';
+          if (id.includes('recharts')) return 'vendor-charts';
+          if (id.includes('framer-motion')) return 'vendor-motion';
+          if (id.includes('@radix-ui')) return 'vendor-ui';
+          if (id.includes('@tanstack')) return 'vendor-query';
+          if (id.includes('lucide-react')) return 'vendor-icons';
+          return 'vendor';
+        },
+      },
+    },
   },
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),

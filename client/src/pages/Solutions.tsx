@@ -101,7 +101,7 @@ export default function Solutions() {
                       {item.step}
                     </div>
                     <div>
-                      <h4 className="font-semibold">{item.title}</h4>
+                      <h3 className="font-semibold">{item.title}</h3>
                       <p className="text-sm text-muted-foreground">{item.description}</p>
                     </div>
                   </div>
