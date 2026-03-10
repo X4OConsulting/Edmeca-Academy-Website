@@ -2,8 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   // testDir points to the parent folder so both suites are discovered:
-  //   tests/screenshots/  — Phase 2 design screenshots
-  //   tests/uat/          — Phase 4 UAT portal tests
+  //   tests/screenshots/    — Phase 2 design screenshots
+  //   tests/uat/            — Phase 4 UAT portal tests
+  //   tests/integration/    — Phase 4 integration tests
+  //   tests/crossbrowser/   — Phase 4 cross-browser compatibility tests
   testDir: './tests',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
@@ -34,6 +36,24 @@ export default defineConfig({
       },
       // Only run UAT tests on mobile — the Phase 2 screenshot suite is desktop-only
       testMatch: '**/uat/**',
+    },
+    {
+      // Firefox — used by Task 4.4 cross-browser compatibility tests
+      name: 'firefox',
+      use: {
+        ...devices['Desktop Firefox'],
+        viewport: { width: 1920, height: 1080 },
+      },
+      testMatch: '**/crossbrowser/**',
+    },
+    {
+      // WebKit (Safari) — used by Task 4.4 cross-browser compatibility tests
+      name: 'webkit',
+      use: {
+        ...devices['Desktop Safari'],
+        viewport: { width: 1920, height: 1080 },
+      },
+      testMatch: '**/crossbrowser/**',
     },
   ],
 
