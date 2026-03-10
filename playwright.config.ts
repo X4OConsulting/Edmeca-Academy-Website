@@ -55,6 +55,28 @@ export default defineConfig({
       },
       testMatch: '**/crossbrowser/**',
     },
+    {
+      // Mobile 375px — used by Task 4.5 mobile responsiveness tests
+      name: 'mobile-375',
+      use: {
+        ...devices['Pixel 5'],
+        viewport: { width: 375, height: 812 },
+        isMobile: true,
+        hasTouch: true,
+      },
+      testMatch: '**/mobile/**',
+    },
+    {
+      // Tablet 768px — used by Task 4.5 tablet viewport audit
+      name: 'tablet-768',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 768, height: 1024 },
+        isMobile: false,
+        hasTouch: false,
+      },
+      testMatch: '**/mobile/**',
+    },
   ],
 
   webServer: {
