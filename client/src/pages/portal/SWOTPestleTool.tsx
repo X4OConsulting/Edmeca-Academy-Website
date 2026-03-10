@@ -57,7 +57,7 @@ const swotConfig = [
     key: "strengths" as const,
     label: "Strengths",
     icon: TrendingUp,
-    color: "text-green-600",
+    color: "text-green-700",
     bg: "bg-green-50 dark:bg-green-900/20",
     border: "border-green-200 dark:border-green-800",
     hint: "Internal advantages your business already has — things you do better than competitors. Think about your team's skills, unique product features, loyal customers, or a strong brand. These come from inside your business.",
@@ -73,7 +73,7 @@ const swotConfig = [
     key: "weaknesses" as const,
     label: "Weaknesses",
     icon: TrendingDown,
-    color: "text-red-600",
+    color: "text-red-700",
     bg: "bg-red-50 dark:bg-red-900/20",
     border: "border-red-200 dark:border-red-800",
     hint: "Internal gaps or limitations your business currently has. Being honest here helps you prioritise what to fix. Consider funding gaps, skills shortages, limited brand awareness, or processes that don't scale yet.",
@@ -89,7 +89,7 @@ const swotConfig = [
     key: "opportunities" as const,
     label: "Opportunities",
     icon: Target,
-    color: "text-blue-600",
+    color: "text-blue-700",
     bg: "bg-blue-50 dark:bg-blue-900/20",
     border: "border-blue-200 dark:border-blue-800",
     hint: "External trends, market gaps, or changes in the environment that your business could take advantage of. These come from outside your business — think about growing industries, underserved customers, new technology, or competitors leaving the market.",
@@ -105,7 +105,7 @@ const swotConfig = [
     key: "threats" as const,
     label: "Threats",
     icon: AlertTriangle,
-    color: "text-orange-600",
+    color: "text-orange-700",
     bg: "bg-orange-50 dark:bg-orange-900/20",
     border: "border-orange-200 dark:border-orange-800",
     hint: "External risks that could hurt your business — things largely outside your control. Think about new competitors entering, economic downturns reducing customer spend, regulatory changes, or technology shifting consumer behaviour.",
@@ -121,37 +121,37 @@ const swotConfig = [
 
 const pestleConfig = [
   {
-    key: "political" as const, label: "Political", icon: Globe, color: "text-indigo-600",
+    key: "political" as const, label: "Political", icon: Globe, color: "text-indigo-700",
     bg: "bg-indigo-50 dark:bg-indigo-900/20", border: "border-indigo-200 dark:border-indigo-800",
     hint: "Government decisions, policies, and political stability that affect your business environment. In South Africa this includes load-shedding policies, BEE/transformation requirements, municipal service delivery, and trade regulations.",
     quickAddItems: ["Government policy uncertainty", "BEE / transformation requirements", "Trade tariffs or import duties", "Public sector budget changes", "Municipal / local government factors"],
   },
   {
-    key: "economic" as const, label: "Economic", icon: DollarSign, color: "text-emerald-600",
+    key: "economic" as const, label: "Economic", icon: DollarSign, color: "text-emerald-700",
     bg: "bg-emerald-50 dark:bg-emerald-900/20", border: "border-emerald-200 dark:border-emerald-800",
     hint: "Macroeconomic conditions that affect what customers can afford to spend, and what it costs you to run your business. SA-specific factors include Rand volatility, load-shedding energy costs, high unemployment, and rising interest rates.",
     quickAddItems: ["Rand / currency volatility", "Rising inflation and interest rates", "Load-shedding energy costs", "High consumer price sensitivity", "Unemployment reducing market size"],
   },
   {
-    key: "social" as const, label: "Social", icon: Users, color: "text-pink-600",
+    key: "social" as const, label: "Social", icon: Users, color: "text-pink-700",
     bg: "bg-pink-50 dark:bg-pink-900/20", border: "border-pink-200 dark:border-pink-800",
     hint: "Changes in demographics, culture, lifestyle, and values that influence what customers want and how they behave. Think about who your customers are, how they live, and what they care about.",
     quickAddItems: ["Growing youth and Gen Z market", "Increased mobile internet usage", "Health and wellness trend", "Preference for local / African brands", "Growth of the informal economy"],
   },
   {
-    key: "technological" as const, label: "Technological", icon: Cpu, color: "text-purple-600",
+    key: "technological" as const, label: "Technological", icon: Cpu, color: "text-purple-700",
     bg: "bg-purple-50 dark:bg-purple-900/20", border: "border-purple-200 dark:border-purple-800",
     hint: "Technology advances that could create new opportunities for your business — or make your current approach outdated. Think about AI, mobile platforms, fintech, automation, and digital infrastructure.",
     quickAddItems: ["AI and automation adoption", "Mobile money and fintech growth", "E-commerce expansion", "Cloud computing accessibility", "Cybersecurity risks"],
   },
   {
-    key: "legal" as const, label: "Legal", icon: Scale, color: "text-yellow-600",
+    key: "legal" as const, label: "Legal", icon: Scale, color: "text-yellow-800",
     bg: "bg-yellow-50 dark:bg-yellow-900/20", border: "border-yellow-200 dark:border-yellow-800",
     hint: "Laws and regulations that directly affect how your business must operate — from hiring staff to protecting customer data. Non-compliance can result in fines or shutdowns, so know what applies to you.",
     quickAddItems: ["POPIA data protection compliance", "Labour law / minimum wage changes", "Industry-specific licensing", "Consumer Protection Act", "CIPC / company registration requirements"],
   },
   {
-    key: "environmental" as const, label: "Environmental", icon: Leaf, color: "text-teal-600",
+    key: "environmental" as const, label: "Environmental", icon: Leaf, color: "text-teal-700",
     bg: "bg-teal-50 dark:bg-teal-900/20", border: "border-teal-200 dark:border-teal-800",
     hint: "Environmental factors and sustainability expectations that affect your supply chain, operations, and how customers and investors perceive your business. Increasingly important for funding and partnerships.",
     quickAddItems: ["ESG investor requirements", "Water scarcity and drought risk", "Carbon emission regulations", "Sustainable packaging demand", "Renewable energy opportunities"],
@@ -182,7 +182,7 @@ function ItemList({
       {items.map((item, i) => (
         <div key={i} className="flex items-start gap-2 group">
           <span className="flex-1 text-sm py-0.5 leading-relaxed">{item}</span>
-          <button onClick={() => onRemove(i)} className="opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 text-muted-foreground hover:text-destructive">
+          <button onClick={() => onRemove(i)} aria-label="Remove item" className="opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 text-muted-foreground hover:text-destructive">
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -208,7 +208,7 @@ function ItemList({
           placeholder={placeholder}
           className="text-sm h-8"
         />
-        <Button size="sm" variant="ghost" onClick={submit} className="h-8 w-8 p-0">
+        <Button size="sm" variant="ghost" onClick={submit} className="h-8 w-8 p-0" aria-label="Add item">
           <Plus className="h-4 w-4" />
         </Button>
       </div>

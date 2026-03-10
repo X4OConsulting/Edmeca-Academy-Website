@@ -23,7 +23,7 @@ export function Footer() {
               <div className="flex items-center">
                 <span className="font-serif text-2xl font-bold tracking-tight">
                   <span className="text-primary">Ed</span>
-                  <span className="text-accent">Me</span>
+                  <span className="text-orange-700 dark:text-accent">Me</span>
                   <span className="text-primary">Ca</span>
                 </span>
               </div>

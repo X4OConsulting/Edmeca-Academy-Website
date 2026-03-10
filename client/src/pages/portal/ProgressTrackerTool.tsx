@@ -38,10 +38,10 @@ interface MilestoneForm {
 }
 
 const toolDefinitions = [
-  { toolType: "bmc", label: "Business Model Canvas", icon: Layers, color: "text-blue-600", bg: "bg-blue-100 dark:bg-blue-900/30", href: "/portal/tools/bmc" },
-  { toolType: "swot_pestle", label: "SWOT & PESTLE", icon: BarChart2, color: "text-purple-600", bg: "bg-purple-100 dark:bg-purple-900/30", href: "/portal/tools/analysis" },
-  { toolType: "value_proposition", label: "Value Proposition", icon: Target, color: "text-green-600", bg: "bg-green-100 dark:bg-green-900/30", href: "/portal/tools/value-prop" },
-  { toolType: "pitch_builder", label: "Pitch Builder", icon: FileText, color: "text-orange-600", bg: "bg-orange-100 dark:bg-orange-900/30", href: "/portal/tools/pitch" },
+  { toolType: "bmc", label: "Business Model Canvas", icon: Layers, color: "text-blue-700", bg: "bg-blue-100 dark:bg-blue-900/30", href: "/portal/tools/bmc" },
+  { toolType: "swot_pestle", label: "SWOT & PESTLE", icon: BarChart2, color: "text-purple-700", bg: "bg-purple-100 dark:bg-purple-900/30", href: "/portal/tools/analysis" },
+  { toolType: "value_proposition", label: "Value Proposition", icon: Target, color: "text-green-700", bg: "bg-green-100 dark:bg-green-900/30", href: "/portal/tools/value-prop" },
+  { toolType: "pitch_builder", label: "Pitch Builder", icon: FileText, color: "text-orange-700", bg: "bg-orange-100 dark:bg-orange-900/30", href: "/portal/tools/pitch" },
 ];
 
 function toolStatus(artifacts: any[] | undefined, toolType: string) {
@@ -150,7 +150,7 @@ export default function ProgressTrackerTool() {
               </div>
               <span className="text-2xl font-bold text-primary">{overallPercent}%</span>
             </div>
-            <Progress value={overallPercent} className="h-2.5" />
+            <Progress value={overallPercent} className="h-2.5" aria-label="Overall programme progress" />
           </CardContent>
         </Card>
 
@@ -209,13 +209,13 @@ export default function ProgressTrackerTool() {
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                  <Link href="/portal/tools/bmc"><span className="text-blue-600 font-medium cursor-pointer hover:underline">1. BMC</span></Link>
+                  <Link href="/portal/tools/bmc"><span className="text-blue-700 font-medium cursor-pointer hover:underline">1. BMC</span></Link>
                   <span>→</span>
-                  <Link href="/portal/tools/value-prop"><span className="text-green-600 font-medium cursor-pointer hover:underline">2. Value Proposition</span></Link>
+                  <Link href="/portal/tools/value-prop"><span className="text-green-700 font-medium cursor-pointer hover:underline">2. Value Proposition</span></Link>
                   <span>→</span>
-                  <Link href="/portal/tools/analysis"><span className="text-purple-600 font-medium cursor-pointer hover:underline">3. SWOT & PESTLE</span></Link>
+                  <Link href="/portal/tools/analysis"><span className="text-purple-700 font-medium cursor-pointer hover:underline">3. SWOT & PESTLE</span></Link>
                   <span>→</span>
-                  <Link href="/portal/tools/pitch"><span className="text-orange-600 font-medium cursor-pointer hover:underline">4. Pitch Builder</span></Link>
+                  <Link href="/portal/tools/pitch"><span className="text-orange-700 font-medium cursor-pointer hover:underline">4. Pitch Builder</span></Link>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
                   Each tool builds on the last — your BMC foundations inform your Value Proposition, which strengthens your SWOT, which all feeds into your Pitch.

@@ -76,7 +76,7 @@ export function Header() {
 
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden" data-testid="button-menu">
+                <Button variant="ghost" size="icon" className="md:hidden" data-testid="button-menu" aria-label="Open navigation menu">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>

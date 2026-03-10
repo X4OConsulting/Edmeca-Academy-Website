@@ -231,7 +231,7 @@ export default function Dashboard() {
                   <LifeBuoy className="h-4 w-4" />
                   Support
                 </Button>
-                <Button variant="ghost" size="icon" className="sm:hidden">
+                <Button variant="ghost" size="icon" className="sm:hidden" aria-label="Support">
                   <LifeBuoy className="h-4 w-4" />
                 </Button>
               </Link>
@@ -250,7 +250,7 @@ export default function Dashboard() {
                 </div>
               </Link>
               <ThemeToggle />
-              <Button variant="ghost" size="icon" data-testid="button-logout" onClick={handleLogout}>
+              <Button variant="ghost" size="icon" data-testid="button-logout" aria-label="Log out" onClick={handleLogout}>
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>
@@ -284,7 +284,7 @@ export default function Dashboard() {
                 <span className="text-muted-foreground">Keep going!</span>
               </div>
             </div>
-            <Progress value={progressPercent} className="h-2" />
+            <Progress value={progressPercent} className="h-2" aria-label="Programme completion progress" />
           </CardContent>
         </Card>
 

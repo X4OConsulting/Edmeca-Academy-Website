@@ -74,7 +74,7 @@ function ItemList({
         <div key={i} className="flex items-start gap-2 group">
           <span className="flex-1 text-sm py-0.5 leading-relaxed">{item}</span>
           {!disabled && (
-            <button onClick={() => onRemove(i)} className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive mt-0.5">
+            <button onClick={() => onRemove(i)} aria-label="Remove item" className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive mt-0.5">
               <X className="h-3.5 w-3.5" />
             </button>
           )}
@@ -96,7 +96,7 @@ function ItemList({
       {!disabled && (
         <div className="flex gap-2 mt-1">
           <Input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && submit()} placeholder={placeholder} className="text-sm h-8" />
-          <Button size="sm" variant="ghost" onClick={submit} className="h-8 w-8 p-0"><Plus className="h-4 w-4" /></Button>
+          <Button size="sm" variant="ghost" onClick={submit} className="h-8 w-8 p-0" aria-label="Add item"><Plus className="h-4 w-4" /></Button>
         </div>
       )}
     </div>
@@ -280,7 +280,7 @@ export default function ValuePropTool() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="border-blue-200 dark:border-blue-800">
                 <CardHeader className="pb-3 bg-blue-50 dark:bg-blue-900/20 rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-base text-blue-600"><Briefcase className="h-4 w-4" />Customer Jobs</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-base text-blue-700"><Briefcase className="h-4 w-4" />Customer Jobs</CardTitle>
                   <p className="text-xs text-muted-foreground leading-relaxed">What tasks, goals, or problems is your customer trying to handle? Include practical tasks (functional jobs), how they want to appear to others (social jobs), and how they want to feel (emotional jobs).</p>
                 </CardHeader>
                 <CardContent className="pt-4">
@@ -289,7 +289,7 @@ export default function ValuePropTool() {
               </Card>
               <Card className="border-red-200 dark:border-red-800">
                 <CardHeader className="pb-3 bg-red-50 dark:bg-red-900/20 rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-base text-red-600"><Frown className="h-4 w-4" />Pains</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-base text-red-700"><Frown className="h-4 w-4" />Pains</CardTitle>
                   <p className="text-xs text-muted-foreground leading-relaxed">What obstacles, frustrations, or bad outcomes does your customer currently experience? What risks do they want to avoid? Think about what makes their job harder or more expensive than it should be.</p>
                 </CardHeader>
                 <CardContent className="pt-4">
@@ -298,7 +298,7 @@ export default function ValuePropTool() {
               </Card>
               <Card className="border-green-200 dark:border-green-800">
                 <CardHeader className="pb-3 bg-green-50 dark:bg-green-900/20 rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-base text-green-600"><Smile className="h-4 w-4" />Gains</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-base text-green-700"><Smile className="h-4 w-4" />Gains</CardTitle>
                   <p className="text-xs text-muted-foreground leading-relaxed">What outcomes and benefits does your customer want to achieve? What would make their life or work better, easier, or more enjoyable? Think about both practical benefits and how they want to feel.</p>
                 </CardHeader>
                 <CardContent className="pt-4">
@@ -316,7 +316,7 @@ export default function ValuePropTool() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="border-purple-200 dark:border-purple-800">
                 <CardHeader className="pb-3 bg-purple-50 dark:bg-purple-900/20 rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-base text-purple-600"><Star className="h-4 w-4" />Products & Services</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-base text-purple-700"><Star className="h-4 w-4" />Products & Services</CardTitle>
                   <p className="text-xs text-muted-foreground leading-relaxed">List everything you offer that helps customers get their jobs done. This can be a physical product, a digital platform, a service, training, or a combination. Be specific about what you actually deliver.</p>
                 </CardHeader>
                 <CardContent className="pt-4">
@@ -325,7 +325,7 @@ export default function ValuePropTool() {
               </Card>
               <Card className="border-orange-200 dark:border-orange-800">
                 <CardHeader className="pb-3 bg-orange-50 dark:bg-orange-900/20 rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-base text-orange-600"><ShieldCheck className="h-4 w-4" />Pain Relievers</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-base text-orange-700"><ShieldCheck className="h-4 w-4" />Pain Relievers</CardTitle>
                   <p className="text-xs text-muted-foreground leading-relaxed">Describe specifically how what you offer reduces or eliminates a pain from your Customer Profile. For each pain reliever, you should be able to point to a specific pain it addresses. Aim for at least one per major pain.</p>
                 </CardHeader>
                 <CardContent className="pt-4">
@@ -334,7 +334,7 @@ export default function ValuePropTool() {
               </Card>
               <Card className="border-teal-200 dark:border-teal-800">
                 <CardHeader className="pb-3 bg-teal-50 dark:bg-teal-900/20 rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-base text-teal-600"><Zap className="h-4 w-4" />Gain Creators</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-base text-teal-700"><Zap className="h-4 w-4" />Gain Creators</CardTitle>
                   <p className="text-xs text-muted-foreground leading-relaxed">Describe how your offering produces benefits and outcomes your customer actually wants to achieve. For each gain creator, link it back to a specific gain in your Customer Profile. The more concrete the better.</p>
                 </CardHeader>
                 <CardContent className="pt-4">

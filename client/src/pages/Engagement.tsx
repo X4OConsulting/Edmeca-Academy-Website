@@ -109,7 +109,7 @@ export default function Engagement() {
               className={`relative hover-elevate overflow-visible h-full flex flex-col ${tier.popular ? 'ring-2 ring-accent' : ''}`}
             >
               {tier.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-700 text-white text-xs font-semibold px-3 py-1 rounded-full">
                   Most Popular
                 </div>
               )}

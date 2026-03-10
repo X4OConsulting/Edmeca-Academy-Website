@@ -54,7 +54,7 @@ export default function Frameworks() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div>
-            <div className="inline-flex items-center gap-2 bg-accent/10 text-accent-foreground dark:text-accent px-3 py-1 rounded-full text-sm font-medium mb-4">
+            <div className="inline-flex items-center gap-2 bg-accent/10 text-orange-700 dark:text-accent px-3 py-1 rounded-full text-sm font-medium mb-4">
               <Sparkles className="w-4 h-4" />
               AI-Powered
             </div>
@@ -91,7 +91,7 @@ export default function Frameworks() {
                   <div className="h-3 bg-muted rounded w-3/4" />
                   <div className="h-3 bg-muted rounded w-1/2" />
                   <div className="mt-4 p-3 bg-accent/10 rounded-lg border border-accent/20">
-                    <div className="flex items-center gap-2 text-xs font-medium text-accent-foreground dark:text-accent">
+                    <div className="flex items-center gap-2 text-xs font-medium text-orange-700 dark:text-accent">
                       <Sparkles className="w-3 h-3" />
                       AI Suggestion
                     </div>

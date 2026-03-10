@@ -837,6 +837,7 @@ export default function BusinessModelCanvas() {
               size="icon"
               onClick={handleReset}
               data-testid="button-reset"
+              aria-label="Reset canvas"
             >
               <RotateCcw className="h-4 w-4" />
             </Button>
