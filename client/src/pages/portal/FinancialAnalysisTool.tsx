@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -712,67 +712,45 @@ export default function FinancialAnalysisTool() {
               </div>
             </div>
 
-            {/* ── Deep mode: visual, beginner-friendly dashboard ──────────────── */}
-            {s && result.meta.analysis_mode === "deep" && (
+            {/* ── Structured dashboard (shown whenever analysis returns structured data) */}
+            {s && (
               <>
                 {/* Block 1: Health hero */}
                 <HealthHero score={s.healthScore} grade={s.healthGrade} summary={s.healthSummary} />
 
                 {/* Block 2: 3 plain-language stats */}
-                <div className="flex flex-wrap gap-3">
-                  <StatPill
-                    emoji="💰"
-                    label="Money Coming In"
-                    value={s.kpis.revenue}
-                    note={s.kpis.revenueChange}
-                    positive={s.kpis.revenueChangePositive}
-                  />
-                  <StatPill
-                    emoji="📈"
-                    label="Profit After Costs"
-                    value={s.kpis.netMargin}
-                    note={s.kpis.netMarginVsSector}
-                    positive={s.kpis.netMarginPositive}
-                  />
-                  <StatPill
-                    emoji="🏦"
-                    label="Cash Runway"
-                    value={s.kpis.cashRunway}
-                    note={s.kpis.cashRunwayNote}
-                    positive={s.kpis.cashRunwayPositive}
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <StatPill emoji="💰" label="Money Coming In" value={s.kpis.revenue} note={s.kpis.revenueChange} positive={s.kpis.revenueChangePositive} />
+                  <StatPill emoji="📈" label="Profit After Costs" value={s.kpis.netMargin} note={s.kpis.netMarginVsSector} positive={s.kpis.netMarginPositive} />
+                  <StatPill emoji="🏦" label="Cash Runway" value={s.kpis.cashRunway} note={s.kpis.cashRunwayNote} positive={s.kpis.cashRunwayPositive} />
                 </div>
 
-                {/* Block 3: Revenue chart (full width) */}
+                {/* Block 3: Money flow chart (full width, plain card matching Downloads layout) */}
                 {s.monthlyData?.length > 0 && (
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base font-bold text-primary">Your money flow</CardTitle>
-                      <p className="text-xs text-muted-foreground">Money coming in vs money going out, month by month</p>
-                    </CardHeader>
-                    <CardContent>
-                      <ResponsiveContainer width="100%" height={220}>
-                        <BarChart data={s.monthlyData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-                          <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                          <YAxis tickFormatter={formatCurrency} tick={{ fontSize: 11 }} width={58} axisLine={false} tickLine={false} />
-                          <Tooltip
-                            formatter={(v: number, name: string) => [formatCurrency(v), name === "revenue" ? "Money In" : "Money Out"]}
-                            contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                          />
-                          <Bar dataKey="revenue" name="revenue" fill="#6EE7B7" radius={[4, 4, 0, 0]} />
-                          <Bar dataKey="expenses" name="expenses" fill="#FCA5A5" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                      <div className="flex gap-4 mt-2 justify-center">
-                        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#6EE7B7" }} />Money In
-                        </span>
-                        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#FCA5A5" }} />Money Out
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="bg-card border rounded-xl p-5">
+                    <p className="text-base font-bold text-primary mb-1">Your money flow</p>
+                    <p className="text-xs text-muted-foreground mb-4">Money coming in vs money going out, month by month</p>
+                    <ResponsiveContainer width="100%" height={220}>
+                      <BarChart data={s.monthlyData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                        <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                        <YAxis tickFormatter={formatCurrency} tick={{ fontSize: 11 }} width={58} axisLine={false} tickLine={false} />
+                        <Tooltip
+                          formatter={(v: number, name: string) => [formatCurrency(v), name === "revenue" ? "Money In" : "Money Out"] as [string, string]}
+                          contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                        />
+                        <Bar dataKey="revenue" name="revenue" fill="#6EE7B7" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="expenses" name="expenses" fill="#FCA5A5" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                    <div className="flex gap-4 mt-2 justify-center">
+                      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#6EE7B7" }} />Money In
+                      </span>
+                      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#FCA5A5" }} />Money Out
+                      </span>
+                    </div>
+                  </div>
                 )}
 
                 {/* Block 4: Top 3 actions — numbered, plain language */}
@@ -852,7 +830,7 @@ export default function FinancialAnalysisTool() {
                   </div>
                 )}
 
-                {/* Block 7: Full report toggle */}
+                {/* Block 7: Full report toggle — executive summary + all recommendations */}
                 <div className="border rounded-xl overflow-hidden">
                   <button
                     onClick={() => setShowFullReport(v => !v)}
@@ -864,18 +842,40 @@ export default function FinancialAnalysisTool() {
                       : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                   </button>
                   {showFullReport && (
-                    <div className="p-5 border-t">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
-                        {result.report}
-                      </ReactMarkdown>
+                    <div className="p-5 border-t space-y-4">
+                      {s.executiveSummary && (
+                        <div>
+                          <p className="text-sm font-bold text-primary mb-1">Executive Summary</p>
+                          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{s.executiveSummary}</p>
+                        </div>
+                      )}
+                      {s.recommendations.length > 3 && (
+                        <div>
+                          <p className="text-sm font-bold text-primary mb-2">All Recommendations</p>
+                          <div className="flex flex-col gap-2">
+                            {s.recommendations.map((rec, i) => (
+                              <div key={i} className="flex gap-2 items-start text-sm">
+                                <span className={cn("flex-shrink-0 mt-0.5", rec.priority === "high" ? "text-red-500" : rec.priority === "medium" ? "text-amber-500" : "text-emerald-500")}>●</span>
+                                <span className="text-foreground"><strong>{rec.title}:</strong> <span className="text-muted-foreground">{rec.description}</span></span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <div className="border-t pt-4">
+                        <p className="text-xs text-muted-foreground font-medium mb-2">Full AI report</p>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+                          {result.report}
+                        </ReactMarkdown>
+                      </div>
                     </div>
                   )}
                 </div>
               </>
             )}
 
-            {/* ── Quick mode / fallback: markdown report ─────────────────────── */}
-            {(!s || result.meta.analysis_mode !== "deep") && (
+            {/* ── Quick mode / fallback: markdown report (only when no structured data) */}
+            {!s && (
               <Card>
                 <CardContent className="pt-6">
                   <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
