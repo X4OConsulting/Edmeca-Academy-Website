@@ -21,7 +21,8 @@ import { FileUploadZone, type UploadResult } from "@/components/portal/FileUploa
 import {
   ArrowLeft, TrendingUp, ClipboardList, Upload, Loader2, CheckCircle2,
   AlertTriangle, FileText, Clock, RefreshCw, Download, FileDown,
-  Zap, Brain, ArrowRight, ChevronRight,
+  Zap, Brain, ArrowRight, ChevronRight, ChevronDown, ChevronUp,
+  TrendingDown, CircleDollarSign, Flame, Lightbulb,
 } from "lucide-react";
 import { exportToWord, exportToPDF } from "@/lib/exportReport";
 import { cn } from "@/lib/utils";
@@ -196,47 +197,62 @@ function StepBar({ currentStep }: { currentStep: number }) {
   );
 }
 
-/** Circular health score gauge (conic-gradient) */
-function HealthGauge({ score, grade }: { score: number; grade: string }) {
+/** Health hero — large, friendly, plain-language */
+function HealthHero({ score, grade, summary }: { score: number; grade: string; summary: string }) {
   const color = scoreColor(score);
   const conicGradient = `conic-gradient(${color} 0% ${score}%, hsl(var(--muted)) ${score}% 100%)`;
+  const { label, emoji, bg } = score >= 80
+    ? { label: "Great shape!", emoji: "🎉", bg: "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800" }
+    : score >= 60
+    ? { label: "Doing well", emoji: "👍", bg: "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800" }
+    : score >= 40
+    ? { label: "Needs attention", emoji: "⚠️", bg: "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800" }
+    : { label: "Urgent action needed", emoji: "🚨", bg: "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800" };
+
   return (
-    <div className="flex flex-col items-center justify-center text-center p-6">
-      <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">Overall Health Score</p>
-      <div
-        className="w-28 h-28 rounded-full flex items-center justify-center mb-3"
-        style={{ background: conicGradient }}
-        aria-label={`Health score: ${score} out of 100`}
-        role="img"
-      >
-        <div className="w-20 h-20 bg-card rounded-full flex flex-col items-center justify-center">
-          <span className="text-3xl font-black text-primary leading-none">{score}</span>
-          <span className="text-xs text-muted-foreground">/100</span>
+    <div className={cn("rounded-2xl border p-6 flex flex-col sm:flex-row gap-6 items-center", bg)}>
+      {/* Gauge */}
+      <div className="flex-shrink-0">
+        <div
+          className="w-28 h-28 rounded-full flex items-center justify-center"
+          style={{ background: conicGradient }}
+          aria-label={`Health score: ${score} out of 100`}
+          role="img"
+        >
+          <div className="w-20 h-20 bg-card rounded-full flex flex-col items-center justify-center">
+            <span className="text-3xl font-black leading-none" style={{ color }}>{score}</span>
+            <span className="text-xs text-muted-foreground">/100</span>
+          </div>
         </div>
       </div>
-      <p className="font-bold text-base" style={{ color }}>{grade}</p>
-      <p className="text-xs text-muted-foreground mt-1">
-        {score >= 80 ? "Strong financial health." :
-         score >= 60 ? "Viable but needs attention in some areas." :
-         score >= 40 ? "Significant pressures require intervention." :
-         "Critical — immediate support needed."}
-      </p>
+      {/* Text */}
+      <div className="flex-1 text-center sm:text-left">
+        <div className="flex items-center gap-2 justify-center sm:justify-start mb-1">
+          <span className="text-xl">{emoji}</span>
+          <span className="text-xl font-black text-foreground">{label}</span>
+          <span className="text-sm font-semibold px-2 py-0.5 rounded-full border" style={{ color, borderColor: color + "40", background: color + "15" }}>{grade}</span>
+        </div>
+        <p className="text-sm text-foreground/80 leading-relaxed max-w-xl">{summary}</p>
+      </div>
     </div>
   );
 }
 
-/** Individual KPI metric card */
-function KPICard({ label, value, change, positive }: {
-  label: string; value: string; change: string; positive: boolean;
+/** Simple at-a-glance stat pill (beginner-friendly label) */
+function StatPill({ emoji, label, value, note, positive }: {
+  emoji: string; label: string; value: string; note: string; positive: boolean;
 }) {
   return (
-    <div className="bg-card border rounded-xl p-4">
-      <p className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">{label}</p>
-      <p className="text-2xl font-black text-primary">{value}</p>
-      <p className={cn("text-xs font-semibold mt-1", positive ? "text-emerald-600" : "text-destructive")}>{change}</p>
+    <div className="flex-1 min-w-[140px] bg-card border rounded-xl p-4 flex flex-col gap-1">
+      <span className="text-lg">{emoji}</span>
+      <p className="text-xs text-muted-foreground font-medium">{label}</p>
+      <p className="text-xl font-black text-primary">{value}</p>
+      <p className={cn("text-xs font-semibold", positive ? "text-emerald-600" : "text-amber-600")}>{note}</p>
     </div>
   );
 }
+
+// KPICard removed — replaced by StatPill for beginner-friendly layout
 
 // ── Main component ─────────────────────────────────────────────────────────────
 export default function FinancialAnalysisTool() {
@@ -268,6 +284,7 @@ export default function FinancialAnalysisTool() {
 
   // Result
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [showFullReport, setShowFullReport] = useState(false);
 
   // Quote rotation while processing
   useEffect(() => {
@@ -380,6 +397,7 @@ export default function FinancialAnalysisTool() {
   const handleReset = () => {
     setResult(null); setError(null); setProcessingStep("idle");
     setStatements(""); setUploadedFiles([]); setSingleUpload(null);
+    setShowFullReport(false);
     setWizardStep("setup");
   };
 
@@ -675,177 +693,184 @@ export default function FinancialAnalysisTool() {
         )}
 
         {/* ══════════════════════════════════════════════════════════════════════
-            STEP 4: DASHBOARD — structured results
+            STEP 4: DASHBOARD — beginner-friendly results
         ══════════════════════════════════════════════════════════════════════ */}
         {wizardStep === "dashboard" && result && (
           <>
-            {/* Header row */}
+            {/* ── Page header */}
             <div className="flex items-start justify-between flex-wrap gap-3">
               <div>
-                <h2 className="font-bold text-lg text-primary">{result.meta.company} — Financial Health Report</h2>
+                <h2 className="font-bold text-xl text-primary">{result.meta.company}</h2>
                 <p className="text-sm text-muted-foreground mt-0.5">
-                  {s?.period ?? "Analysis complete"} · Analysed {new Date().toLocaleDateString("en-ZA", { day: "numeric", month: "long", year: "numeric" })}
+                  Financial health check · {s?.period ?? new Date().toLocaleDateString("en-ZA", { month: "long", year: "numeric" })}
                 </p>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                {result.meta.analysis_mode === "quick"
-                  ? <Badge className="text-xs bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-100"><Zap className="h-3 w-3 mr-1" />Quick Snapshot</Badge>
-                  : <Badge className="text-xs bg-primary/10 text-primary border-primary/20 hover:bg-primary/10"><Brain className="h-3 w-3 mr-1" />Deep Analysis</Badge>}
-                <Button variant="outline" size="sm" onClick={handleExportPDF}><Download className="h-3.5 w-3.5 mr-1.5" />Export PDF</Button>
-                <Button variant="outline" size="sm" onClick={handleExportWord}><FileDown className="h-3.5 w-3.5 mr-1.5" />Export Word</Button>
-                <Button variant="outline" size="sm" onClick={handleReset}>New Analysis</Button>
+                <Button variant="outline" size="sm" onClick={handleExportPDF}><Download className="h-3.5 w-3.5 mr-1.5" />PDF</Button>
+                <Button variant="outline" size="sm" onClick={handleExportWord}><FileDown className="h-3.5 w-3.5 mr-1.5" />Word</Button>
+                <Button variant="outline" size="sm" onClick={handleReset}><RefreshCw className="h-3.5 w-3.5 mr-1.5" />New Analysis</Button>
               </div>
             </div>
 
-            {/* ── Health summary banner */}
-            {s?.healthSummary && (
-              <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4 flex gap-3 items-start text-sm text-primary">
-                <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0 text-blue-500" />
-                <span>{s.healthSummary}</span>
-              </div>
-            )}
-
-            {/* ── Deep mode: structured dashboard (3.15.6, 3.15.7, 3.15.8) ──────── */}
+            {/* ── Deep mode: visual, beginner-friendly dashboard ──────────────── */}
             {s && result.meta.analysis_mode === "deep" && (
               <>
-                {/* Row 1: Health gauge + KPI grid (3.15.6) */}
-                <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-5">
-                  {/* Health gauge */}
-                  <Card>
-                    <CardContent className="p-0">
-                      <HealthGauge score={s.healthScore} grade={s.healthGrade} />
-                    </CardContent>
-                  </Card>
+                {/* Block 1: Health hero */}
+                <HealthHero score={s.healthScore} grade={s.healthGrade} summary={s.healthSummary} />
 
-                  {/* KPI cards */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <KPICard label="Annual Revenue" value={s.kpis.revenue} change={s.kpis.revenueChange} positive={s.kpis.revenueChangePositive} />
-                    <KPICard label="Gross Profit Margin" value={s.kpis.grossMargin} change={s.kpis.grossMarginVsSector} positive={s.kpis.grossMarginPositive} />
-                    <KPICard label="Net Profit Margin" value={s.kpis.netMargin} change={s.kpis.netMarginVsSector} positive={s.kpis.netMarginPositive} />
-                    <KPICard label="Current Ratio" value={s.kpis.currentRatio} change={s.kpis.currentRatioNote} positive={s.kpis.currentRatioPositive} />
-                    <KPICard label="Cash Runway" value={s.kpis.cashRunway} change={s.kpis.cashRunwayNote} positive={s.kpis.cashRunwayPositive} />
-                    <KPICard label="Debt-to-Equity" value={s.kpis.debtToEquity} change={s.kpis.debtToEquityNote} positive={s.kpis.debtToEquityPositive} />
-                  </div>
+                {/* Block 2: 3 plain-language stats */}
+                <div className="flex flex-wrap gap-3">
+                  <StatPill
+                    emoji="💰"
+                    label="Money Coming In"
+                    value={s.kpis.revenue}
+                    note={s.kpis.revenueChange}
+                    positive={s.kpis.revenueChangePositive}
+                  />
+                  <StatPill
+                    emoji="📈"
+                    label="Profit After Costs"
+                    value={s.kpis.netMargin}
+                    note={s.kpis.netMarginVsSector}
+                    positive={s.kpis.netMarginPositive}
+                  />
+                  <StatPill
+                    emoji="🏦"
+                    label="Cash Runway"
+                    value={s.kpis.cashRunway}
+                    note={s.kpis.cashRunwayNote}
+                    positive={s.kpis.cashRunwayPositive}
+                  />
                 </div>
 
-                {/* Row 2: Revenue chart + Recommendations (3.15.7, 3.15.8) */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                  {/* Monthly Revenue vs Expenses bar chart */}
-                  {s.monthlyData?.length > 0 && (
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-bold text-primary">📊 Monthly Revenue vs Expenses</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ResponsiveContainer width="100%" height={200}>
-                          <BarChart data={s.monthlyData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-                            <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                            <YAxis tickFormatter={formatCurrency} tick={{ fontSize: 10 }} width={58} />
-                            <Tooltip formatter={(v: number) => formatCurrency(v)} />
-                            <Legend wrapperStyle={{ fontSize: 12 }} />
-                            <Bar dataKey="revenue" name="Revenue" fill="#93C5FD" radius={[3, 3, 0, 0]} />
-                            <Bar dataKey="expenses" name="Expenses" fill="#FCA5A5" radius={[3, 3, 0, 0]} />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {/* Recommendations panel (3.15.8) */}
-                  {s.recommendations?.length > 0 && (
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-bold text-primary">⚡ Key Findings &amp; Recommendations</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        {s.recommendations.map((rec, i) => {
-                          const styles = {
-                            high:   { bg: "bg-red-50 dark:bg-red-950/30",    dot: "bg-red-500",    title: "text-red-700 dark:text-red-400",    icon: "🔴" },
-                            medium: { bg: "bg-amber-50 dark:bg-amber-950/30", dot: "bg-amber-400", title: "text-amber-700 dark:text-amber-400", icon: "🟡" },
-                            low:    { bg: "bg-green-50 dark:bg-green-950/30", dot: "bg-green-500",  title: "text-green-700 dark:text-green-400", icon: "🟢" },
-                          }[rec.priority] ?? { bg: "bg-muted", dot: "bg-muted-foreground", title: "text-foreground", icon: "⚪" };
-                          return (
-                            <div key={i} className={cn("flex gap-3 p-3 rounded-lg", styles.bg)}>
-                              <div className={cn("w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0", styles.dot)} />
-                              <div>
-                                <p className={cn("text-xs font-bold mb-0.5", styles.title)}>
-                                  {styles.icon} {rec.priority === "high" ? "Critical" : rec.priority === "medium" ? "Attention" : "Positive"} — {rec.title}
-                                </p>
-                                <p className="text-xs text-foreground/80 leading-relaxed">{rec.description}</p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-
-                {/* Row 3: Accelerator support areas (3.15.8) */}
-                {s.supportAreas?.length > 0 && (
+                {/* Block 3: Revenue chart (full width) */}
+                {s.monthlyData?.length > 0 && (
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-bold text-primary">🎯 Accelerator Support Areas</CardTitle>
-                      <p className="text-xs text-muted-foreground">EdMeCa programmes that can help address your key challenges</p>
+                      <CardTitle className="text-base font-bold text-primary">Your money flow</CardTitle>
+                      <p className="text-xs text-muted-foreground">Money coming in vs money going out, month by month</p>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex flex-wrap gap-2">
-                        {s.supportAreas.map((area, i) => {
-                          const lvlStyle = {
-                            urgent:      "bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400 border-red-200",
-                            recommended: "bg-primary/10 text-primary border-primary/20",
-                            optional:    "bg-muted text-muted-foreground border-border",
-                          }[area.level] ?? "bg-muted text-muted-foreground border-border";
-                          return (
-                            <span key={i} className={cn("inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium", lvlStyle)}>
-                              <span>{area.icon}</span>{area.label}
-                            </span>
-                          );
-                        })}
+                      <ResponsiveContainer width="100%" height={220}>
+                        <BarChart data={s.monthlyData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                          <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                          <YAxis tickFormatter={formatCurrency} tick={{ fontSize: 11 }} width={58} axisLine={false} tickLine={false} />
+                          <Tooltip
+                            formatter={(v: number, name: string) => [formatCurrency(v), name === "revenue" ? "Money In" : "Money Out"]}
+                            contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                          />
+                          <Bar dataKey="revenue" name="revenue" fill="#6EE7B7" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="expenses" name="expenses" fill="#FCA5A5" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                      <div className="flex gap-4 mt-2 justify-center">
+                        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#6EE7B7" }} />Money In
+                        </span>
+                        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <span className="w-3 h-3 rounded-sm inline-block" style={{ background: "#FCA5A5" }} />Money Out
+                        </span>
                       </div>
                     </CardContent>
                   </Card>
                 )}
 
-                {/* Row 4: Strengths & Risks (3.15.8) */}
+                {/* Block 4: Top 3 actions — numbered, plain language */}
+                {s.recommendations?.length > 0 && (() => {
+                  const topActions = s.recommendations
+                    .filter(r => r.priority === "high" || r.priority === "medium")
+                    .slice(0, 3);
+                  const allActions = topActions.length > 0 ? topActions : s.recommendations.slice(0, 3);
+                  return (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Lightbulb className="h-4 w-4 text-amber-500" />
+                        <h3 className="font-bold text-base text-foreground">Your next steps</h3>
+                        <span className="text-xs text-muted-foreground">(most important actions for your business)</span>
+                      </div>
+                      {allActions.map((rec, i) => (
+                        <div key={i} className="flex gap-4 p-4 rounded-xl border bg-card">
+                          <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-black text-sm flex-shrink-0">
+                            {i + 1}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-sm text-foreground">{rec.title}</p>
+                            <p className="text-sm text-muted-foreground leading-relaxed mt-0.5">{rec.description}</p>
+                          </div>
+                          {rec.priority === "high" && (
+                            <Badge className="self-start flex-shrink-0 bg-red-100 text-red-700 border-red-200 hover:bg-red-100 text-xs">Urgent</Badge>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+
+                {/* Block 5: What's working / What to watch */}
                 {(s.keyStrengths?.length > 0 || s.keyRisks?.length > 0) && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {s.keyStrengths?.length > 0 && (
-                      <Card>
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm font-bold text-emerald-600">✅ Key Strengths</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ul className="space-y-2">
-                            {s.keyStrengths.map((item, i) => (
-                              <li key={i} className="flex items-start gap-2 text-sm">
-                                <span className="text-emerald-500 font-bold flex-shrink-0 mt-px">•</span>
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                      </Card>
+                      <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/20 p-4">
+                        <p className="font-bold text-sm text-emerald-700 dark:text-emerald-400 mb-3">✅ What's going well</p>
+                        <ul className="space-y-2">
+                          {s.keyStrengths.slice(0, 4).map((item, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm text-foreground/80">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
                     {s.keyRisks?.length > 0 && (
-                      <Card>
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm font-bold text-destructive">⚠️ Risk Flags</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ul className="space-y-2">
-                            {s.keyRisks.map((item, i) => (
-                              <li key={i} className="flex items-start gap-2 text-sm">
-                                <span className="text-destructive font-bold flex-shrink-0 mt-px">•</span>
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                      </Card>
+                      <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20 p-4">
+                        <p className="font-bold text-sm text-amber-700 dark:text-amber-400 mb-3">👀 Keep an eye on</p>
+                        <ul className="space-y-2">
+                          {s.keyRisks.slice(0, 4).map((item, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm text-foreground/80">
+                              <AlertTriangle className="h-3.5 w-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
                   </div>
                 )}
+
+                {/* Block 6: EdMeCa support CTA */}
+                {s.supportAreas?.length > 0 && (
+                  <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+                    <p className="text-sm font-semibold text-primary mb-2">🎓 EdMeCa can help you with:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {s.supportAreas.map((area, i) => (
+                        <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background border text-xs font-medium text-foreground">
+                          <span>{area.icon}</span>{area.label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Block 7: Full report toggle */}
+                <div className="border rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => setShowFullReport(v => !v)}
+                    className="w-full flex items-center justify-between px-4 py-3 bg-muted/40 hover:bg-muted/70 transition-colors"
+                  >
+                    <span className="text-sm font-semibold text-muted-foreground">📄 Full written report</span>
+                    {showFullReport
+                      ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                      : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                  </button>
+                  {showFullReport && (
+                    <div className="p-5 border-t">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+                        {result.report}
+                      </ReactMarkdown>
+                    </div>
+                  )}
+                </div>
               </>
             )}
 
