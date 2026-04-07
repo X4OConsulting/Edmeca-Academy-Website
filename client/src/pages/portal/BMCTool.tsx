@@ -655,6 +655,65 @@ export default function BusinessModelCanvas() {
     });
   }, [toast]);
 
+  const SAMPLE_CANVAS_DATA: CanvasData = {
+    customerSegments: [
+      "Our target customer is a freelance designer (25-45, working solo or in a micro-studio) who currently struggles with pricing projects because she has no reliable market data — she guesses rates based on outdated blog posts and peer gossip.",
+      "Our segment type is niche because we serve only freelance creatives who sell project-based services — not agencies, not salaried designers, not other freelance professions.",
+      "We chose solo freelancers over design agencies because freelancers have no procurement team to negotiate rates, making the pain more acute and willingness to pay for a self-service tool much higher.",
+    ],
+    valuePropositions: [
+      "For freelance designers, the biggest unresolved pain is spending hours guessing project rates — and we address it by giving them real-time benchmarks from thousands of actual freelance contracts.",
+      "Our proposition is improved and rests on accessibility (data previously only agencies could afford), convenience (instant reports vs. manual research), and cost reduction (saves hours per project).",
+      "A customer would switch from googling 'freelance design rates' because generic articles give national averages, while we show rates filtered by skill, region, and project type — updated weekly.",
+    ],
+    channels: [
+      "They discover us through Instagram ads and freelancer community posts, evaluate us via a free-tier dashboard with sample data, buy through self-service checkout, receive value via their personalised dashboard, and get support from in-app chat.",
+      "Our channels are own-direct because we sell a digital product — no physical distribution needed. Full control over customer experience and higher margins for a R199/month subscription.",
+      "The weakest phase is evaluation — freelancers can see the free tier but can't preview Pro benchmarks before paying. We plan to add a 7-day Pro trial.",
+    ],
+    customerRelationships: [
+      "To acquire customers, we use a self-service approach where users sign up for a free tier, explore benchmarking data on their own, and upgrade when they see the value.",
+      "Automated onboarding emails guide new users through three key features in their first week, then a dashboard tracks engagement and triggers personalised nudges.",
+      "Self-service keeps our cost per acquisition under R15, which supports our freemium pricing — dedicated reps would cost 10x more and break our unit economics.",
+    ],
+    revenueStreams: [
+      "Customers willingly pay for real-time pricing benchmarks because guessing their rates costs them thousands in lost revenue or underbid projects each year.",
+      "We capture this value through a subscription model where users pay R199/month for unlimited benchmark reports — predictable recurring revenue aligned with continuous data updates.",
+      "Our pricing approach is fixed (Free, Pro at R199/month, Team at R499/month) because freelancers need predictable costs — with volume discounts for agencies buying 10+ seats.",
+    ],
+    keyResources: [
+      "Our most critical resource is intellectual: a proprietary database of freelance pricing data across 50+ industries, built from thousands of real contracts over two years.",
+      "This resource enables our value proposition because the accuracy and depth of our benchmarks is what customers pay for — without it, our tool is just a calculator with no data.",
+      "We own this resource outright, and its main vulnerability is data freshness — if we stopped collecting new contract data, benchmarks would become stale within 3-6 months.",
+    ],
+    keyActivities: [
+      "Our model is primarily platform because the critical action is maintaining a real-time data pipeline that collects, validates, and serves freelance pricing benchmarks across 50+ industries.",
+      "Without continuous data validation, our benchmarks would become stale within weeks — users would lose trust in the numbers and cancel their subscriptions.",
+      "We do this in-house because data accuracy is our core differentiator — outsourcing it would mean losing control over the quality our customers pay for.",
+    ],
+    keyPartnerships: [
+      "Our key partner is freelance platforms (Upwork, Fiverr) who provide anonymised contract pricing data that we cannot collect ourselves because individual freelancers won't share rates directly.",
+      "This is a buyer-supplier partnership motivated by capability acquisition — we buy structured data feeds because building our own collection network would take years.",
+      "If this partner disappeared, our model would degrade significantly — we'd lose 60% of our data sources. We partner with three platforms and are building direct surveys as backup.",
+    ],
+    costStructure: [
+      "Our model is cost-driven because we compete on affordable access to pricing data — we automate data collection, use self-service onboarding, and avoid dedicated account managers.",
+      "Our most expensive Key Resource is the data engineering team (3 engineers at ~R45k/month each = ~R135k/month) — this is fixed regardless of user count.",
+      "As we scale, our costs improve because server and data costs grow slowly (economies of scale), while our fixed team cost stays constant — cost per user drops significantly.",
+    ],
+  };
+
+  const handleLoadSample = useCallback(() => {
+    setCompanyName("RateMyRate");
+    setCompanyNameSet(true);
+    setCanvasData(SAMPLE_CANVAS_DATA);
+    setCurrentView("dashboard");
+    toast({
+      title: "Sample canvas loaded",
+      description: "A complete example canvas has been loaded for RateMyRate",
+    });
+  }, [toast]);
+
   const filteredCanvasData = useMemo(() => {
     const filtered: Record<string, string[]> = {};
     for (const key of Object.keys(canvasData) as SectionId[]) {
@@ -986,6 +1045,16 @@ export default function BusinessModelCanvas() {
                 <span className="hidden md:inline">Dashboard</span>
               </Button>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLoadSample}
+              className="gap-1.5 hidden sm:flex"
+              data-testid="button-load-sample"
+            >
+              <Lightbulb className="h-4 w-4" />
+              <span className="hidden md:inline">Example</span>
+            </Button>
             <Button
               variant="outline"
               size="icon"
