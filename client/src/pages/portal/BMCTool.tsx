@@ -140,24 +140,29 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "customerSegments",
     title: "Customer Segments",
-    question: "Who are your most important customers?",
+    question: "Who exactly are you creating value for — and who are you deliberately choosing not to serve?",
     icon: Users,
     color: "text-blue-500",
     bgColor: "bg-blue-50 dark:bg-blue-950/30",
     borderColor: "border-blue-500",
     tips: [
-      "For whom are you creating value?",
-      "Are you targeting mass market, niche, or multi-sided?",
-      "What jobs do they need to get done?",
+      "Osterwalder identifies five segment types: mass market (one broad group), niche market (highly specialised), segmented (similar needs on a spectrum), diversified (unrelated segments), and multi-sided platform (interdependent groups that need each other).",
+      "Groups are truly separate segments if they need a distinct offer, are reached through different channels, require different relationships, have different profitabilities, or pay for different aspects of the offer.",
+      "Be concrete, not generic — 'SMEs' is a label; 'owner-managed construction firms with 10-50 employees who lack a dedicated finance function' is a segment you can actually design for.",
+      "Every segment you add multiplies complexity — a distinct segment may need its own value proposition, channels, relationships, and revenue streams. Choose deliberately.",
     ],
     prompts: [
       {
-        starter: "My ideal customer is...",
-        example: "Sarah, 34, freelance designer, struggles to price her services competitively.",
+        starter: "Our target customer is [specific description] who currently struggles with...",
+        example: "Our target customer is a freelance designer (25-45, working solo or in a micro-studio) who currently struggles with pricing projects because she has no reliable market data — she guesses rates based on outdated blog posts and peer gossip.",
       },
       {
-        starter: "What specific problem keeps this person up at night?",
-        example: "She worries about undercharging and losing clients to cheaper competitors.",
+        starter: "Our segment type is [mass / niche / segmented / diversified / multi-sided] because...",
+        example: "Our segment type is niche because we serve only freelance creatives who sell project-based services — not agencies, not salaried designers, not other freelance professions. This narrow focus lets us build deeply relevant benchmarks.",
+      },
+      {
+        starter: "We chose this segment over [alternative group] because...",
+        example: "We chose solo freelancers over design agencies because freelancers have no procurement team to negotiate rates, making the pain more acute and willingness to pay for a self-service tool much higher.",
       },
     ],
   },
