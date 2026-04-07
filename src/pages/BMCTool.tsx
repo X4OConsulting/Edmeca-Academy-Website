@@ -856,6 +856,65 @@ export default function BusinessModelCanvas() {
             ...createSectionContent(SECTIONS[6], canvasData.keyActivities.filter(s => s.trim())),
             ...createSectionContent(SECTIONS[7], canvasData.keyPartnerships.filter(s => s.trim())),
             ...createSectionContent(SECTIONS[8], canvasData.costStructure.filter(s => s.trim())),
+            // ── AI Analysis (if available) ──────────────────────────────
+            ...(aiAnalysis ? [
+              new Paragraph({
+                text: "",
+                spacing: { before: 400 },
+                border: {
+                  bottom: {
+                    color: "CCCCCC",
+                    space: 10,
+                    style: BorderStyle.SINGLE,
+                    size: 6,
+                  },
+                },
+              }),
+              new Paragraph({
+                text: "AI Canvas Analysis",
+                heading: HeadingLevel.HEADING_1,
+                spacing: { before: 400, after: 300 },
+              }),
+              new Paragraph({
+                text: "Overall Assessment",
+                heading: HeadingLevel.HEADING_2,
+                spacing: { before: 200, after: 100 },
+              }),
+              new Paragraph({
+                text: aiAnalysis.overallAssessment,
+                spacing: { after: 300 },
+              }),
+              ...(aiAnalysis.strengths.length > 0 ? [
+                new Paragraph({
+                  text: "Strengths",
+                  heading: HeadingLevel.HEADING_2,
+                  spacing: { before: 200, after: 100 },
+                }),
+                ...aiAnalysis.strengths.map((s) =>
+                  new Paragraph({ text: `✓ ${s}`, spacing: { after: 80 } })
+                ),
+              ] : []),
+              ...(aiAnalysis.areasToImprove.length > 0 ? [
+                new Paragraph({
+                  text: "Areas to Develop",
+                  heading: HeadingLevel.HEADING_2,
+                  spacing: { before: 200, after: 100 },
+                }),
+                ...aiAnalysis.areasToImprove.map((a) =>
+                  new Paragraph({ text: `▲ ${a}`, spacing: { after: 80 } })
+                ),
+              ] : []),
+              ...(aiAnalysis.coherenceChecks.length > 0 ? [
+                new Paragraph({
+                  text: "Cross-Block Coherence",
+                  heading: HeadingLevel.HEADING_2,
+                  spacing: { before: 200, after: 100 },
+                }),
+                ...aiAnalysis.coherenceChecks.map((c) =>
+                  new Paragraph({ text: `→ ${c}`, spacing: { after: 80 } })
+                ),
+              ] : []),
+            ] : []),
           ],
         },
       ],
@@ -879,7 +938,7 @@ export default function BusinessModelCanvas() {
         variant: "destructive",
       });
     }
-  }, [companyName, canvasData, completedSections, totalItems, progressPercentage, toast]);
+  }, [companyName, canvasData, completedSections, totalItems, progressPercentage, aiAnalysis, toast]);
 
   const getInsights = useMemo(() => {
     const strengths: string[] = [];
