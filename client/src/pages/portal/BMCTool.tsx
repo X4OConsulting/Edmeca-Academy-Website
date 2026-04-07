@@ -654,7 +654,7 @@ export default function BusinessModelCanvas() {
     const createSectionContent = (section: typeof SECTIONS[0], items: string[]) => {
       const paragraphs: Paragraph[] = [
         new Paragraph({
-          text: section.title,
+          text: `${section.sequence}. ${section.title}`,
           heading: HeadingLevel.HEADING_2,
           spacing: { before: 400, after: 200 },
         }),
@@ -1235,7 +1235,7 @@ function GuidedView({
                     data-testid={`button-section-${section.id}`}
                   >
                     <SectionIcon className="h-4 w-4" />
-                    <span className="hidden sm:inline">{section.title}</span>
+                    <span className="hidden sm:inline">{section.sequence}. {section.title}</span>
                     {hasItems && (
                       <Badge
                         variant="secondary"
