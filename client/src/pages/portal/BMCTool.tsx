@@ -568,7 +568,8 @@ export default function BusinessModelCanvas() {
     mutationFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) throw new Error("Not authenticated");
-      const res = await fetch("/api/analyze-bmc", {
+      const aiBase = (import.meta.env.VITE_AI_API_URL ?? "").replace(/\/$/, "");
+      const res = await fetch(`${aiBase}/api/analyze-bmc`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
