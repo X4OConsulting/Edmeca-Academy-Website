@@ -439,7 +439,14 @@ const STORAGE_KEY = "business-model-canvas";
 
 export default function BusinessModelCanvas() {
   const { toast } = useToast();
-  
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session?.user);
+    });
+  }, []);
+
   const [companyName, setCompanyName] = useState("");
   const [companyNameInput, setCompanyNameInput] = useState("");
   const [companyNameSet, setCompanyNameSet] = useState(false);
@@ -566,14 +573,9 @@ export default function BusinessModelCanvas() {
 
   const analyzeCanvasMutation = useMutation({
     mutationFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error("Not authenticated");
       const res = await fetch("/api/analyze-bmc", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           companyName: companyName || "Untitled Business",
           canvasData: filteredCanvasData,
@@ -1114,6 +1116,7 @@ export default function BusinessModelCanvas() {
             aiAnalysisError={aiAnalysisError}
             isAnalyzing={analyzeCanvasMutation.isPending}
             handleAnalyzeCanvas={handleAnalyzeCanvas}
+            isAuthenticated={isAuthenticated}
           />
         )}
       </main>
@@ -1608,6 +1611,7 @@ interface DashboardViewProps {
   aiAnalysisError: string | null;
   isAnalyzing: boolean;
   handleAnalyzeCanvas: () => void;
+  isAuthenticated: boolean;
 }
 
 function DashboardView({
@@ -1627,6 +1631,7 @@ function DashboardView({
   aiAnalysisError,
   isAnalyzing,
   handleAnalyzeCanvas,
+  isAuthenticated,
 }: DashboardViewProps) {
   return (
     <div className="space-y-8">
@@ -1652,17 +1657,19 @@ function DashboardView({
           <Button variant="outline" size="sm" onClick={() => setCurrentView("guided")} data-testid="button-continue-editing">
             Continue Editing
           </Button>
-          {isFinalized ? (
-            <Button variant="outline" size="sm" disabled className="gap-2 text-green-600 border-green-200" data-testid="button-finalized">
-              <CheckCircle className="h-4 w-4" />
-              Saved
-            </Button>
-          ) : (
-            <Button size="sm" onClick={handleFinalize} disabled={isFinalizing} data-testid="button-finalize">
-              <Save className="h-4 w-4 mr-2" />
-              {isFinalizing ? "Saving..." : "Finalise & Save"}
-            </Button>
-          )}
+          {isAuthenticated ? (
+            isFinalized ? (
+              <Button variant="outline" size="sm" disabled className="gap-2 text-green-600 border-green-200" data-testid="button-finalized">
+                <CheckCircle className="h-4 w-4" />
+                Saved
+              </Button>
+            ) : (
+              <Button size="sm" onClick={handleFinalize} disabled={isFinalizing} data-testid="button-finalize">
+                <Save className="h-4 w-4 mr-2" />
+                {isFinalizing ? "Saving..." : "Finalise & Save"}
+              </Button>
+            )
+          ) : null}
         </div>
       </div>
 

@@ -1,32 +1,11 @@
 import { Handler, HandlerEvent } from '@netlify/functions';
 import Anthropic from '@anthropic-ai/sdk';
-import { createClient } from '@supabase/supabase-js';
 
 const MAX_CANVAS_CHARS = 15000;
 
 export const handler: Handler = async (event: HandlerEvent) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ error: 'Method Not Allowed' }) };
-  }
-
-  // ── Authentication ─────────────────────────────────────────────────────────
-  const authHeader = event.headers['authorization'] ?? event.headers['Authorization'];
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-
-  if (!token) {
-    return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorised' }) };
-  }
-
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
-  const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return { statusCode: 500, body: JSON.stringify({ error: 'Server configuration error' }) };
-  }
-
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
-  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-  if (authError || !user) {
-    return { statusCode: 401, body: JSON.stringify({ error: 'Invalid or expired session' }) };
   }
 
   // ── API key check ──────────────────────────────────────────────────────────
