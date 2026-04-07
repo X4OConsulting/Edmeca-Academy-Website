@@ -288,24 +288,29 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "keyResources",
     title: "Key Resources",
-    question: "What resources do you need?",
+    question: "What critical assets must you have or control to make this business model work?",
     icon: Box,
     color: "text-yellow-500",
     bgColor: "bg-yellow-50 dark:bg-yellow-950/30",
     borderColor: "border-yellow-500",
     tips: [
-      "What key resources does your value proposition require?",
-      "Physical, intellectual, human, or financial?",
-      "Which resources are most important?",
+      "Osterwalder identifies four resource categories: physical (facilities, equipment, logistics), intellectual (brands, patents, proprietary data, copyrights), human (key talent, expertise), and financial (cash, credit lines, vendor financing) — which categories dominate your model?",
+      "Trace backwards: what resources do your value proposition, channels, customer relationships, and revenue streams each require you to possess or control?",
+      "You don't need to own every resource — key resources can come from partners. But if a critical resource depends on a partner, that partnership becomes structurally essential, not optional.",
+      "Rank resources by vulnerability: a patent is legally protected, a customer database built over years is hard to replicate, but a skilled team can be poached and a facility can be copied by a funded competitor.",
     ],
     prompts: [
       {
-        starter: "The most important asset we need is...",
-        example: "A proprietary database of freelance pricing data across 50+ industries.",
+        starter: "Our most critical resource is [physical / intellectual / human / financial]: specifically...",
+        example: "Our most critical resource is intellectual: a proprietary database of freelance pricing data across 50+ industries, built from thousands of real contracts over two years — this is our core competitive moat and cannot be easily replicated.",
       },
       {
-        starter: "Without this resource, our business cannot function:",
-        example: "Our data engineering team that keeps pricing data accurate and up to date.",
+        starter: "This resource enables our [value proposition / channels / relationships / revenue] because...",
+        example: "This resource enables our value proposition because the accuracy and depth of our benchmarks is what customers pay for — without the database, our pricing tool would just be a calculator with no data behind it.",
+      },
+      {
+        starter: "We [own / lease / acquire from a partner] this resource, and its main vulnerability is...",
+        example: "We own this resource outright, and its main vulnerability is data freshness — if we stopped actively collecting new contract data, the benchmarks would become stale within 3-6 months and users would lose trust.",
       },
     ],
   },
