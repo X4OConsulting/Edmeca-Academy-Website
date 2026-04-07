@@ -346,24 +346,29 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "keyPartnerships",
     title: "Key Partnerships",
-    question: "Who are your key partners and suppliers?",
+    question: "What can't you — or shouldn't you — do alone, and who fills that gap?",
     icon: Handshake,
     color: "text-indigo-500",
     bgColor: "bg-indigo-50 dark:bg-indigo-950/30",
     borderColor: "border-indigo-500",
     tips: [
-      "Who are your key partners and suppliers?",
-      "Which key resources come from partners?",
-      "What motivations are there for partnerships?",
+      "Osterwalder identifies four partnership types: strategic alliances between non-competitors, coopetition (partnerships between competitors), joint ventures to develop new businesses, and buyer-supplier relationships to assure reliable supplies.",
+      "Three motivations drive partnerships: optimisation and economy of scale (someone else does it cheaper), reduction of risk and uncertainty (sharing the bet), and acquisition of resources or activities you can't build yourself.",
+      "Link this block to what you've already written — go to your Key Resources and ask: which do we not own? Go to Key Activities and ask: which are we not performing ourselves? Every answer points to a partnership.",
+      "Stress-test: if this partner disappeared, doubled their price, or became a competitor — would your model break? If yes, consider alternatives, contractual protections, or a path to internalising.",
     ],
     prompts: [
       {
-        starter: "We depend on [partner] to help us...",
-        example: "We depend on freelance platforms (e.g. Upwork, Fiverr) to supply anonymised pricing data.",
+        starter: "Our key partner is [name/type] who provides [Key Resource / Key Activity] that we cannot do ourselves because...",
+        example: "Our key partner is freelance platforms (Upwork, Fiverr) who provide anonymised contract pricing data that we cannot collect ourselves because individual freelancers won't share rates directly, but platforms have this data at scale.",
       },
       {
-        starter: "This partnership matters because...",
-        example: "Without platform data, our benchmarks would lack credibility and coverage.",
+        starter: "This is a [strategic alliance / coopetition / joint venture / buyer-supplier] partnership motivated by [optimisation / risk reduction / capability acquisition]...",
+        example: "This is a buyer-supplier partnership motivated by capability acquisition — we buy structured data feeds from platforms because building our own data collection network would take years and millions we don't have.",
+      },
+      {
+        starter: "If this partner disappeared tomorrow, our model would [break / degrade / survive] because...",
+        example: "If this partner disappeared, our model would degrade significantly — we'd lose 60% of our data sources. To mitigate this, we partner with three platforms rather than one and are building direct freelancer surveys as a backup channel.",
       },
     ],
   },
