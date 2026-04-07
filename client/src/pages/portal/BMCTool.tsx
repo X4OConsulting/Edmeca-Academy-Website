@@ -127,6 +127,7 @@ const TABS: TabConfig[] = [
 interface SectionConfig {
   id: SectionId;
   title: string;
+  sequence: number;
   question: string;
   icon: typeof Users;
   color: string;
@@ -140,6 +141,7 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "customerSegments",
     title: "Customer Segments",
+    sequence: 1,
     question: "Who exactly are you creating value for — and who are you deliberately choosing not to serve?",
     icon: Users,
     color: "text-blue-500",
@@ -169,6 +171,7 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "valuePropositions",
     title: "Value Propositions",
+    sequence: 2,
     question: "Why would a customer choose you over any alternative?",
     icon: Gift,
     color: "text-purple-500",
@@ -201,6 +204,7 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "channels",
     title: "Channels",
+    sequence: 3,
     question: "How does your customer discover, evaluate, buy, receive, and get support for your offer?",
     icon: Truck,
     color: "text-cyan-500",
@@ -230,6 +234,7 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "customerRelationships",
     title: "Customer Relationships",
+    sequence: 4,
     question: "How do you acquire, retain, and grow customers?",
     icon: Heart,
     color: "text-pink-500",
@@ -259,6 +264,7 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "revenueStreams",
     title: "Revenue Streams",
+    sequence: 5,
     question: "How does your business earn revenue?",
     icon: DollarSign,
     color: "text-green-500",
@@ -288,6 +294,7 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "keyResources",
     title: "Key Resources",
+    sequence: 6,
     question: "What critical assets must you have or control to make this business model work?",
     icon: Box,
     color: "text-yellow-500",
@@ -317,6 +324,7 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "keyActivities",
     title: "Key Activities",
+    sequence: 7,
     question: "What critical actions make your business model work?",
     icon: Cog,
     color: "text-orange-500",
@@ -346,6 +354,7 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "keyPartnerships",
     title: "Key Partnerships",
+    sequence: 8,
     question: "What can't you — or shouldn't you — do alone, and who fills that gap?",
     icon: Handshake,
     color: "text-indigo-500",
@@ -375,6 +384,7 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "costStructure",
     title: "Cost Structure",
+    sequence: 9,
     question: "What does your operating engine cost, and does that spending make sense?",
     icon: CreditCard,
     color: "text-red-500",
@@ -1399,7 +1409,7 @@ function CanvasCell({
             <Icon className="h-3 w-3 text-primary" />
           </div>
           <span className="text-[11px] font-semibold text-foreground leading-tight">
-            {section.title}
+            <span className="text-primary/70">{section.sequence}.</span> {section.title}
           </span>
           {filled && (
             <span className="ml-auto text-[10px] font-medium bg-primary/10 text-primary rounded-full px-1.5 py-0.5">
