@@ -4,6 +4,7 @@ const edmecaLogo = "/logo.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -57,6 +58,9 @@ import {
   FileText,
   Save,
   CheckCircle,
+  Lock,
+  Unlock,
+  PenLine,
 } from "lucide-react";
 
 type ViewType = "guided" | "canvas" | "dashboard";
@@ -84,6 +88,12 @@ interface CanvasData {
   costStructure: string[];
 }
 
+interface PromptConfig {
+  starter: string;
+  example: string;
+  maxChars?: number;
+}
+
 interface SectionConfig {
   id: SectionId;
   title: string;
@@ -93,7 +103,7 @@ interface SectionConfig {
   bgColor: string;
   borderColor: string;
   tips: string[];
-  quickAddItems: string[];
+  prompts: PromptConfig[];
 }
 
 const SECTIONS: SectionConfig[] = [
@@ -107,17 +117,18 @@ const SECTIONS: SectionConfig[] = [
     borderColor: "border-blue-500",
     tips: [
       "For whom are you creating value?",
-      "Who are your most important customers?",
       "Are you targeting mass market, niche, or multi-sided?",
-      "What are the characteristics of your ideal customer?",
       "What jobs do they need to get done?",
     ],
-    quickAddItems: [
-      "Mass market consumers",
-      "Enterprise companies",
-      "Small businesses",
-      "Young professionals",
-      "Tech-savvy users",
+    prompts: [
+      {
+        starter: "My ideal customer is...",
+        example: "Sarah, 34, freelance designer, struggles to price her services competitively.",
+      },
+      {
+        starter: "What specific problem keeps this person up at night?",
+        example: "She worries about undercharging and losing clients to cheaper competitors.",
+      },
     ],
   },
   {
@@ -129,18 +140,21 @@ const SECTIONS: SectionConfig[] = [
     bgColor: "bg-purple-50 dark:bg-purple-950/30",
     borderColor: "border-purple-500",
     tips: [
-      "What value do you deliver to the customer?",
       "Which customer problems are you solving?",
       "What bundles of products/services do you offer?",
-      "Which customer needs are you satisfying?",
       "What makes your offer unique?",
     ],
-    quickAddItems: [
-      "Cost reduction",
-      "Time savings",
-      "Convenience",
-      "Quality improvement",
-      "Risk reduction",
+    prompts: [
+      {
+        starter: "We help [customer] to... by...",
+        example: "We help freelance designers to price confidently by providing market-rate benchmarking tools.",
+        maxChars: 280,
+      },
+      {
+        starter: "What makes our solution different is...",
+        example: "Unlike generic pricing guides, we use real-time market data specific to their industry.",
+        maxChars: 280,
+      },
     ],
   },
   {
@@ -152,18 +166,22 @@ const SECTIONS: SectionConfig[] = [
     bgColor: "bg-cyan-50 dark:bg-cyan-950/30",
     borderColor: "border-cyan-500",
     tips: [
-      "Through which channels do customers want to be reached?",
-      "How are you reaching them now?",
       "How are your channels integrated?",
-      "Which channels work best?",
-      "Which channels are most cost-efficient?",
+      "Which channels work best and are most cost-efficient?",
     ],
-    quickAddItems: [
-      "Website/Online store",
-      "Mobile app",
-      "Social media",
-      "Direct sales team",
-      "Partner network",
+    prompts: [
+      {
+        starter: "Customers first discover us through...",
+        example: "Instagram ads targeted at freelance creatives in South Africa.",
+      },
+      {
+        starter: "We deliver our product/service by...",
+        example: "A web-based dashboard accessible on any device.",
+      },
+      {
+        starter: "After purchase, we stay connected via...",
+        example: "Monthly email tips and an in-app community forum.",
+      },
     ],
   },
   {
@@ -176,17 +194,18 @@ const SECTIONS: SectionConfig[] = [
     borderColor: "border-pink-500",
     tips: [
       "What type of relationship does each segment expect?",
-      "Which ones have you established?",
       "How costly are they?",
-      "How are they integrated with your business?",
       "Personal assistance or self-service?",
     ],
-    quickAddItems: [
-      "Personal assistance",
-      "Self-service",
-      "Automated services",
-      "Community",
-      "Co-creation",
+    prompts: [
+      {
+        starter: "We build trust with customers by...",
+        example: "Offering a 14-day free trial with full access, no credit card required.",
+      },
+      {
+        starter: "We keep customers coming back through...",
+        example: "Personalised monthly reports showing how their pricing compares to peers.",
+      },
     ],
   },
   {
@@ -199,17 +218,18 @@ const SECTIONS: SectionConfig[] = [
     borderColor: "border-green-500",
     tips: [
       "For what value are customers willing to pay?",
-      "What do they currently pay for?",
       "How are they currently paying?",
-      "How would they prefer to pay?",
       "How much does each revenue stream contribute?",
     ],
-    quickAddItems: [
-      "Subscription fees",
-      "Usage fees",
-      "Licensing",
-      "Transaction fees",
-      "Advertising",
+    prompts: [
+      {
+        starter: "Customers pay us for...",
+        example: "A monthly subscription to access benchmarking data and pricing tools.",
+      },
+      {
+        starter: "Our pricing model works by...",
+        example: "Tiered plans — free for basic data, R199/month for advanced analytics.",
+      },
     ],
   },
   {
@@ -222,17 +242,18 @@ const SECTIONS: SectionConfig[] = [
     borderColor: "border-yellow-500",
     tips: [
       "What key resources does your value proposition require?",
-      "What resources do your channels require?",
-      "What about customer relationships?",
       "Physical, intellectual, human, or financial?",
       "Which resources are most important?",
     ],
-    quickAddItems: [
-      "Skilled workforce",
-      "Technology platform",
-      "Brand/reputation",
-      "Intellectual property",
-      "Financial capital",
+    prompts: [
+      {
+        starter: "The most important asset we need is...",
+        example: "A proprietary database of freelance pricing data across 50+ industries.",
+      },
+      {
+        starter: "Without this resource, our business cannot function:",
+        example: "Our data engineering team that keeps pricing data accurate and up to date.",
+      },
     ],
   },
   {
@@ -244,18 +265,19 @@ const SECTIONS: SectionConfig[] = [
     bgColor: "bg-orange-50 dark:bg-orange-950/30",
     borderColor: "border-orange-500",
     tips: [
-      "What key activities does your value proposition require?",
       "What activities do your channels require?",
-      "Customer relationships?",
       "Revenue streams?",
       "Production, problem solving, or platform/network?",
     ],
-    quickAddItems: [
-      "Product development",
-      "Marketing & sales",
-      "Customer support",
-      "Platform maintenance",
-      "Quality assurance",
+    prompts: [
+      {
+        starter: "Every day, our team must...",
+        example: "Collect and validate new pricing data from freelance marketplaces.",
+      },
+      {
+        starter: "The one activity that drives the most value is...",
+        example: "Generating personalised pricing recommendations for each user.",
+      },
     ],
   },
   {
@@ -267,18 +289,19 @@ const SECTIONS: SectionConfig[] = [
     bgColor: "bg-indigo-50 dark:bg-indigo-950/30",
     borderColor: "border-indigo-500",
     tips: [
-      "Who are your key partners?",
-      "Who are your key suppliers?",
+      "Who are your key partners and suppliers?",
       "Which key resources come from partners?",
-      "Which key activities do partners perform?",
       "What motivations are there for partnerships?",
     ],
-    quickAddItems: [
-      "Technology providers",
-      "Distribution partners",
-      "Strategic alliances",
-      "Outsourcing partners",
-      "Industry associations",
+    prompts: [
+      {
+        starter: "We depend on [partner] to help us...",
+        example: "We depend on freelance platforms (e.g. Upwork, Fiverr) to supply anonymised pricing data.",
+      },
+      {
+        starter: "This partnership matters because...",
+        example: "Without platform data, our benchmarks would lack credibility and coverage.",
+      },
     ],
   },
   {
@@ -291,17 +314,18 @@ const SECTIONS: SectionConfig[] = [
     borderColor: "border-red-500",
     tips: [
       "What are the most important costs in your business?",
-      "Which key resources are most expensive?",
-      "Which key activities are most expensive?",
-      "Cost-driven or value-driven?",
-      "Fixed costs vs variable costs?",
+      "Which key resources and activities are most expensive?",
+      "Cost-driven or value-driven? Fixed costs vs variable costs?",
     ],
-    quickAddItems: [
-      "Personnel costs",
-      "Technology infrastructure",
-      "Marketing & advertising",
-      "Operations & logistics",
-      "Research & development",
+    prompts: [
+      {
+        starter: "Our biggest cost is...",
+        example: "Salaries for our data engineering and product development team.",
+      },
+      {
+        starter: "This cost is [fixed/variable] because...",
+        example: "This cost is fixed because we need the team regardless of user count.",
+      },
     ],
   },
 ];
@@ -330,9 +354,9 @@ export default function BusinessModelCanvas() {
   const [currentView, setCurrentView] = useState<ViewType>("guided");
   const [showTips, setShowTips] = useState(true);
   const [canvasData, setCanvasData] = useState<CanvasData>(INITIAL_CANVAS_DATA);
-  const [itemInput, setItemInput] = useState("");
   const [isEditingCompanyName, setIsEditingCompanyName] = useState(false);
   const [isFinalized, setIsFinalized] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(true);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -373,11 +397,16 @@ export default function BusinessModelCanvas() {
   const currentSection = SECTIONS[currentStep];
 
   const completedSections = useMemo(() => {
-    return SECTIONS.filter((section) => canvasData[section.id].length > 0).length;
+    return SECTIONS.filter((section) =>
+      canvasData[section.id].some((item) => item.trim().length > 0)
+    ).length;
   }, [canvasData]);
 
   const totalItems = useMemo(() => {
-    return Object.values(canvasData).reduce((sum, items) => sum + items.length, 0);
+    return Object.values(canvasData).reduce(
+      (sum, items) => sum + items.filter((item) => item.trim().length > 0).length,
+      0
+    );
   }, [canvasData]);
 
   const progressPercentage = useMemo(() => {
@@ -433,55 +462,36 @@ export default function BusinessModelCanvas() {
     
     finalizeMutation.mutate({
       companyName: companyName.trim(),
-      canvasData,
+      canvasData: filteredCanvasData as CanvasData,
       completedSections,
       totalItems,
       completionPercentage: progressPercentage,
     });
   }, [companyName, canvasData, completedSections, totalItems, progressPercentage, finalizeMutation, toast]);
 
-  const addItem = useCallback(
-    (sectionId: SectionId, item: string) => {
-      const trimmed = item.trim();
-      if (trimmed && !canvasData[sectionId].includes(trimmed)) {
-        setCanvasData((prev) => ({
-          ...prev,
-          [sectionId]: [...prev[sectionId], trimmed],
-        }));
-        toast({
-          title: "Item added",
-          description: `"${trimmed}" added to ${SECTIONS.find((s) => s.id === sectionId)?.title}`,
-        });
-        return true;
-      }
-      return false;
-    },
-    [canvasData, toast]
-  );
-
-  const removeItem = useCallback(
-    (sectionId: SectionId, index: number) => {
-      setCanvasData((prev) => ({
-        ...prev,
-        [sectionId]: prev[sectionId].filter((_, i) => i !== index),
-      }));
+  const updateCanvasField = useCallback(
+    (sectionId: SectionId, promptIndex: number, value: string) => {
+      setCanvasData((prev) => {
+        const current = [...prev[sectionId]];
+        while (current.length <= promptIndex) current.push("");
+        current[promptIndex] = value;
+        return { ...prev, [sectionId]: current };
+      });
     },
     []
   );
 
-  const handleAddItem = useCallback(() => {
-    if (addItem(currentSection.id, itemInput)) {
-      setItemInput("");
-    }
-  }, [addItem, currentSection?.id, itemInput]);
-
-  const handleKeyPress = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Enter") {
-        handleAddItem();
-      }
+  const clearCanvasField = useCallback(
+    (sectionId: SectionId, promptIndex: number) => {
+      setCanvasData((prev) => {
+        const current = [...prev[sectionId]];
+        if (promptIndex < current.length) {
+          current[promptIndex] = "";
+        }
+        return { ...prev, [sectionId]: current };
+      });
     },
-    [handleAddItem]
+    []
   );
 
   const handleCompanyNameSubmit = useCallback(() => {
@@ -506,7 +516,7 @@ export default function BusinessModelCanvas() {
     setCurrentStep(0);
     setCurrentView("guided");
     setCanvasData(INITIAL_CANVAS_DATA);
-    setItemInput("");
+    setIsEditMode(true);
     localStorage.removeItem(STORAGE_KEY);
     toast({
       title: "Canvas reset",
@@ -514,11 +524,19 @@ export default function BusinessModelCanvas() {
     });
   }, [toast]);
 
+  const filteredCanvasData = useMemo(() => {
+    const filtered: Record<string, string[]> = {};
+    for (const key of Object.keys(canvasData) as SectionId[]) {
+      filtered[key] = canvasData[key].filter((item) => item.trim().length > 0);
+    }
+    return filtered;
+  }, [canvasData]);
+
   const handleExport = useCallback(() => {
     const exportData = {
       companyName: companyName || "Untitled Business",
       exportDate: new Date().toISOString(),
-      canvas: canvasData,
+      canvas: filteredCanvasData,
       statistics: {
         completedSections,
         totalItems,
@@ -540,7 +558,7 @@ export default function BusinessModelCanvas() {
       title: "Export successful",
       description: "Your canvas has been exported as JSON",
     });
-  }, [companyName, canvasData, completedSections, totalItems, progressPercentage, toast]);
+  }, [companyName, filteredCanvasData, completedSections, totalItems, progressPercentage, toast]);
 
   const handleExportWord = useCallback(async () => {
     const businessName = companyName || "Untitled Business";
@@ -637,15 +655,15 @@ export default function BusinessModelCanvas() {
                 },
               },
             }),
-            ...createSectionContent(SECTIONS[0], canvasData.customerSegments),
-            ...createSectionContent(SECTIONS[1], canvasData.valuePropositions),
-            ...createSectionContent(SECTIONS[2], canvasData.channels),
-            ...createSectionContent(SECTIONS[3], canvasData.customerRelationships),
-            ...createSectionContent(SECTIONS[4], canvasData.revenueStreams),
-            ...createSectionContent(SECTIONS[5], canvasData.keyResources),
-            ...createSectionContent(SECTIONS[6], canvasData.keyActivities),
-            ...createSectionContent(SECTIONS[7], canvasData.keyPartnerships),
-            ...createSectionContent(SECTIONS[8], canvasData.costStructure),
+            ...createSectionContent(SECTIONS[0], canvasData.customerSegments.filter(s => s.trim())),
+            ...createSectionContent(SECTIONS[1], canvasData.valuePropositions.filter(s => s.trim())),
+            ...createSectionContent(SECTIONS[2], canvasData.channels.filter(s => s.trim())),
+            ...createSectionContent(SECTIONS[3], canvasData.customerRelationships.filter(s => s.trim())),
+            ...createSectionContent(SECTIONS[4], canvasData.revenueStreams.filter(s => s.trim())),
+            ...createSectionContent(SECTIONS[5], canvasData.keyResources.filter(s => s.trim())),
+            ...createSectionContent(SECTIONS[6], canvasData.keyActivities.filter(s => s.trim())),
+            ...createSectionContent(SECTIONS[7], canvasData.keyPartnerships.filter(s => s.trim())),
+            ...createSectionContent(SECTIONS[8], canvasData.costStructure.filter(s => s.trim())),
           ],
         },
       ],
@@ -675,11 +693,16 @@ export default function BusinessModelCanvas() {
     const strengths: string[] = [];
     const areasToImprove: string[] = [];
 
-    const {
-      customerSegments, valuePropositions, channels,
-      customerRelationships, revenueStreams, keyResources,
-      keyActivities, keyPartnerships, costStructure,
-    } = canvasData;
+    const filterFilled = (items: string[]) => items.filter((item) => item.trim().length > 0);
+    const customerSegments = filterFilled(canvasData.customerSegments);
+    const valuePropositions = filterFilled(canvasData.valuePropositions);
+    const channels = filterFilled(canvasData.channels);
+    const customerRelationships = filterFilled(canvasData.customerRelationships);
+    const revenueStreams = filterFilled(canvasData.revenueStreams);
+    const keyResources = filterFilled(canvasData.keyResources);
+    const keyActivities = filterFilled(canvasData.keyActivities);
+    const keyPartnerships = filterFilled(canvasData.keyPartnerships);
+    const costStructure = filterFilled(canvasData.costStructure);
 
     // --- Strengths ---
     if (valuePropositions.length >= 2 && customerSegments.length >= 2) {
@@ -859,12 +882,10 @@ export default function BusinessModelCanvas() {
             showTips={showTips}
             setShowTips={setShowTips}
             canvasData={canvasData}
-            itemInput={itemInput}
-            setItemInput={setItemInput}
-            handleAddItem={handleAddItem}
-            handleKeyPress={handleKeyPress}
-            addItem={addItem}
-            removeItem={removeItem}
+            updateCanvasField={updateCanvasField}
+            clearCanvasField={clearCanvasField}
+            isEditMode={isEditMode}
+            setIsEditMode={setIsEditMode}
             progressPercentage={progressPercentage}
             completedSections={completedSections}
             setCurrentView={setCurrentView}
@@ -908,15 +929,89 @@ interface GuidedViewProps {
   showTips: boolean;
   setShowTips: (show: boolean) => void;
   canvasData: CanvasData;
-  itemInput: string;
-  setItemInput: (value: string) => void;
-  handleAddItem: () => void;
-  handleKeyPress: (e: React.KeyboardEvent) => void;
-  addItem: (sectionId: SectionId, item: string) => boolean;
-  removeItem: (sectionId: SectionId, index: number) => void;
+  updateCanvasField: (sectionId: SectionId, promptIndex: number, value: string) => void;
+  clearCanvasField: (sectionId: SectionId, promptIndex: number) => void;
+  isEditMode: boolean;
+  setIsEditMode: (editing: boolean) => void;
   progressPercentage: number;
   completedSections: number;
   setCurrentView: (view: ViewType) => void;
+}
+
+function PromptTextarea({
+  prompt,
+  value,
+  promptIndex,
+  isEditMode,
+  onChange,
+  onClear,
+}: {
+  prompt: PromptConfig;
+  value: string;
+  promptIndex: number;
+  isEditMode: boolean;
+  onChange: (value: string) => void;
+  onClear: () => void;
+}) {
+  const handleAutoResize = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const el = e.target;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, []);
+
+  const charCount = value.length;
+  const maxChars = prompt.maxChars;
+  const isOverLimit = maxChars ? charCount > maxChars : false;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        {isEditMode ? (
+          <PenLine className="h-3.5 w-3.5 text-primary shrink-0" />
+        ) : (
+          <Lock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+        )}
+        <label className="text-sm font-medium text-foreground">
+          {prompt.starter}
+        </label>
+      </div>
+      <div className="relative">
+        <Textarea
+          placeholder={`e.g. ${prompt.example}`}
+          value={value}
+          onChange={(e) => {
+            onChange(e.target.value);
+            handleAutoResize(e);
+          }}
+          readOnly={!isEditMode}
+          className={`min-h-[60px] resize-none transition-all ${
+            isEditMode
+              ? "ring-2 ring-primary/20 border-primary/40 bg-background focus:ring-primary/40"
+              : "bg-muted/50 border-muted text-muted-foreground cursor-default"
+          } ${isOverLimit ? "ring-2 ring-destructive/40 border-destructive/40" : ""}`}
+          data-testid={`textarea-prompt-${promptIndex}`}
+        />
+        {value.trim() && isEditMode && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-1 top-1 h-6 w-6 text-muted-foreground hover:text-destructive"
+            onClick={onClear}
+            data-testid={`button-clear-prompt-${promptIndex}`}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
+      </div>
+      {maxChars && (
+        <div className={`text-xs text-right ${
+          isOverLimit ? "text-destructive font-medium" : "text-muted-foreground"
+        }`}>
+          {charCount} / {maxChars}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function GuidedView({
@@ -931,12 +1026,10 @@ function GuidedView({
   showTips,
   setShowTips,
   canvasData,
-  itemInput,
-  setItemInput,
-  handleAddItem,
-  handleKeyPress,
-  addItem,
-  removeItem,
+  updateCanvasField,
+  clearCanvasField,
+  isEditMode,
+  setIsEditMode,
   progressPercentage,
   completedSections,
   setCurrentView,
@@ -947,9 +1040,9 @@ function GuidedView({
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4">
-              <img 
-                src={edmecaLogo} 
-                alt="EdMeCa Online Academy" 
+              <img
+                src={edmecaLogo}
+                alt="EdMeCa Online Academy"
                 className="h-16 object-contain"
                 data-testid="img-welcome-logo"
               />
@@ -993,6 +1086,7 @@ function GuidedView({
   }
 
   const sectionItems = canvasData[currentSection.id];
+  const filledCount = sectionItems.filter((item) => item.trim().length > 0).length;
   const Icon = currentSection.icon;
 
   return (
@@ -1007,7 +1101,8 @@ function GuidedView({
 
       <div className="scrollbar-hide -mx-4 flex gap-2 overflow-x-auto px-4 pb-2">
         {SECTIONS.map((section, index) => {
-          const hasItems = canvasData[section.id].length > 0;
+          const hasItems = canvasData[section.id].some((item) => item.trim().length > 0);
+          const itemCount = canvasData[section.id].filter((item) => item.trim().length > 0).length;
           const SectionIcon = section.icon;
           return (
             <Button
@@ -1026,7 +1121,7 @@ function GuidedView({
                   variant="secondary"
                   className="ml-1 h-5 min-w-5 px-1.5 text-xs"
                 >
-                  {canvasData[section.id].length}
+                  {itemCount}
                 </Badge>
               )}
             </Button>
@@ -1048,11 +1143,32 @@ function GuidedView({
                 </p>
               </div>
             </div>
-            {sectionItems.length > 0 && (
-              <Badge variant="secondary" className="shrink-0" data-testid="badge-item-count">
-                {sectionItems.length} item{sectionItems.length !== 1 ? "s" : ""}
-              </Badge>
-            )}
+            <div className="flex items-center gap-2 shrink-0">
+              {filledCount > 0 && (
+                <Badge variant="secondary" data-testid="badge-item-count">
+                  {filledCount} / {currentSection.prompts.length}
+                </Badge>
+              )}
+              <Button
+                variant={isEditMode ? "default" : "outline"}
+                size="sm"
+                onClick={() => setIsEditMode(!isEditMode)}
+                className="gap-1.5"
+                data-testid="button-toggle-edit"
+              >
+                {isEditMode ? (
+                  <>
+                    <Unlock className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Editing</span>
+                  </>
+                ) : (
+                  <>
+                    <Lock className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Locked</span>
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6 pt-6">
@@ -1082,74 +1198,19 @@ function GuidedView({
             </CollapsibleContent>
           </Collapsible>
 
-          <div className="space-y-3">
-            <div className="flex gap-2">
-              <Input
-                placeholder={`Add a ${currentSection.title.toLowerCase().slice(0, -1)}...`}
-                value={itemInput}
-                onChange={(e) => setItemInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                data-testid="input-add-item"
+          <div className="space-y-5">
+            {currentSection.prompts.map((prompt, promptIndex) => (
+              <PromptTextarea
+                key={`${currentSection.id}-${promptIndex}`}
+                prompt={prompt}
+                value={sectionItems[promptIndex] || ""}
+                promptIndex={promptIndex}
+                isEditMode={isEditMode}
+                onChange={(value) => updateCanvasField(currentSection.id, promptIndex, value)}
+                onClear={() => clearCanvasField(currentSection.id, promptIndex)}
               />
-              <Button
-                onClick={handleAddItem}
-                disabled={!itemInput.trim()}
-                data-testid="button-add-item"
-              >
-                <Plus className="mr-1 h-4 w-4" />
-                Add
-              </Button>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground">Quick add:</p>
-              <div className="flex flex-wrap gap-2">
-                {currentSection.quickAddItems.map((item) => {
-                  const isAdded = sectionItems.includes(item);
-                  return (
-                    <Button
-                      key={item}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => addItem(currentSection.id, item)}
-                      disabled={isAdded}
-                      className="gap-1"
-                      data-testid={`button-quick-add-${item.replace(/\s+/g, "-").toLowerCase()}`}
-                    >
-                      {isAdded && <Check className="h-3 w-3 text-green-500" />}
-                      {item}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
+            ))}
           </div>
-
-          {sectionItems.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Added items:</p>
-              <div className="space-y-2">
-                {sectionItems.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between gap-2 rounded-lg bg-muted/50 p-3"
-                    data-testid={`item-${currentSection.id}-${index}`}
-                  >
-                    <span className="text-sm">{item}</span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                      onClick={() => removeItem(currentSection.id, index)}
-                      data-testid={`button-delete-item-${index}`}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           <div className="flex items-center justify-between gap-4 border-t pt-6">
             <Button
@@ -1196,7 +1257,8 @@ function CanvasCell({
   className?: string;
 }) {
   const Icon = section.icon;
-  const filled = items.length > 0;
+  const filledItems = items.filter((item) => item.trim().length > 0);
+  const filled = filledItems.length > 0;
   return (
     <div
       className={`flex flex-col rounded-lg border bg-card overflow-hidden min-h-[120px] ${className}`}
@@ -1214,7 +1276,7 @@ function CanvasCell({
           </span>
           {filled && (
             <span className="ml-auto text-[10px] font-medium bg-primary/10 text-primary rounded-full px-1.5 py-0.5">
-              {items.length}
+              {filledItems.length}
             </span>
           )}
         </div>
@@ -1225,7 +1287,7 @@ function CanvasCell({
             </p>
           ) : (
             <ul className="space-y-0.5">
-              {items.map((item, index) => (
+              {filledItems.map((item, index) => (
                 <li key={index} className="text-[11px] text-foreground/80 flex items-start gap-1">
                   <span className="text-primary mt-0.5 shrink-0">›</span>
                   <span className="leading-tight">{item}</span>
@@ -1380,7 +1442,7 @@ function DashboardView({
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {SECTIONS.map((section) => {
-            const items = canvasData[section.id];
+            const items = canvasData[section.id].filter((item) => item.trim().length > 0);
             const Icon = section.icon;
             const filled = items.length > 0;
             return (
