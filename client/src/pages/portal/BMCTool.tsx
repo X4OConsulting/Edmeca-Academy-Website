@@ -217,24 +217,29 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "customerRelationships",
     title: "Customer Relationships",
-    question: "What relationship does each segment expect?",
+    question: "How do you acquire, retain, and grow customers?",
     icon: Heart,
     color: "text-pink-500",
     bgColor: "bg-pink-50 dark:bg-pink-950/30",
     borderColor: "border-pink-500",
     tips: [
-      "What type of relationship does each segment expect?",
-      "How costly are they?",
-      "Personal assistance or self-service?",
+      "Osterwalder identifies six types: personal assistance, dedicated rep, self-service, automated services, communities, and co-creation — which fits your segment?",
+      "Different segments may need different relationship types — a freemium user expects self-service while an enterprise buyer expects a dedicated rep.",
+      "Does your relationship choice match your cost structure? High-touch relationships cost more per customer.",
+      "Can you layer relationships — e.g. self-service for onboarding, then community for retention, then personal assistance for upselling?",
     ],
     prompts: [
       {
-        starter: "We build trust with customers by...",
-        example: "Offering a 14-day free trial with full access, no credit card required.",
+        starter: "To [acquire / retain / upsell] customers, we use a [relationship type] approach where...",
+        example: "To acquire customers, we use a self-service approach where users sign up for a free tier, explore benchmarking data on their own, and upgrade when they see the value.",
       },
       {
-        starter: "We keep customers coming back through...",
-        example: "Personalised monthly reports showing how their pricing compares to peers.",
+        starter: "In practice, this relationship works by...",
+        example: "Automated onboarding emails guide new users through three key features in their first week, then a dashboard tracks their engagement and triggers personalised nudges.",
+      },
+      {
+        starter: "This relationship approach fits our model because...",
+        example: "Self-service keeps our cost per acquisition under R15, which supports our freemium pricing — dedicated reps would cost 10x more and break our unit economics.",
       },
     ],
   },
