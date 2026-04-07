@@ -201,27 +201,29 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "channels",
     title: "Channels",
-    question: "How do you reach your customers?",
+    question: "How does your customer discover, evaluate, buy, receive, and get support for your offer?",
     icon: Truck,
     color: "text-cyan-500",
     bgColor: "bg-cyan-50 dark:bg-cyan-950/30",
     borderColor: "border-cyan-500",
     tips: [
-      "How are your channels integrated?",
-      "Which channels work best and are most cost-efficient?",
+      "Channels cover five phases, not just sales: (1) Awareness — how customers learn you exist, (2) Evaluation — how they compare you to alternatives, (3) Purchase — how they buy, (4) Delivery — how they receive value, (5) After-sales — how you support them afterward.",
+      "Channels are either your own (website, sales team) or partner-owned (distributors, resellers) — own channels have higher margins but cost more; partner channels extend reach but reduce margin. The right answer is usually a mix.",
+      "A channel that doesn't fit into how the customer naturally behaves will underperform a mediocre channel that meets them where they already are — design around customer routines, not your preferences.",
+      "Check coherence: a premium value proposition delivered through a discount channel undermines itself; a self-service channel can't deliver dedicated personal assistance.",
     ],
     prompts: [
       {
-        starter: "Customers first discover us through...",
-        example: "Instagram ads targeted at freelance creatives in South Africa.",
+        starter: "Across the five phases, our customer journey works like this: they discover us through... evaluate us via... buy through... receive value by... and get support from...",
+        example: "They discover us through Instagram ads and freelancer community posts, evaluate us via a free-tier dashboard with sample data, buy through self-service checkout on our website, receive value by logging into their personalised benchmarking dashboard, and get support from in-app chat and a knowledge base.",
       },
       {
-        starter: "We deliver our product/service by...",
-        example: "A web-based dashboard accessible on any device.",
+        starter: "Our channels are [own / partner / mixed] because...",
+        example: "Our channels are own-direct because we sell a digital product — no physical distribution needed. This gives us full control over the customer experience and higher margins, which matters for a R199/month subscription.",
       },
       {
-        starter: "After purchase, we stay connected via...",
-        example: "Monthly email tips and an in-app community forum.",
+        starter: "The weakest phase in our channel is [awareness / evaluation / purchase / delivery / after-sales] because...",
+        example: "The weakest phase is evaluation — freelancers can see the free tier but can't preview the Pro benchmarks before paying, so they're making a leap of faith. We plan to add a 7-day Pro trial to close this gap.",
       },
     ],
   },
