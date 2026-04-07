@@ -19,7 +19,10 @@ vi.mock('wouter', () => ({
 
 vi.mock('@/lib/supabase', () => ({
   supabase: {
-    auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }) },
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+      getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+    },
     from: vi.fn(() => ({ insert: vi.fn().mockResolvedValue({ error: null }) })),
   },
 }));
