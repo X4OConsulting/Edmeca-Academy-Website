@@ -352,24 +352,29 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "costStructure",
     title: "Cost Structure",
-    question: "What are the most important costs?",
+    question: "What does your operating engine cost, and does that spending make sense?",
     icon: CreditCard,
     color: "text-red-500",
     bgColor: "bg-red-50 dark:bg-red-950/30",
     borderColor: "border-red-500",
     tips: [
-      "What are the most important costs in your business?",
-      "Which key resources and activities are most expensive?",
-      "Cost-driven or value-driven? Fixed costs vs variable costs?",
+      "This block comes last for a reason — look back at your Key Resources, Key Activities, and Key Partnerships and ask: what does all of this cost?",
+      "Your model is either cost-driven (minimise costs, lean operations, maximum automation) or value-driven (premium experience, cost is secondary) — which are you, and does the rest of your canvas match?",
+      "Four characteristics to examine: fixed costs (stay constant), variable costs (scale with volume), economies of scale (cheaper per unit as you grow), and economies of scope (same infrastructure serves multiple products/segments).",
+      "Cost Structure reveals contradictions — if your most expensive activities don't support your most important value propositions, something is misaligned.",
     ],
     prompts: [
       {
-        starter: "Our biggest cost is...",
-        example: "Salaries for our data engineering and product development team.",
+        starter: "Our model is [cost-driven / value-driven] because...",
+        example: "Our model is cost-driven because we compete on affordable access to pricing data — so we automate data collection, use self-service onboarding, and avoid dedicated account managers.",
       },
       {
-        starter: "This cost is [fixed/variable] because...",
-        example: "This cost is fixed because we need the team regardless of user count.",
+        starter: "Our most expensive [Key Resource / Key Activity] is... and it costs roughly...",
+        example: "Our most expensive Key Resource is the data engineering team (3 engineers at ~R45k/month each = ~R135k/month) — this is fixed and stays the same whether we have 100 or 10,000 users.",
+      },
+      {
+        starter: "As we scale, our costs [improve / stay flat / grow] because...",
+        example: "As we scale, our costs improve because server and data costs are variable but grow slowly (economies of scale), while our fixed team cost stays constant — so cost per user drops significantly with growth.",
       },
     ],
   },
