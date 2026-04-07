@@ -650,6 +650,8 @@ export default function BusinessModelCanvas() {
     setCurrentView("guided");
     setCanvasData(INITIAL_CANVAS_DATA);
     setIsEditMode(true);
+    setAiAnalysis(null);
+    setAiAnalysisError(null);
     localStorage.removeItem(STORAGE_KEY);
     toast({
       title: "Canvas reset",
