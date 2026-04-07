@@ -299,24 +299,29 @@ const SECTIONS: SectionConfig[] = [
   {
     id: "keyActivities",
     title: "Key Activities",
-    question: "What key activities does your value proposition require?",
+    question: "What critical actions make your business model work?",
     icon: Cog,
     color: "text-orange-500",
     bgColor: "bg-orange-50 dark:bg-orange-950/30",
     borderColor: "border-orange-500",
     tips: [
-      "What activities do your channels require?",
-      "Revenue streams?",
-      "Production, problem solving, or platform/network?",
+      "Osterwalder identifies three categories: production (making/delivering a product), problem solving (bespoke solutions for individual customers), and platform/network (managing an ecosystem) — which dominates your model?",
+      "Trace backwards from your other blocks: what activities do your value proposition, channels, customer relationships, and revenue streams each require?",
+      "The test for a Key Activity: if you stopped doing it, would your specific business model break? Generic tasks (accounting, invoicing) don't belong here.",
+      "Cross-check: do you have the Key Resources to perform these activities, or should a Key Partner handle some of them instead?",
     ],
     prompts: [
       {
-        starter: "Every day, our team must...",
-        example: "Collect and validate new pricing data from freelance marketplaces.",
+        starter: "Our model is primarily [production / problem solving / platform] because the critical action is...",
+        example: "Our model is primarily platform because the critical action is maintaining a real-time data pipeline that collects, validates, and serves freelance pricing benchmarks across 50+ industries.",
       },
       {
-        starter: "The one activity that drives the most value is...",
-        example: "Generating personalised pricing recommendations for each user.",
+        starter: "Without this activity, our [value proposition / channels / customer relationships / revenue] would break because...",
+        example: "Without continuous data validation, our benchmarks would become stale within weeks — users would lose trust in the numbers and cancel their subscriptions.",
+      },
+      {
+        starter: "We [do / outsource] this activity because...",
+        example: "We do this in-house because data accuracy is our core differentiator — outsourcing it would mean losing control over the quality our customers pay for.",
       },
     ],
   },
