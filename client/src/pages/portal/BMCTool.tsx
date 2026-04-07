@@ -94,6 +94,36 @@ interface PromptConfig {
   maxChars?: number;
 }
 
+type TabId = "desirability" | "viability" | "feasibility";
+
+interface TabConfig {
+  id: TabId;
+  label: string;
+  description: string;
+  sectionIds: SectionId[];
+}
+
+const TABS: TabConfig[] = [
+  {
+    id: "desirability",
+    label: "Desirability",
+    description: "Do customers want this?",
+    sectionIds: ["valuePropositions", "customerSegments", "channels", "customerRelationships"],
+  },
+  {
+    id: "viability",
+    label: "Viability",
+    description: "Can this make money?",
+    sectionIds: ["costStructure", "revenueStreams"],
+  },
+  {
+    id: "feasibility",
+    label: "Feasibility",
+    description: "Can we deliver this?",
+    sectionIds: ["keyActivities", "keyResources", "keyPartnerships"],
+  },
+];
+
 interface SectionConfig {
   id: SectionId;
   title: string;
@@ -1099,35 +1129,75 @@ function GuidedView({
         <Progress value={progressPercentage} className="h-2" data-testid="progress-bar" />
       </div>
 
-      <div className="scrollbar-hide -mx-4 flex gap-2 overflow-x-auto px-4 pb-2">
-        {SECTIONS.map((section, index) => {
-          const hasItems = canvasData[section.id].some((item) => item.trim().length > 0);
-          const itemCount = canvasData[section.id].filter((item) => item.trim().length > 0).length;
-          const SectionIcon = section.icon;
+      {/* Tab bar */}
+      <div className="flex rounded-lg border p-1 gap-1" data-testid="tab-bar">
+        {TABS.map((tab) => {
+          const tabSectionIndices = tab.sectionIds.map((id) => SECTIONS.findIndex((s) => s.id === id));
+          const isActiveTab = tabSectionIndices.includes(currentStep);
+          const filledInTab = tab.sectionIds.filter((id) =>
+            canvasData[id].some((item) => item.trim().length > 0)
+          ).length;
           return (
             <Button
-              key={section.id}
-              variant={index === currentStep ? "default" : "outline"}
+              key={tab.id}
+              variant={isActiveTab ? "secondary" : "ghost"}
               size="sm"
-              onClick={() => setCurrentStep(index)}
-              className="relative shrink-0 gap-1.5"
-              data-testid={`button-section-${section.id}`}
+              onClick={() => setCurrentStep(tabSectionIndices[0])}
+              className="flex-1 gap-1.5"
+              data-testid={`tab-${tab.id}`}
             >
-              <SectionIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">{section.title}</span>
-              <span className="sm:hidden">{index + 1}</span>
-              {hasItems && (
-                <Badge
-                  variant="secondary"
-                  className="ml-1 h-5 min-w-5 px-1.5 text-xs"
-                >
-                  {itemCount}
-                </Badge>
-              )}
+              <span className="font-medium">{tab.label}</span>
+              <span className="text-[10px] text-muted-foreground hidden sm:inline">
+                {filledInTab}/{tab.sectionIds.length}
+              </span>
             </Button>
           );
         })}
       </div>
+
+      {/* Section buttons within active tab */}
+      {(() => {
+        const activeTab = TABS.find((tab) =>
+          tab.sectionIds.map((id) => SECTIONS.findIndex((s) => s.id === id)).includes(currentStep)
+        ) || TABS[0];
+        return (
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">
+              <span className="font-semibold">{activeTab.label}</span> — {activeTab.description}
+            </p>
+            <div className="scrollbar-hide -mx-4 flex gap-2 overflow-x-auto px-4 pb-2">
+              {activeTab.sectionIds.map((sectionId) => {
+                const index = SECTIONS.findIndex((s) => s.id === sectionId);
+                const section = SECTIONS[index];
+                const hasItems = canvasData[section.id].some((item) => item.trim().length > 0);
+                const itemCount = canvasData[section.id].filter((item) => item.trim().length > 0).length;
+                const SectionIcon = section.icon;
+                return (
+                  <Button
+                    key={section.id}
+                    variant={index === currentStep ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentStep(index)}
+                    className="relative shrink-0 gap-1.5"
+                    data-testid={`button-section-${section.id}`}
+                  >
+                    <SectionIcon className="h-4 w-4" />
+                    <span className="hidden sm:inline">{section.title}</span>
+                    {hasItems && (
+                      <Badge
+                        variant="secondary"
+                        className="ml-1 h-5 min-w-5 px-1.5 text-xs"
+                      >
+                        {itemCount}
+                      </Badge>
+                    )}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       <Card className={`border-2 ${currentSection.borderColor}`}>
         <CardHeader className={`${currentSection.bgColor} rounded-t-lg`}>
@@ -1212,19 +1282,31 @@ function GuidedView({
             ))}
           </div>
 
+          {(() => {
+            // Navigation order follows tab grouping
+            const orderedIndices = TABS.flatMap((tab) =>
+              tab.sectionIds.map((id) => SECTIONS.findIndex((s) => s.id === id))
+            );
+            const posInOrder = orderedIndices.indexOf(currentStep);
+            const isFirst = posInOrder === 0;
+            const isLast = posInOrder === orderedIndices.length - 1;
+            const prevStep = isFirst ? -1 : orderedIndices[posInOrder - 1];
+            const nextStep = isLast ? -1 : orderedIndices[posInOrder + 1];
+
+            return (
           <div className="flex items-center justify-between gap-4 border-t pt-6">
             <Button
               variant="outline"
-              onClick={() => setCurrentStep(currentStep - 1)}
-              disabled={currentStep === 0}
+              onClick={() => setCurrentStep(prevStep)}
+              disabled={isFirst}
               data-testid="button-previous"
             >
               <ChevronLeft className="mr-1 h-4 w-4" />
               Previous
             </Button>
-            {currentStep < 8 ? (
+            {!isLast ? (
               <Button
-                onClick={() => setCurrentStep(currentStep + 1)}
+                onClick={() => setCurrentStep(nextStep)}
                 data-testid="button-next"
               >
                 Next
@@ -1237,6 +1319,8 @@ function GuidedView({
               </Button>
             )}
           </div>
+            );
+          })()}
         </CardContent>
       </Card>
     </div>
