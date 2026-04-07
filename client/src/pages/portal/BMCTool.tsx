@@ -252,18 +252,23 @@ const SECTIONS: SectionConfig[] = [
     bgColor: "bg-green-50 dark:bg-green-950/30",
     borderColor: "border-green-500",
     tips: [
-      "For what value are customers willing to pay?",
-      "How are they currently paying?",
-      "How much does each revenue stream contribute?",
+      "Osterwalder identifies seven revenue mechanisms: asset sale, usage fee, subscription, lending/renting/leasing, licensing, brokerage fees, and advertising — which ones fit your value proposition?",
+      "Revenue has two fundamental types: transaction (one-time) and recurring (ongoing) — recurring revenue is more predictable but requires continuous value delivery.",
+      "Pricing can be fixed (list price, feature-dependent, volume-dependent) or dynamic (negotiation, yield management, auctions) — your choice shapes customer expectations.",
+      "Different customer segments may warrant different mechanisms — e.g. subscription for individuals, licensing for enterprises, usage fees for occasional users.",
     ],
     prompts: [
       {
-        starter: "Customers pay us for...",
-        example: "A monthly subscription to access benchmarking data and pricing tools.",
+        starter: "Customers willingly pay for [value] because...",
+        example: "Customers willingly pay for real-time pricing benchmarks because guessing their rates costs them thousands in lost revenue or underbid projects each year.",
       },
       {
-        starter: "Our pricing model works by...",
-        example: "Tiered plans — free for basic data, R199/month for advanced analytics.",
+        starter: "We capture this value through a [mechanism] model where...",
+        example: "We capture this value through a subscription model where users pay R199/month for unlimited benchmark reports — this gives us predictable recurring revenue and aligns with continuous data updates.",
+      },
+      {
+        starter: "Our pricing approach is [fixed / dynamic] because...",
+        example: "Our pricing approach is fixed (three published tiers: Free, Pro at R199/month, Team at R499/month) because freelancers need predictable costs — but we use volume-dependent discounts for agencies buying 10+ seats.",
       },
     ],
   },
