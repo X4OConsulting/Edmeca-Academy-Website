@@ -61,9 +61,19 @@ import {
   Lock,
   Unlock,
   PenLine,
+  Sparkles,
+  Loader2,
+  Link2,
 } from "lucide-react";
 
 type ViewType = "guided" | "canvas" | "dashboard";
+
+interface AIAnalysis {
+  strengths: string[];
+  areasToImprove: string[];
+  coherenceChecks: string[];
+  overallAssessment: string;
+}
 
 type SectionId =
   | "customerSegments"
@@ -440,6 +450,8 @@ export default function BusinessModelCanvas() {
   const [isEditingCompanyName, setIsEditingCompanyName] = useState(false);
   const [isFinalized, setIsFinalized] = useState(false);
   const [isEditMode, setIsEditMode] = useState(true);
+  const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
+  const [aiAnalysisError, setAiAnalysisError] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -551,6 +563,42 @@ export default function BusinessModelCanvas() {
       completionPercentage: progressPercentage,
     });
   }, [companyName, canvasData, completedSections, totalItems, progressPercentage, finalizeMutation, toast]);
+
+  const analyzeCanvasMutation = useMutation({
+    mutationFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Not authenticated");
+      const res = await fetch("/api/analyze-bmc", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          companyName: companyName || "Untitled Business",
+          canvasData: filteredCanvasData,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Analysis failed" }));
+        throw new Error(err.error || "Analysis failed");
+      }
+      return res.json() as Promise<AIAnalysis>;
+    },
+    onSuccess: (data) => {
+      setAiAnalysis(data);
+      setAiAnalysisError(null);
+      toast({ title: "Analysis complete", description: "AI insights have been generated for your canvas" });
+    },
+    onError: (error) => {
+      setAiAnalysisError(error instanceof Error ? error.message : "Analysis failed");
+      toast({ title: "Analysis failed", description: error instanceof Error ? error.message : "Please try again", variant: "destructive" });
+    },
+  });
+
+  const handleAnalyzeCanvas = useCallback(() => {
+    analyzeCanvasMutation.mutate();
+  }, [analyzeCanvasMutation]);
 
   const updateCanvasField = useCallback(
     (sectionId: SectionId, promptIndex: number, value: string) => {
@@ -993,6 +1041,10 @@ export default function BusinessModelCanvas() {
             isFinalized={isFinalized}
             isFinalizing={finalizeMutation.isPending}
             setCurrentView={setCurrentView}
+            aiAnalysis={aiAnalysis}
+            aiAnalysisError={aiAnalysisError}
+            isAnalyzing={analyzeCanvasMutation.isPending}
+            handleAnalyzeCanvas={handleAnalyzeCanvas}
           />
         )}
       </main>
@@ -1483,6 +1535,10 @@ interface DashboardViewProps {
   isFinalized: boolean;
   isFinalizing: boolean;
   setCurrentView: (view: ViewType) => void;
+  aiAnalysis: AIAnalysis | null;
+  aiAnalysisError: string | null;
+  isAnalyzing: boolean;
+  handleAnalyzeCanvas: () => void;
 }
 
 function DashboardView({
@@ -1498,6 +1554,10 @@ function DashboardView({
   isFinalized,
   isFinalizing,
   setCurrentView,
+  aiAnalysis,
+  aiAnalysisError,
+  isAnalyzing,
+  handleAnalyzeCanvas,
 }: DashboardViewProps) {
   return (
     <div className="space-y-8">
@@ -1618,59 +1678,176 @@ function DashboardView({
         </div>
       </div>
 
-      {/* Insights */}
+      {/* AI-Powered Insights */}
       <div>
-        <div className="flex items-center gap-2 mb-4">
-          <div className="h-5 w-1 rounded-full bg-primary" />
-          <h3 className="font-serif text-lg font-semibold">Canvas Insights</h3>
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <div className="flex items-center gap-2">
+            <div className="h-5 w-1 rounded-full bg-primary" />
+            <h3 className="font-serif text-lg font-semibold">Canvas Insights</h3>
+          </div>
+          <Button
+            size="sm"
+            onClick={handleAnalyzeCanvas}
+            disabled={isAnalyzing || completedSections === 0}
+            className="gap-2"
+            data-testid="button-analyze-canvas"
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Analysing...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4" />
+                Analyse Canvas
+              </>
+            )}
+          </Button>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <Card data-testid="card-strengths">
-            <CardHeader className="flex flex-row items-center gap-3 pb-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
-                <Lightbulb className="h-4 w-4 text-green-600" />
-              </div>
-              <CardTitle className="text-base">Strengths</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {insights.strengths.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Add more items to reveal your strengths.</p>
-              ) : (
-                <ul className="space-y-2">
-                  {insights.strengths.map((strength, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
-                      {strength}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
 
-          <Card data-testid="card-improvements">
-            <CardHeader className="flex flex-row items-center gap-3 pb-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
-              </div>
-              <CardTitle className="text-base">Areas to Develop</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {insights.areasToImprove.length === 0 ? (
-                <p className="text-sm text-muted-foreground">All sections are well-defined — great work!</p>
-              ) : (
-                <ul className="space-y-2">
-                  {insights.areasToImprove.map((area, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm">
-                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
-                      {area}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        {/* AI Analysis Results */}
+        {aiAnalysis ? (
+          <div className="space-y-4">
+            {/* Overall Assessment */}
+            <Card className="border-primary/30 bg-primary/5">
+              <CardContent className="p-4">
+                <p className="text-sm font-medium">{aiAnalysis.overallAssessment}</p>
+              </CardContent>
+            </Card>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card data-testid="card-strengths">
+                <CardHeader className="flex flex-row items-center gap-3 pb-2">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
+                    <Lightbulb className="h-4 w-4 text-green-600" />
+                  </div>
+                  <CardTitle className="text-base">Strengths</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {aiAnalysis.strengths.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No strengths identified yet.</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {aiAnalysis.strengths.map((strength, index) => (
+                        <li key={index} className="flex items-start gap-2 text-sm">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
+                          {strength}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card data-testid="card-improvements">
+                <CardHeader className="flex flex-row items-center gap-3 pb-2">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30">
+                    <AlertTriangle className="h-4 w-4 text-amber-600" />
+                  </div>
+                  <CardTitle className="text-base">Areas to Develop</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {aiAnalysis.areasToImprove.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No areas to develop identified.</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {aiAnalysis.areasToImprove.map((area, index) => (
+                        <li key={index} className="flex items-start gap-2 text-sm">
+                          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                          {area}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Coherence Checks */}
+            {aiAnalysis.coherenceChecks.length > 0 && (
+              <Card>
+                <CardHeader className="flex flex-row items-center gap-3 pb-2">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                    <Link2 className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <CardTitle className="text-base">Cross-Block Coherence</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {aiAnalysis.coherenceChecks.map((check, index) => (
+                      <li key={index} className="flex items-start gap-2 text-sm">
+                        <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
+                        {check}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        ) : (
+          /* Fallback: static insights when AI hasn't been triggered */
+          <div>
+            {aiAnalysisError && (
+              <Card className="mb-4 border-destructive/30 bg-destructive/5">
+                <CardContent className="p-4">
+                  <p className="text-sm text-destructive">{aiAnalysisError}</p>
+                </CardContent>
+              </Card>
+            )}
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card data-testid="card-strengths">
+                <CardHeader className="flex flex-row items-center gap-3 pb-2">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
+                    <Lightbulb className="h-4 w-4 text-green-600" />
+                  </div>
+                  <CardTitle className="text-base">Strengths</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {insights.strengths.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Add more items to reveal your strengths.</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {insights.strengths.map((strength, index) => (
+                        <li key={index} className="flex items-start gap-2 text-sm">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
+                          {strength}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card data-testid="card-improvements">
+                <CardHeader className="flex flex-row items-center gap-3 pb-2">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30">
+                    <AlertTriangle className="h-4 w-4 text-amber-600" />
+                  </div>
+                  <CardTitle className="text-base">Areas to Develop</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {insights.areasToImprove.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">All sections are well-defined — great work!</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {insights.areasToImprove.map((area, index) => (
+                        <li key={index} className="flex items-start gap-2 text-sm">
+                          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                          {area}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3 text-center">
+              Click "Analyse Canvas" above for AI-powered insights based on Osterwalder's framework.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
