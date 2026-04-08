@@ -610,6 +610,34 @@ export default function BusinessModelCanvas() {
       setAiAnalysis(data);
       setAiAnalysisError(null);
       toast({ title: "Analysis complete", description: "AI insights have been generated for your canvas" });
+      // Auto-save full canvas + analysis to database
+      const saveToDb = async () => {
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return; // silently skip if not authenticated
+          await supabase.from("artifacts").insert({
+            user_id: user.id,
+            tool_type: "bmc",
+            title: `${companyName || "Untitled"} — Business Model Canvas`,
+            content: {
+              canvas: filteredCanvasData,
+              statistics: {
+                completedSections,
+                totalItems,
+                completionPercentage: progressPercentage,
+              },
+              analysis: data,
+              savedAt: new Date().toISOString(),
+            },
+            version: 1,
+            status: "complete",
+          });
+          setIsFinalized(true);
+        } catch (e) {
+          console.error("Auto-save after analysis failed:", e);
+        }
+      };
+      saveToDb();
     },
     onError: (error) => {
       setAiAnalysisError(error instanceof Error ? error.message : "Analysis failed");
