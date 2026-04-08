@@ -38,8 +38,15 @@ import { ErrorBoundary } from "@/components/portal/ErrorBoundary";
 
 // CI/CD Automation Test - This PR will be auto-reviewed and approved if all checks pass
 
+const bypassAuth = import.meta.env.VITE_BYPASS_AUTH === "true";
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
+
+  // Auth bypassed for staging preview access
+  if (bypassAuth) {
+    return <>{children}<FloatingChat /></>;
+  }
 
   if (isLoading) {
     return (
