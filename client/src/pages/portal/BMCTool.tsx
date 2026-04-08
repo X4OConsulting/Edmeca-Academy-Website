@@ -64,6 +64,7 @@ import {
   Sparkles,
   Loader2,
   Link2,
+  Upload,
 } from "lucide-react";
 
 type ViewType = "guided" | "canvas" | "dashboard";
@@ -801,6 +802,55 @@ export default function BusinessModelCanvas() {
     });
   }, [companyName, filteredCanvasData, completedSections, totalItems, progressPercentage, toast]);
 
+  const handleImport = useCallback(() => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target?.result as string);
+          const canvas = data.canvas || data;
+          const validKeys: SectionId[] = [
+            "customerSegments", "valuePropositions", "channels",
+            "customerRelationships", "revenueStreams", "keyResources",
+            "keyActivities", "keyPartnerships", "costStructure",
+          ];
+          const imported: CanvasData = { ...INITIAL_CANVAS_DATA };
+          for (const key of validKeys) {
+            if (Array.isArray(canvas[key])) {
+              imported[key] = canvas[key];
+            }
+          }
+          setCanvasData(imported);
+          if (data.companyName) {
+            setCompanyName(data.companyName);
+            setCompanyNameSet(true);
+          }
+          setAiAnalysis(null);
+          setAiAnalysisError(null);
+          setIsFinalized(false);
+          setCurrentView("dashboard");
+          toast({
+            title: "Canvas imported",
+            description: `Loaded canvas${data.companyName ? ` for "${data.companyName}"` : ""} from file`,
+          });
+        } catch {
+          toast({
+            title: "Import failed",
+            description: "The file could not be read as a valid BMC canvas",
+            variant: "destructive",
+          });
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }, [toast]);
+
   const handleExportWord = useCallback(async () => {
     const businessName = companyName || "Untitled Business";
     const exportDate = new Date().toLocaleDateString("en-US", {
@@ -1155,6 +1205,16 @@ export default function BusinessModelCanvas() {
                 <span className="hidden md:inline">Dashboard</span>
               </Button>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleImport}
+              className="gap-1.5 hidden sm:flex"
+              data-testid="button-import"
+            >
+              <Upload className="h-4 w-4" />
+              <span className="hidden md:inline">Import</span>
+            </Button>
             <Button
               variant="outline"
               size="sm"
