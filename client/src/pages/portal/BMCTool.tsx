@@ -522,6 +522,7 @@ export default function BusinessModelCanvas() {
       completedSections: number;
       totalItems: number;
       completionPercentage: number;
+      aiAnalysis: AIAnalysis | null;
     }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
@@ -529,7 +530,16 @@ export default function BusinessModelCanvas() {
         user_id: user.id,
         tool_type: "bmc",
         title: `${data.companyName || "Untitled"} — Business Model Canvas`,
-        content: data.canvasData,
+        content: {
+          canvas: data.canvasData,
+          statistics: {
+            completedSections: data.completedSections,
+            totalItems: data.totalItems,
+            completionPercentage: data.completionPercentage,
+          },
+          analysis: data.aiAnalysis,
+          savedAt: new Date().toISOString(),
+        },
         version: 1,
         status: "complete",
       });
@@ -576,8 +586,9 @@ export default function BusinessModelCanvas() {
       completedSections,
       totalItems,
       completionPercentage: progressPercentage,
+      aiAnalysis,
     });
-  }, [companyName, isAuthenticated, canvasData, completedSections, totalItems, progressPercentage, finalizeMutation, toast]);
+  }, [companyName, isAuthenticated, canvasData, completedSections, totalItems, progressPercentage, aiAnalysis, finalizeMutation, toast]);
 
   const analyzeCanvasMutation = useMutation({
     mutationFn: async () => {
