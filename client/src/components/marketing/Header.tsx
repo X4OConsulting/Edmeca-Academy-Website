@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import logoImage from "@assets/logo.png";
 
 const isLoginEnabled = import.meta.env.VITE_ENABLE_LOGIN === "true";
+const bypassAuth = import.meta.env.VITE_BYPASS_AUTH === "true";
 
 const navLinks = [
   { href: "/about", label: "About" },
@@ -55,7 +56,13 @@ export function Header() {
               </Link>
             ) : (
               <>
-                {isLoginEnabled ? (
+                {bypassAuth ? (
+                  <Link href="/portal">
+                    <Button variant="ghost" className="hidden sm:inline-flex" data-testid="button-login">
+                      Portal
+                    </Button>
+                  </Link>
+                ) : isLoginEnabled ? (
                   <a href="/login">
                     <Button variant="ghost" className="hidden sm:inline-flex" data-testid="button-login">
                       Log In
@@ -98,7 +105,13 @@ export function Header() {
                     </Link>
                   ) : (
                     <>
-                      {isLoginEnabled ? (
+                      {bypassAuth ? (
+                        <Link href="/portal">
+                          <Button variant="outline" className="w-full" data-testid="button-login-mobile">
+                            Portal
+                          </Button>
+                        </Link>
+                      ) : isLoginEnabled ? (
                         <a href="/login">
                           <Button variant="outline" className="w-full" data-testid="button-login-mobile">
                             Log In
