@@ -553,6 +553,14 @@ export default function BusinessModelCanvas() {
   });
 
   const handleFinalize = useCallback(() => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to save your canvas to the database",
+        variant: "destructive",
+      });
+      return;
+    }
     if (!companyName.trim()) {
       toast({
         title: "Company name required",
@@ -561,7 +569,7 @@ export default function BusinessModelCanvas() {
       });
       return;
     }
-    
+
     finalizeMutation.mutate({
       companyName: companyName.trim(),
       canvasData: filteredCanvasData as CanvasData,
@@ -569,7 +577,7 @@ export default function BusinessModelCanvas() {
       totalItems,
       completionPercentage: progressPercentage,
     });
-  }, [companyName, canvasData, completedSections, totalItems, progressPercentage, finalizeMutation, toast]);
+  }, [companyName, isAuthenticated, canvasData, completedSections, totalItems, progressPercentage, finalizeMutation, toast]);
 
   const analyzeCanvasMutation = useMutation({
     mutationFn: async () => {
@@ -1718,19 +1726,17 @@ function DashboardView({
           <Button variant="outline" size="sm" onClick={() => setCurrentView("guided")} data-testid="button-continue-editing">
             Continue Editing
           </Button>
-          {isAuthenticated ? (
-            isFinalized ? (
-              <Button variant="outline" size="sm" disabled className="gap-2 text-green-600 border-green-200" data-testid="button-finalized">
-                <CheckCircle className="h-4 w-4" />
-                Saved
-              </Button>
-            ) : (
-              <Button size="sm" onClick={handleFinalize} disabled={isFinalizing} data-testid="button-finalize">
-                <Save className="h-4 w-4 mr-2" />
-                {isFinalizing ? "Saving..." : "Finalise & Save"}
-              </Button>
-            )
-          ) : null}
+          {isFinalized ? (
+            <Button variant="outline" size="sm" disabled className="gap-2 text-green-600 border-green-200" data-testid="button-finalized">
+              <CheckCircle className="h-4 w-4" />
+              Saved
+            </Button>
+          ) : (
+            <Button size="sm" onClick={handleFinalize} disabled={isFinalizing} data-testid="button-finalize">
+              <Save className="h-4 w-4 mr-2" />
+              {isFinalizing ? "Saving..." : "Finalise & Save"}
+            </Button>
+          )}
         </div>
       </div>
 
