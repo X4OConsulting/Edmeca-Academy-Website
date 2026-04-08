@@ -19,7 +19,10 @@ vi.mock('wouter', () => ({
 
 vi.mock('@/lib/supabase', () => ({
   supabase: {
-    auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }) },
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+      getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+    },
     from: vi.fn(() => ({ insert: vi.fn().mockResolvedValue({ error: null }) })),
   },
 }));
@@ -139,15 +142,14 @@ describe('BMCTool', () => {
     expect(await screen.findByTestId('input-company-name')).toBeInTheDocument();
   });
 
-  it('progress percentage increases after adding items to a section', async () => {
+  it('progress percentage increases after typing into a prompt textarea', async () => {
     renderBMC();
     const skipBtn = await screen.findByTestId('button-skip');
     await userEvent.click(skipBtn);
-    // Find the text input for the current section and add an item
-    const addInput = await screen.findByPlaceholderText(/add|type/i);
-    await userEvent.type(addInput, 'Test item');
-    await userEvent.keyboard('{Enter}');
-    // After adding, at least 1/9 sections should be non-zero
+    // Find the first prompt textarea and type into it
+    const textarea = await screen.findByTestId('textarea-prompt-0');
+    await userEvent.type(textarea, 'Test response for customer segment');
+    // After typing, at least 1/9 sections should be non-zero
     await waitFor(() => {
       const progress = screen.queryByText(/1\/9/i);
       const percentText = screen.queryByText(/11%/i);

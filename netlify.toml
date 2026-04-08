@@ -25,6 +25,11 @@
   to = "/.netlify/functions/chat"
   status = 200
 
+[[redirects]]
+  from = "/api/analyze-bmc"
+  to = "/.netlify/functions/analyze-bmc"
+  status = 200
+
 # Explicitly block sensitive source/config files (defence-in-depth)
 # These files are not in the publish dir but we deny them explicitly
 [[redirects]]
@@ -103,3 +108,4 @@
 # VITE_SUPABASE_URL = "your-supabase-url"
 # VITE_SUPABASE_ANON_KEY = "your-supabase-anon-key"  
 # SUPABASE_SERVICE_ROLE_KEY = "your-supabase-service-role-key"
+
