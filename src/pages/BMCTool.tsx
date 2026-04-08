@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Link } from "wouter";
+// wouter Link removed — standalone app has no router
 const edmecaLogo = "/logo.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -442,6 +442,7 @@ export default function BusinessModelCanvas() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    if (!supabase) return;
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session?.user);
     });
@@ -524,6 +525,7 @@ export default function BusinessModelCanvas() {
       completionPercentage: number;
       aiAnalysis: AIAnalysis | null;
     }) => {
+      if (!supabase) throw new Error("Database not configured");
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
       const { error } = await supabase.from("artifacts").insert({
@@ -613,6 +615,7 @@ export default function BusinessModelCanvas() {
       // Auto-save full canvas + analysis to database
       const saveToDb = async () => {
         try {
+          if (!supabase) return; // no DB configured
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) return; // silently skip if not authenticated
           await supabase.from("artifacts").insert({
@@ -1067,12 +1070,10 @@ export default function BusinessModelCanvas() {
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4">
           <div className="flex items-center gap-3">
-            <Link href="/portal" asChild>
-              <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground" data-testid="button-back-dashboard">
-                <ArrowLeft className="h-4 w-4" />
-                Dashboard
-              </Button>
-            </Link>
+            <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground" onClick={() => window.location.reload()} data-testid="button-back-dashboard">
+              <ArrowLeft className="h-4 w-4" />
+              Home
+            </Button>
             <span className="text-muted-foreground">/</span>
             <span className="font-medium text-sm">Business Model Canvas</span>
             {companyName && !isEditingCompanyName && (
