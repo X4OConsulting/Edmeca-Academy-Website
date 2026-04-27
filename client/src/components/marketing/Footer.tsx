@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import logoImage from "@assets/logo.png";
 
 const footerLinks = {
   solutions: [
@@ -19,18 +20,14 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
           <div className="md:col-span-2">
-            <Link href="/" className="flex items-center gap-3" data-testid="link-footer-home">
-              <div className="flex items-center">
-                <span className="font-serif text-2xl font-bold tracking-tight">
-                  <span className="text-primary">Ed</span>
-                  <span className="text-orange-700 dark:text-accent">Me</span>
-                  <span className="text-primary">Ca</span>
-                </span>
-              </div>
-              <div className="h-6 w-px bg-border" />
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
-                Digital Academy
-              </span>
+            <Link href="/" data-testid="link-footer-home">
+              <img
+                src={logoImage}
+                alt="EdMeCa"
+                width="100"
+                height="56"
+                className="h-14 w-auto dark:brightness-0 dark:invert"
+              />
             </Link>
             <p className="mt-4 text-muted-foreground max-w-md text-sm leading-relaxed">
               From Framework to Execution to Evidence. MBA-level business frameworks 
