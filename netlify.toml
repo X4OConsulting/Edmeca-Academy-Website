@@ -93,7 +93,6 @@
 [context.staging.environment]
   NODE_VERSION = "20.19.0"
   VITE_ENABLE_LOGIN = "true"
-  VITE_BYPASS_AUTH = "true"
 
 # Branch deploy context for development
 [context.development]
