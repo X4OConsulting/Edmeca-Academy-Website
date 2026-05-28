@@ -243,7 +243,7 @@ export function FileUploadZone({
           />
           {extracting ? (
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <span className="animate-spin">â³</span> Reading filesâ€¦
+              <span className="animate-spin">⏳</span> Reading files…
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
@@ -312,7 +312,7 @@ export function FileUploadZone({
         />
         <Upload className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
         {extracting ? (
-          <p className="text-sm text-muted-foreground">Reading fileâ€¦</p>
+          <p className="text-sm text-muted-foreground">Reading file…</p>
         ) : (
           <>
             <p className="text-sm font-medium">Drag and drop your file here, or click to browse</p>
