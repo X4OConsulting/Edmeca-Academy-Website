@@ -119,7 +119,7 @@ const TABS: TabConfig[] = [
     id: "desirability",
     label: "Desirability",
     description: "Do customers want this?",
-    sectionIds: ["valuePropositions", "customerSegments", "channels", "customerRelationships"],
+    sectionIds: ["customerSegments", "valuePropositions", "channels", "customerRelationships"],
   },
   {
     id: "viability",
