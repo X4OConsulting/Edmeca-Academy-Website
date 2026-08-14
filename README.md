@@ -63,6 +63,15 @@ npm run build      # Production build
 npm run preview    # Preview production build locally
 ```
 
+### Docker (containerized stack)
+
+No local Node setup needed — see [docs/LOCAL-DOCKER.md](docs/LOCAL-DOCKER.md):
+
+```bash
+npm run docker:dev   # web + functions API at http://localhost:5173
+npm run stack:up     # + local Supabase (Postgres, Auth, Studio)
+```
+
 ## Branch Strategy
 
 | Branch | Environment | Login | Auto-Deploy |

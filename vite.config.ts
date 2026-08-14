@@ -18,6 +18,19 @@ export default defineConfig({
     },
   },
   root: path.resolve(import.meta.dirname, "client"),
+  server: {
+    // Local full-stack (docker-compose): proxy /api/* to the Netlify functions
+    // dev server, mirroring the production redirects in netlify.toml.
+    proxy: process.env.FUNCTIONS_ORIGIN
+      ? {
+          "/api": {
+            target: process.env.FUNCTIONS_ORIGIN,
+            changeOrigin: true,
+            rewrite: (p) => p.replace(/^\/api\//, "/.netlify/functions/"),
+          },
+        }
+      : undefined,
+  },
   build: {
     outDir: path.resolve(import.meta.dirname, "client", "dist"),
     emptyOutDir: true,

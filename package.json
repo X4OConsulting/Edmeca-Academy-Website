@@ -24,7 +24,13 @@
     "task:status": "node scripts/smartsheet-cli.js status",
     "task:add": "node scripts/smartsheet-cli.js add",
     "task:sync": "node scripts/smartsheet-cli.js sync",
-    "dns:verify": "node scripts/verify-dns.js"
+    "dns:verify": "node scripts/verify-dns.js",
+    "docker:env": "node -e \"const fs=require('fs');fs.existsSync('.env.docker')||fs.copyFileSync('.env.docker.example','.env.docker')\"",
+    "docker:dev": "npm run docker:env && docker compose --env-file .env.docker up --build",
+    "docker:down": "npm run docker:env && docker compose --env-file .env.docker down",
+    "docker:reset": "npm run docker:env && docker compose --env-file .env.docker down -v",
+    "stack:up": "npm run docker:env && supabase start && docker compose --env-file .env.docker up -d --build",
+    "stack:down": "npm run docker:env && docker compose --env-file .env.docker down && supabase stop"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
