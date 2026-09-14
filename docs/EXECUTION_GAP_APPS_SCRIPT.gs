@@ -1,3 +1,6 @@
+// Bump when pasting a new version in, then run checkSetup() to confirm the
+// deployment actually serving traffic is the one you just pasted.
+const SCRIPT_VERSION = '3.30';
 const SHEET_NAME = 'Responses';
 const NOTIFY_TO = 'raymond@edmeca.co.za';
 const FROM_NAME = 'Edmeca';
@@ -97,6 +100,9 @@ function routeFor_(body) {
  * and read the output in View > Logs. Neither prints the secret.
  */
 function checkSetup() {
+  Logger.log('Script version: %s', SCRIPT_VERSION);
+  Logger.log('Sending as: %s', Session.getEffectiveUser().getEmail());
+  Logger.log('Emails left today: %s (MailApp daily quota)', MailApp.getRemainingDailyQuota());
   const secret = PropertiesService.getScriptProperties().getProperty('SHARED_SECRET');
   if (!secret) {
     Logger.log('SHARED_SECRET: NOT SET. Add it under Project Settings > Script Properties.');
@@ -115,6 +121,32 @@ function checkSetup() {
     Logger.log('Sheet "%s": found, %s data row(s).', SHEET_NAME, Math.max(0, sheet.getLastRow() - 1));
     Logger.log('  Headers %s', headers.join('|') === HEADERS.join('|') ? 'match.' : 'DO NOT match — they will be rewritten on the next POST.');
   }
+}
+
+/**
+ * Replays the report email for the most recent unlocked row, to the address on
+ * that row. Use it when the sheet says report_sent but nothing arrived: doPost
+ * swallows mail errors into its catch, so running this surfaces the real error
+ * (quota, missing authorisation) in the Apps Script log instead.
+ */
+function resendLastReport() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  if (!sheet) { Logger.log('Sheet "%s" is missing.', SHEET_NAME); return; }
+  const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) {
+    if (values[i][2] !== 'report_sent') continue;
+    const row = values[i];
+    Logger.log('Row %s — %s <%s>, reportText %s chars', i + 1, row[36], row[37], String(row[41]).length);
+    if (!row[37]) { Logger.log('No email address on that row.'); return; }
+    try {
+      sendRespondentEmail_({ email: row[37], reportText: row[41], result: { archetype: row[3] } });
+      Logger.log('Sent. Quota left: %s. If it still does not arrive, check spam and the sending account.', MailApp.getRemainingDailyQuota());
+    } catch (error) {
+      Logger.log('FAILED: %s', String(error));
+    }
+    return;
+  }
+  Logger.log('No row with status report_sent found.');
 }
 
 function ensureHeaders_(sheet) {
