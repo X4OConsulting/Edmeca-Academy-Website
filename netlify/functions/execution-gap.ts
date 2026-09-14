@@ -9,16 +9,26 @@ const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 type Body = { action?: "map" | "unlock"; respondentId?: string; cells?: Record<string, Record<string, unknown>>; stage?: string; stageBand?: string; aiMultiplier?: number; sector?: string; programmeStatus?: string; name?: string; email?: string; business?: string; wantsCall?: boolean };
 function response(statusCode: number, body: unknown, origin?: string) { return { statusCode, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": origin && origins.includes(origin) ? origin : origins[0], "Access-Control-Allow-Headers": "Content-Type", "Vary": "Origin" }, body: JSON.stringify(body) }; }
 function compute(cells: Record<string, Record<string, unknown>>) {
-  const totals = { F: 0, E: 0, V: 0 }; const stalls: string[] = [];
-  ids.forEach((id) => { const cell = cells[String(id)] || {}; stages.forEach((stage) => { totals[stage] += Number(cell[stage]) || 0; }); const f = Number(cell.F) || 0; const e = Number(cell.E) || 0; const v = Number(cell.V) || 0; stalls.push(f < 2 ? "F" : e < 2 ? "E" : v < 2 ? "V" : "C"); });
+  const totals = { F: 0, E: 0, V: 0 }; const stalls: string[] = []; const depths: { id: number; depth: number }[] = [];
+  ids.forEach((id) => { const cell = cells[String(id)] || {}; stages.forEach((stage) => { totals[stage] += Number(cell[stage]) || 0; }); const f = Number(cell.F) || 0; const e = Number(cell.E) || 0; const v = Number(cell.V) || 0; const stall = f < 2 ? "F" : e < 2 ? "E" : v < 2 ? "V" : "C"; stalls.push(stall); depths.push({ id, depth: 2 - Math.min(f, e, v) + (stall === "E" ? 0.25 : stall === "V" ? 0.15 : 0) }); });
   const total = totals.F + totals.E + totals.V; const archetype = total <= 9 ? "The Starter" : totals.F >= 10 && totals.E >= 10 && totals.V >= 10 ? "The Closed Loop" : totals.F - totals.E >= 3 ? "The Planner" : totals.E - totals.F >= 3 ? "The Instinctive Operator" : totals.E >= 8 && totals.E - totals.V >= 3 ? "The Unproven Builder" : "The Balanced Builder";
-  return { ...totals, loopScore: Math.round((total / 36) * 100), executionGap: totals.F - totals.E, evidenceGap: totals.E - totals.V, stalls, archetype };
+  // Same ranking as scoreExecutionGap() in client/src/lib/executionGap.ts, so the
+  // sheet records the two capabilities the respondent was actually shown.
+  const widestGaps = [...depths].sort((a, b) => b.depth - a.depth || a.id - b.id).slice(0, 2).map(({ id }) => id);
+  // frameworkTotal/executionTotal/evidenceTotal are the names the Apps Script reads
+  // (HEADERS in docs/EXECUTION_GAP_APPS_SCRIPT.gs); F/E/V are kept for the API response.
+  return { ...totals, frameworkTotal: totals.F, executionTotal: totals.E, evidenceTotal: totals.V, loopScore: Math.round((total / 36) * 100), executionGap: totals.F - totals.E, evidenceGap: totals.E - totals.V, stalls, widestGaps, archetype };
 }
 async function forward(body: Body, result: ReturnType<typeof compute>, reportText = "") {
   const url = process.env.EXECUTION_GAP_SCRIPT_URL; const secret = process.env.EXECUTION_GAP_SHARED_SECRET;
   if (!url || !secret) return;
   const upstream = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ secret, ...body, result, reportText }) });
   if (!upstream.ok) throw new Error("Sheet delivery failed");
+  // Apps Script returns HTTP 200 even when doPost() catches an error — the real
+  // status is in the JSON body. Without this check a failed sheet write (missing
+  // "Responses" tab, wrong secret) is reported to the browser as success.
+  const payload = await upstream.json().catch(() => null) as { ok?: boolean; error?: string } | null;
+  if (!payload || payload.ok !== true) throw new Error(`Sheet delivery failed: ${payload?.error ?? "unrecognised response"}`);
 }
 export const handler: Handler = async (event: HandlerEvent) => {
   const origin = event.headers.origin || event.headers.Origin;

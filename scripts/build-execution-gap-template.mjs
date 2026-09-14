@@ -34,6 +34,7 @@ const CAPABILITIES = [
 
 const STATUS = {
   OK: 'OK',
+  FIXED: 'OK (fixed in 3.26)',
   BROKEN: 'NOT POPULATED — see Known gaps',
 };
 
@@ -44,9 +45,9 @@ const FIELD_MAP = [
   ['status', 'Apps Script', "'mapped', then 'report_sent' on unlock", STATUS.OK],
   ['archetype', 'function', 'result.archetype', STATUS.OK],
   ['loopScore', 'function', 'result.loopScore (0-100)', STATUS.OK],
-  ['frameworkTotal', 'function', 'result.frameworkTotal', STATUS.BROKEN],
-  ['executionTotal', 'function', 'result.executionTotal', STATUS.BROKEN],
-  ['evidenceTotal', 'function', 'result.evidenceTotal', STATUS.BROKEN],
+  ['frameworkTotal', 'function', 'result.frameworkTotal', STATUS.FIXED],
+  ['executionTotal', 'function', 'result.executionTotal', STATUS.FIXED],
+  ['evidenceTotal', 'function', 'result.evidenceTotal', STATUS.FIXED],
   ['executionGap', 'function', 'result.executionGap', STATUS.OK],
   ['evidenceGap', 'function', 'result.evidenceGap', STATUS.OK],
   ...CAPABILITIES.flatMap((name, i) =>
@@ -58,13 +59,13 @@ const FIELD_MAP = [
     ])
   ),
   ['stalls', 'function', 'result.stalls joined — F/E/V/C per capability', STATUS.OK],
-  ['widestGaps', 'function', 'result.widestGaps joined', STATUS.BROKEN],
+  ['widestGaps', 'function', 'result.widestGaps joined — two widest, matches the report', STATUS.FIXED],
   ['aiMultiplier', 'client', 'AI multiplier level, 1-5', STATUS.OK],
-  ['stage', 'client', 'Venture stage — map only', 'map only; blank on unlock'],
-  ['stageBand', 'client', "'pre' or 'trading' — map only", 'map only; blank on unlock'],
+  ['stage', 'client', 'Venture stage', STATUS.FIXED],
+  ['stageBand', 'client', "'pre' or 'trading'", STATUS.FIXED],
   ['sector', 'client', 'Selected sector', STATUS.OK],
   ['programmeStatus', 'client', 'Incubator / accelerator status', STATUS.OK],
-  ['route', 'Apps Script', 'routeFor_() — Focused Session / Mid-Tier / Full Journey', STATUS.OK],
+  ['route', 'Apps Script', 'routeFor_() — Focused Session / Mid-Tier / Full Journey', STATUS.FIXED],
   ['name', 'client', 'Unlock form', 'unlock only'],
   ['email', 'client', 'Unlock form', 'unlock only'],
   ['business', 'client', 'Unlock form', 'unlock only'],
@@ -77,48 +78,55 @@ const FIELD_MAP = [
 ];
 
 const KNOWN_GAPS = [
-  ['#', 'Column(s)', 'Problem', 'Fix'],
+  ['#', 'Column(s)', 'Problem', 'Resolution', 'Status'],
   [
     1,
     'frameworkTotal, executionTotal, evidenceTotal',
-    'The Apps Script reads result.frameworkTotal / .executionTotal / .evidenceTotal, but netlify/functions/execution-gap.ts sends these totals as result.F / result.E / result.V. The names never match, so all three columns record 0 on every submission.',
-    'Either rename the keys in compute() to frameworkTotal/executionTotal/evidenceTotal, or read result.F/.E/.V in map_().',
+    'The Apps Script reads result.frameworkTotal / .executionTotal / .evidenceTotal, but the function sent these totals as result.F / result.E / result.V. The names never matched, so all three columns recorded 0 on every submission.',
+    'compute() now emits both namings. Covered by tests/unit/executionGapFunction.test.ts.',
+    'FIXED 3.26',
   ],
   [
     2,
     'widestGaps',
-    'The Apps Script reads result.widestGaps. The Netlify function never computes or sends that field, so the column is always blank.',
-    'Compute the two widest gaps in the function (the client already derives them for display) and include them in result.',
+    'The Apps Script reads result.widestGaps. The function never computed or sent that field, so the column was always blank.',
+    'compute() now ranks the two widest gaps using the same formula as scoreExecutionGap(), so the sheet records the pair the respondent was actually shown.',
+    'FIXED 3.26',
   ],
   [
     3,
-    'userAgent, referrer',
-    'The Apps Script reads body.userAgent and body.referrer. Neither the client nor the function ever sends them, so both columns are always blank.',
-    'Populate them in the client POST, or drop the two columns.',
+    'route (on unlock)',
+    'HEADERS is 45 columns, but unlock_() wrote 10 values starting at column 37 (37-46). The 10th value, route, landed in column 46 - one past the last header - instead of the route column at 36.',
+    'unlock_() now writes 9 values (37-45) and sets column 36 separately.',
+    'FIXED 3.26',
   ],
   [
     4,
-    'route (on unlock)',
-    'HEADERS is 45 columns, but unlock_() writes 10 values starting at column 37 (37-46). The 10th value, route, lands in column 46 — one past the last header — instead of the route column at 36.',
-    'Write 9 values (37-45) and set column 36 separately, or extend HEADERS.',
+    'stage, stageBand (on unlock)',
+    "The client's unlock POST omitted stage and stageBand, which the map POST does send. On an unlock that created a fresh row both columns were blank, and routeFor_() misread the band.",
+    'ExecutionGap.tsx now passes stage and stageBand into the unlock body.',
+    'FIXED 3.26',
   ],
   [
     5,
-    'stage, stageBand (on unlock)',
-    "The client's unlock POST (ExecutionGap.tsx) omits stage and stageBand, which the map POST does send. On an unlock that creates a fresh row, both columns are blank, and routeFor_() misreads the band.",
-    'Include stage and stageBand in the unlock POST body.',
+    'archetype in the respondent email',
+    'sendRespondentEmail_() and sendNotification_() read body.archetype, but the function nests it at result.archetype. Every report email fell back to the generic "Your Loop Map" heading.',
+    'Both mail helpers now read body.result?.archetype.',
+    'FIXED 3.26',
   ],
   [
     6,
-    'archetype in the respondent email',
-    'sendRespondentEmail_() and sendNotification_() read body.archetype, but the function nests it at result.archetype. Every report email falls back to the generic "Your Loop Map" heading.',
-    'Read body.result.archetype in both mail helpers.',
+    'Silent failure (whole sheet)',
+    'Apps Script returns HTTP 200 even when doPost() catches an error, putting the real status in the JSON body as {ok:false}. The function only checked upstream.ok, so a failed sheet write was reported to the browser as success. This is why the live endpoint answered 200 while nothing was captured.',
+    'forward() now parses the response body and throws unless ok is true. NOTE: this makes a broken sheet visible - the unlock form will show an error instead of falsely confirming. That is the intended behaviour.',
+    'FIXED 3.26',
   ],
   [
     7,
-    'Silent failure (whole sheet)',
-    'Apps Script returns HTTP 200 even when doPost() catches an error, putting the real status in the JSON body as {ok:false}. The Netlify function only checks upstream.ok (the HTTP status), so a failed sheet write still returns success to the browser. This is why the live endpoint returns 200 while nothing is captured.',
-    'Parse the Apps Script JSON response in forward() and throw when body.ok is false.',
+    'userAgent, referrer',
+    'The Apps Script reads body.userAgent and body.referrer. Neither the client nor the function sends them, so both columns are always blank.',
+    'Not fixed. Populate them in the client POST, or drop the two columns.',
+    'OUTSTANDING',
   ],
 ];
 
@@ -141,7 +149,7 @@ XLSX.utils.book_append_sheet(wb, fieldMap, 'Field map');
 
 // Sheet 3: Known gaps
 const gaps = XLSX.utils.aoa_to_sheet(KNOWN_GAPS);
-gaps['!cols'] = [{ wch: 5 }, { wch: 38 }, { wch: 80 }, { wch: 60 }];
+gaps['!cols'] = [{ wch: 5 }, { wch: 38 }, { wch: 80 }, { wch: 70 }, { wch: 14 }];
 XLSX.utils.book_append_sheet(wb, gaps, 'Known gaps');
 
 // Sheet 4: Setup notes

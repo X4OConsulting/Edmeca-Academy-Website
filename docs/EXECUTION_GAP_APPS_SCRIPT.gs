@@ -50,10 +50,13 @@ function unlock_(sheet, body) {
     map_(sheet, body);
     rowIndex = 2;
   }
-  sheet.getRange(rowIndex, 37, 1, 10).setValues([[
+  // Columns 37-45 are name..referrer. Writing 10 values here used to push route
+  // into column 46, one past the last header; route belongs in column 36.
+  sheet.getRange(rowIndex, 37, 1, 9).setValues([[
     body.name || '', body.email || '', body.business || '', body.wantsCall ? 'Yes' : 'No',
-    body.reportSource || 'template', body.reportText || '', new Date(), body.userAgent || '', body.referrer || '', routeFor_(body)
+    body.reportSource || 'template', body.reportText || '', new Date(), body.userAgent || '', body.referrer || ''
   ]]);
+  sheet.getRange(rowIndex, 36).setValue(routeFor_(body));
   sheet.getRange(rowIndex, 3).setValue('report_sent');
   sendRespondentEmail_(body);
   sendNotification_(body);
@@ -68,7 +71,7 @@ function sendRespondentEmail_(body) {
     name: FROM_NAME,
     replyTo: NOTIFY_TO,
     subject,
-    htmlBody: '<div style="font-family:Arial,sans-serif;color:#5D6266;max-width:640px"><img src="https://edmeca.co.za/logo.png" alt="EdMeCa" style="width:160px"><h1 style="color:#53317A">Your Execution Gap Report</h1><p><strong>' + escapeHtml_(body.archetype || 'Your Loop Map') + '</strong></p><div style="white-space:pre-line;line-height:1.6">' + report + '</div><p><a href="https://edmeca.co.za/contact" style="background:#53317A;color:#fff;padding:12px 18px;text-decoration:none">Book a conversation</a></p></div>',
+    htmlBody: '<div style="font-family:Arial,sans-serif;color:#5D6266;max-width:640px"><img src="https://edmeca.co.za/logo.png" alt="EdMeCa" style="width:160px"><h1 style="color:#53317A">Your Execution Gap Report</h1><p><strong>' + escapeHtml_(body.result?.archetype || 'Your Loop Map') + '</strong></p><div style="white-space:pre-line;line-height:1.6">' + report + '</div><p><a href="https://edmeca.co.za/contact" style="background:#53317A;color:#fff;padding:12px 18px;text-decoration:none">Book a conversation</a></p></div>',
     body: body.reportText || 'Your Execution Gap Report is ready.'
   });
 }
@@ -78,7 +81,7 @@ function sendNotification_(body) {
     to: NOTIFY_TO,
     name: FROM_NAME,
     subject: '[Edmeca] Execution Gap lead: ' + (body.name || 'Unknown'),
-    body: ['New Execution Gap report unlocked', '', 'Name: ' + (body.name || ''), 'Email: ' + (body.email || ''), 'Business: ' + (body.business || ''), 'Wants a call: ' + (body.wantsCall ? 'YES' : 'no'), 'Stage: ' + (body.stage || ''), 'Sector: ' + (body.sector || ''), 'Archetype: ' + (body.archetype || ''), 'Loop score: ' + (body.result?.loopScore || '')].join('\n')
+    body: ['New Execution Gap report unlocked', '', 'Name: ' + (body.name || ''), 'Email: ' + (body.email || ''), 'Business: ' + (body.business || ''), 'Wants a call: ' + (body.wantsCall ? 'YES' : 'no'), 'Stage: ' + (body.stage || ''), 'Sector: ' + (body.sector || ''), 'Archetype: ' + (body.result?.archetype || ''), 'Loop score: ' + (body.result?.loopScore || '')].join('\n')
   });
 }
 
