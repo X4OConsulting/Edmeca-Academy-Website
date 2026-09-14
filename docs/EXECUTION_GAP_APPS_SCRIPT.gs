@@ -1,6 +1,6 @@
 // Bump when pasting a new version in, then run checkSetup() to confirm the
 // deployment actually serving traffic is the one you just pasted.
-const SCRIPT_VERSION = '3.30';
+const SCRIPT_VERSION = '3.32';
 const SHEET_NAME = 'Responses';
 const NOTIFY_TO = 'raymond@edmeca.co.za';
 const FROM_NAME = 'Edmeca';
@@ -69,23 +69,22 @@ function unlock_(sheet, body) {
 function sendRespondentEmail_(body) {
   const subject = 'Your Edmeca Execution Gap Report';
   const report = escapeHtml_(body.reportText || 'Your map shows where Framework, Execution and Evidence currently connect.');
-  MailApp.sendEmail({
-    to: body.email,
+  // GmailApp rather than MailApp: it sends through Gmail proper, so the message
+  // lands in the sending account's Sent folder and can actually be traced when a
+  // respondent reports nothing arrived. MailApp sends leave no such record.
+  // Note the signature — GmailApp is positional and does not accept MailApp's
+  // single options object; passing one silently sends a malformed message.
+  GmailApp.sendEmail(body.email, subject, body.reportText || 'Your Execution Gap Report is ready.', {
     name: FROM_NAME,
     replyTo: NOTIFY_TO,
-    subject,
-    htmlBody: '<div style="font-family:Arial,sans-serif;color:#5D6266;max-width:640px"><img src="https://edmeca.co.za/logo.png" alt="EdMeCa" style="width:160px"><h1 style="color:#53317A">Your Execution Gap Report</h1><p><strong>' + escapeHtml_(body.result?.archetype || 'Your Loop Map') + '</strong></p><div style="white-space:pre-line;line-height:1.6">' + report + '</div><p><a href="https://edmeca.co.za/contact" style="background:#53317A;color:#fff;padding:12px 18px;text-decoration:none">Book a conversation</a></p></div>',
-    body: body.reportText || 'Your Execution Gap Report is ready.'
+    htmlBody: '<div style="font-family:Arial,sans-serif;color:#5D6266;max-width:640px"><img src="https://edmeca.co.za/logo.png" alt="EdMeCa" style="width:160px"><h1 style="color:#53317A">Your Execution Gap Report</h1><p><strong>' + escapeHtml_(body.result?.archetype || 'Your Loop Map') + '</strong></p><div style="white-space:pre-line;line-height:1.6">' + report + '</div><p><a href="https://edmeca.co.za/contact" style="background:#53317A;color:#fff;padding:12px 18px;text-decoration:none">Book a conversation</a></p></div>'
   });
 }
 
 function sendNotification_(body) {
-  MailApp.sendEmail({
-    to: NOTIFY_TO,
-    name: FROM_NAME,
-    subject: '[Edmeca] Execution Gap lead: ' + (body.name || 'Unknown'),
-    body: ['New Execution Gap report unlocked', '', 'Name: ' + (body.name || ''), 'Email: ' + (body.email || ''), 'Business: ' + (body.business || ''), 'Wants a call: ' + (body.wantsCall ? 'YES' : 'no'), 'Stage: ' + (body.stage || ''), 'Sector: ' + (body.sector || ''), 'Archetype: ' + (body.result?.archetype || ''), 'Loop score: ' + (body.result?.loopScore || '')].join('\n')
-  });
+  GmailApp.sendEmail(NOTIFY_TO, '[Edmeca] Execution Gap lead: ' + (body.name || 'Unknown'),
+    ['New Execution Gap report unlocked', '', 'Name: ' + (body.name || ''), 'Email: ' + (body.email || ''), 'Business: ' + (body.business || ''), 'Wants a call: ' + (body.wantsCall ? 'YES' : 'no'), 'Stage: ' + (body.stage || ''), 'Sector: ' + (body.sector || ''), 'Archetype: ' + (body.result?.archetype || ''), 'Loop score: ' + (body.result?.loopScore || '')].join('\n'),
+    { name: FROM_NAME, replyTo: NOTIFY_TO });
 }
 
 function routeFor_(body) {
@@ -102,7 +101,18 @@ function routeFor_(body) {
 function checkSetup() {
   Logger.log('Script version: %s', SCRIPT_VERSION);
   Logger.log('Sending as: %s', Session.getEffectiveUser().getEmail());
-  Logger.log('Emails left today: %s (MailApp daily quota)', MailApp.getRemainingDailyQuota());
+  Logger.log('Emails left today: %s (shared daily quota)', MailApp.getRemainingDailyQuota());
+  // Touching GmailApp forces the authorisation prompt for the broader
+  // https://mail.google.com/ scope it needs. MailApp only needed script.send_mail,
+  // so an existing deployment is NOT authorised for this until it is re-approved:
+  // without that, doPost fails on every unlock.
+  try {
+    GmailApp.getAliases();
+    Logger.log('GmailApp: authorised. Sends will appear in this account\'s Sent folder.');
+  } catch (error) {
+    Logger.log('GmailApp: NOT AUTHORISED — %s', String(error));
+    Logger.log('  Re-approve the script, then redeploy the Web App as a NEW version.');
+  }
   const secret = PropertiesService.getScriptProperties().getProperty('SHARED_SECRET');
   if (!secret) {
     Logger.log('SHARED_SECRET: NOT SET. Add it under Project Settings > Script Properties.');
