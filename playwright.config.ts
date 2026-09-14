@@ -7,6 +7,9 @@ export default defineConfig({
   //   tests/integration/    — Phase 4 integration tests
   //   tests/crossbrowser/   — Phase 4 cross-browser compatibility tests
   testDir: './tests',
+  // tests/unit/ is the Vitest suite — collecting it here crashes Playwright
+  // ("Cannot redefine property: Symbol($$jest-matchers-object)").
+  testIgnore: '**/unit/**',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

@@ -511,14 +511,30 @@ test.describe('TC-009 Financial Analysis Tool', () => {
     await setupMockAuth(page);
   });
 
-  test('Financial tool renders mode selector and analyse button', async ({ page }) => {
+  // The tool is a 4-step wizard: the mode selectors sit on step 1 (setup) and
+  // the Analyse button on step 2 (input), so tests must advance between them.
+  async function goToInputStep(page: Page) {
+    await page.getByRole('button', { name: /Next: Upload Data/i }).click();
+    await expect(page.getByTestId('button-analyse')).toBeVisible();
+  }
+
+  test('Financial tool setup step renders mode selectors', async ({ page }) => {
     await page.goto('/portal/tools/financials');
     await page.waitForLoadState('networkidle');
 
     await expect(page.getByTestId('button-back-dashboard')).toBeVisible();
     await expect(page.getByTestId('button-mode-quick')).toBeVisible();
     await expect(page.getByTestId('button-mode-deep')).toBeVisible();
-    await expect(page.getByTestId('button-analyse')).toBeVisible();
+    // Analyse lives on the next step, not this one.
+    await expect(page.getByTestId('button-analyse')).toBeHidden();
+  });
+
+  test('advancing past setup reveals the analyse button', async ({ page }) => {
+    await page.goto('/portal/tools/financials');
+    await page.waitForLoadState('networkidle');
+
+    await goToInputStep(page);
+    await expect(page.getByPlaceholder(/Paste your bank statement/i)).toBeVisible();
   });
 
   test('selecting Quick Snapshot changes analyse button label', async ({ page }) => {
@@ -526,7 +542,7 @@ test.describe('TC-009 Financial Analysis Tool', () => {
     await page.waitForLoadState('networkidle');
 
     await page.getByTestId('button-mode-quick').click();
-    await page.waitForTimeout(200);
+    await goToInputStep(page);
 
     await expect(page.getByTestId('button-analyse')).toContainText('Quick Snapshot');
   });
@@ -538,7 +554,7 @@ test.describe('TC-009 Financial Analysis Tool', () => {
     // Start from quick, switch back to deep
     await page.getByTestId('button-mode-quick').click();
     await page.getByTestId('button-mode-deep').click();
-    await page.waitForTimeout(200);
+    await goToInputStep(page);
 
     await expect(page.getByTestId('button-analyse')).toContainText('Deep Analysis');
   });
