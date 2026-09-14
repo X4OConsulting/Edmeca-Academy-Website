@@ -7,6 +7,16 @@ const ids = [1, 2, 3, 4, 5, 6] as const;
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[4-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// DeepSeek is OpenAI-compatible, same shape as the Groq call in chat.ts.
+const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
+const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-flash";
+// Netlify synchronous functions stop at 10s by default and the Apps Script
+// forward already costs ~1.5s, so the model gets a hard ceiling well inside it.
+const DEEPSEEK_TIMEOUT_MS = Number(process.env.DEEPSEEK_TIMEOUT_MS) || 6500;
+// Same patterns as netlify/functions/chat.ts — respondent free text reaches the prompt.
+const INJECTION = [/ignore\s+(all\s+)?(previous|prior|above)\s+instructions?/gi, /forget\s+(everything|all|prior|previous)/gi, /disregard\s+(all\s+)?instructions?/gi, /you\s+are\s+now\s+[a-z]/gi, /new\s+instructions?:/gi, /system\s+prompt:/gi, /\[INST\]|\[\/INST\]|<\|im_start\|>|<\|im_end\|>/gi];
+const clean = (value: string) => INJECTION.reduce((text, pattern) => text.replace(pattern, "[removed]"), value).slice(0, 200);
+
 type Body = { action?: "map" | "unlock"; respondentId?: string; cells?: Record<string, Record<string, unknown>>; stage?: string; stageBand?: string; aiMultiplier?: number; sector?: string; programmeStatus?: string; name?: string; email?: string; business?: string; wantsCall?: boolean };
 function response(statusCode: number, body: unknown, origin?: string) { return { statusCode, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": origin && origins.includes(origin) ? origin : origins[0], "Access-Control-Allow-Headers": "Content-Type", "Vary": "Origin" }, body: JSON.stringify(body) }; }
 function compute(cells: Record<string, Record<string, unknown>>) {
@@ -72,10 +82,81 @@ function buildReport(body: Body, result: ReturnType<typeof compute>) {
     aiNote,
   ].join("\n");
 }
-async function forward(body: Body, result: ReturnType<typeof compute>, reportText = "") {
+/**
+ * Expands the deterministic report into fuller prose with DeepSeek.
+ *
+ * The template report is the source of truth: it already carries every score,
+ * gap and recommended action. The model may only rephrase and expand — the
+ * prompt forbids inventing or altering figures, because a report that
+ * contradicts the map the respondent just completed is worse than a terse one.
+ *
+ * Never throws. Any failure — no key, timeout, bad response, empty content —
+ * returns the template unchanged, so the respondent always gets their report.
+ */
+async function elaborate(template: string, body: Body): Promise<{ text: string; source: string }> {
+  const key = process.env.DEEPSEEK_API_KEY;
+  if (!key) return { text: template, source: "template" };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), DEEPSEEK_TIMEOUT_MS);
+  try {
+    const business = body.business ? clean(body.business) : "";
+    const sector = body.sector ? clean(body.sector) : "";
+    const upstream = await fetch(DEEPSEEK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: DEEPSEEK_MODEL,
+        temperature: 0.4,
+        max_tokens: 1200,
+        messages: [
+          {
+            role: "system",
+            content: [
+              "You write Execution Gap reports for EdMeCa, a South African entrepreneurship academy.",
+              "You will be given a completed diagnostic report. Expand it into a warmer, fuller report the founder can act on.",
+              "RULES, all absolute:",
+              "1. Never invent, change, remove or add any number, score, total, gap figure or percentage. Reproduce every figure exactly as given.",
+              "2. Never invent capability names, recommended actions, tools or session names. Use only those supplied.",
+              "3. Keep every section and keep them in the same order, under the same headings.",
+              "4. Expand the commentary around the facts: explain what each figure means for the business and why the recommended action matters.",
+              "5. South African English. Plain text only — no markdown, asterisks or bullet characters.",
+              "6. Address the founder directly as 'you'. Warm, direct, practical. No filler or congratulation.",
+              "7. Roughly 450-700 words.",
+            ].join("\n"),
+          },
+          {
+            role: "user",
+            content: [
+              business ? `Business: ${business}` : "",
+              sector ? `Sector: ${sector}` : "",
+              "",
+              "Report to expand:",
+              "",
+              template,
+            ].filter(Boolean).join("\n"),
+          },
+        ],
+      }),
+    });
+    if (!upstream.ok) throw new Error(`DeepSeek ${upstream.status}`);
+    const payload = await upstream.json() as { choices?: { message?: { content?: string } }[] };
+    const text = payload.choices?.[0]?.message?.content?.trim();
+    // A suspiciously short answer means the model refused or drifted; the
+    // template is more useful to the respondent than a stub.
+    if (!text || text.length < template.length / 2) throw new Error("DeepSeek returned no usable report");
+    return { text, source: `deepseek:${DEEPSEEK_MODEL}` };
+  } catch (error) {
+    console.error("DeepSeek elaboration failed, sending template report", error instanceof Error ? error.message : "unknown error");
+    return { text: template, source: "template" };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+async function forward(body: Body, result: ReturnType<typeof compute>, reportText = "", reportSource = "") {
   const url = process.env.EXECUTION_GAP_SCRIPT_URL; const secret = process.env.EXECUTION_GAP_SHARED_SECRET;
   if (!url || !secret) return;
-  const upstream = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ secret, ...body, result, reportText }) });
+  const upstream = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ secret, ...body, result, reportText, ...(reportSource ? { reportSource } : {}) }) });
   if (!upstream.ok) throw new Error("Sheet delivery failed");
   // Apps Script returns HTTP 200 even when doPost() catches an error — the real
   // status is in the JSON body. Without this check a failed sheet write (missing
@@ -99,7 +180,8 @@ export const handler: Handler = async (event: HandlerEvent) => {
       // and again for the unlock ran the Apps Script's unlock_() twice, so every
       // respondent got two report emails (the first with an empty body) and
       // NOTIFY_TO got two lead notifications.
-      await forward(body, result, buildReport(body, result));
+      const report = await elaborate(buildReport(body, result), body);
+      await forward(body, result, report.text, report.source);
     } else {
       await forward(body, result);
     }

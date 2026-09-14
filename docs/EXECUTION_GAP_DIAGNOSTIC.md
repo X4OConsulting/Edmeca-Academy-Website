@@ -32,3 +32,30 @@ The diagnostic uses a map-and-guide interface, a stage-tuned question set, three
 6. Deploy the site and test `/execution-gap` on the deployed URL. A local Vite server will return 404 for `/api/execution-gap`; use `netlify dev` for local function testing.
 
 Never put `EXECUTION_GAP_SHARED_SECRET` or `ANTHROPIC_API_KEY` in a `VITE_` variable or client-side code.
+## Report elaboration (DeepSeek)
+
+The emailed report is built in two stages.
+
+1. `buildReport()` composes a deterministic report from the respondent's own
+   map: archetype and headline, Gap Ledger, the two widest gaps with the
+   stage-banded close action and Edmeca tool/session for each, a 30-day plan,
+   and the AI multiplier note. This always succeeds.
+2. `elaborate()` sends that report to DeepSeek to expand into fuller prose.
+
+The template is the source of truth. The system prompt forbids inventing,
+changing or removing any figure, capability name or recommended action — a
+report that contradicts the map the respondent just completed is worse than a
+terse one. Respondent free text is stripped of prompt-injection patterns before
+it reaches the model, using the same list as `netlify/functions/chat.ts`.
+
+Stage 2 never throws. Missing key, timeout, HTTP error, or a suspiciously short
+answer all fall back to the template, and the `reportSource` column records
+which was used (`template` or `deepseek:<model>`).
+
+| Variable | Required | Default | Notes |
+| --- | --- | --- | --- |
+| `DEEPSEEK_API_KEY` | No | — | Without it every report is the template |
+| `DEEPSEEK_MODEL` | No | `deepseek-flash` | Or `deepseek-v4-pro` |
+| `DEEPSEEK_TIMEOUT_MS` | No | `6500` | Keep well under the 10s function limit |
+
+Never expose these as `VITE_` variables — they are server-side only.
