@@ -13,7 +13,7 @@ const values = [
   {
     icon: Lightbulb,
     title: "Accessible Excellence",
-    description: "MBA-level quality made practical and applicable for real-world entrepreneurs.",
+    description: "Business-ready quality made practical and applicable for real-world entrepreneurs.",
   },
   {
     icon: Users,
@@ -58,7 +58,7 @@ export default function About() {
               Making Business Frameworks Work for Everyone
             </h1>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-              EdMeCa bridges the gap between MBA-level business theory and entrepreneurial execution. 
+              EdMeCa bridges the gap between business-ready theory and entrepreneurial execution.
               We believe the best frameworks shouldn't be locked behind expensive consulting fees or 
               inaccessible education.
             </p>

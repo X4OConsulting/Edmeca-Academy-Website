@@ -81,6 +81,14 @@ export default {
           busy: "rgb(239 68 68)",
           offline: "rgb(156 163 175)",
         },
+        edmeca: {
+          green: "#6E9A43",
+          "green-soft": "#C9DDB3",
+          "green-tint": "#EEF4E6",
+          purple: "#53317A",
+          "purple-soft": "#D9CFE6",
+          grey: "#5D6266",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)"],

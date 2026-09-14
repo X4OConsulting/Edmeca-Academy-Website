@@ -1,0 +1,97 @@
+const SHEET_NAME = 'Responses';
+const NOTIFY_TO = 'raymond@edmeca.co.za';
+const FROM_NAME = 'Edmeca';
+const HEADERS = [
+  'timestamp','respondentId','status','archetype','loopScore','frameworkTotal','executionTotal','evidenceTotal','executionGap','evidenceGap',
+  'c1_F','c1_E','c1_V','c2_F','c2_E','c2_V','c3_F','c3_E','c3_V','c4_F','c4_E','c4_V','c5_F','c5_E','c5_V','c6_F','c6_E','c6_V',
+  'stalls','widestGaps','aiMultiplier','stage','stageBand','sector','programmeStatus','route','name','email','business','wantsCall','reportSource','reportText','unlockedAt','userAgent','referrer'
+];
+
+function doPost(e) {
+  try {
+    const body = JSON.parse(e.postData.contents || '{}');
+    const expected = PropertiesService.getScriptProperties().getProperty('SHARED_SECRET');
+    if (!expected || body.secret !== expected) return json_({ ok: false, error: 'unauthorised' });
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+    ensureHeaders_(sheet);
+    if (body.action === 'map') return json_(map_(sheet, body));
+    if (body.action === 'unlock') return json_(unlock_(sheet, body));
+    return json_({ ok: false, error: 'unknown action' });
+  } catch (error) {
+    return json_({ ok: false, error: String(error) });
+  }
+}
+
+function map_(sheet, body) {
+  const result = body.result || {};
+  const cells = body.cells || {};
+  const row = [
+    new Date(), body.respondentId, 'mapped', result.archetype || '', result.loopScore || 0,
+    result.frameworkTotal || 0, result.executionTotal || 0, result.evidenceTotal || 0,
+    result.executionGap || 0, result.evidenceGap || 0,
+    cells[1]?.F ?? '', cells[1]?.E ?? '', cells[1]?.V ?? '', cells[2]?.F ?? '', cells[2]?.E ?? '', cells[2]?.V ?? '',
+    cells[3]?.F ?? '', cells[3]?.E ?? '', cells[3]?.V ?? '', cells[4]?.F ?? '', cells[4]?.E ?? '', cells[4]?.V ?? '',
+    cells[5]?.F ?? '', cells[5]?.E ?? '', cells[5]?.V ?? '', cells[6]?.F ?? '', cells[6]?.E ?? '', cells[6]?.V ?? '',
+    (result.stalls || []).join(','), (result.widestGaps || []).join(','), body.aiMultiplier || '', body.stage || '', body.stageBand || '',
+    body.sector || '', body.programmeStatus || '', routeFor_(body), '', '', '', '', '', '', '', body.userAgent || '', body.referrer || ''
+  ];
+  sheet.insertRowBefore(2);
+  sheet.getRange(2, 1, 1, HEADERS.length).setValues([row]);
+  return { ok: true };
+}
+
+function unlock_(sheet, body) {
+  const values = sheet.getDataRange().getValues();
+  let rowIndex = -1;
+  for (let i = 1; i < values.length; i++) {
+    if (values[i][1] === body.respondentId) { rowIndex = i + 1; break; }
+  }
+  if (rowIndex < 0) {
+    map_(sheet, body);
+    rowIndex = 2;
+  }
+  sheet.getRange(rowIndex, 37, 1, 10).setValues([[
+    body.name || '', body.email || '', body.business || '', body.wantsCall ? 'Yes' : 'No',
+    body.reportSource || 'template', body.reportText || '', new Date(), body.userAgent || '', body.referrer || '', routeFor_(body)
+  ]]);
+  sheet.getRange(rowIndex, 3).setValue('report_sent');
+  sendRespondentEmail_(body);
+  sendNotification_(body);
+  return { ok: true };
+}
+
+function sendRespondentEmail_(body) {
+  const subject = 'Your Edmeca Execution Gap Report';
+  const report = escapeHtml_(body.reportText || 'Your map shows where Framework, Execution and Evidence currently connect.');
+  MailApp.sendEmail({
+    to: body.email,
+    name: FROM_NAME,
+    replyTo: NOTIFY_TO,
+    subject,
+    htmlBody: '<div style="font-family:Arial,sans-serif;color:#5D6266;max-width:640px"><img src="https://edmeca.co.za/logo.png" alt="EdMeCa" style="width:160px"><h1 style="color:#53317A">Your Execution Gap Report</h1><p><strong>' + escapeHtml_(body.archetype || 'Your Loop Map') + '</strong></p><div style="white-space:pre-line;line-height:1.6">' + report + '</div><p><a href="https://edmeca.co.za/contact" style="background:#53317A;color:#fff;padding:12px 18px;text-decoration:none">Book a conversation</a></p></div>',
+    body: body.reportText || 'Your Execution Gap Report is ready.'
+  });
+}
+
+function sendNotification_(body) {
+  MailApp.sendEmail({
+    to: NOTIFY_TO,
+    name: FROM_NAME,
+    subject: '[Edmeca] Execution Gap lead: ' + (body.name || 'Unknown'),
+    body: ['New Execution Gap report unlocked', '', 'Name: ' + (body.name || ''), 'Email: ' + (body.email || ''), 'Business: ' + (body.business || ''), 'Wants a call: ' + (body.wantsCall ? 'YES' : 'no'), 'Stage: ' + (body.stage || ''), 'Sector: ' + (body.sector || ''), 'Archetype: ' + (body.archetype || ''), 'Loop score: ' + (body.result?.loopScore || '')].join('\n')
+  });
+}
+
+function routeFor_(body) {
+  const stalls = body.result?.stalls || [];
+  const count = stalls.filter(function (stall) { return stall !== 'C'; }).length;
+  if (body.stageBand === 'trading') return count >= 5 ? 'Full Journey' : count >= 3 ? 'Mid-Tier' : 'Focused Session';
+  return count >= 3 ? 'Mid-Tier' : 'Focused Session';
+}
+
+function ensureHeaders_(sheet) {
+  if (sheet.getLastRow() === 0) sheet.appendRow(HEADERS);
+  else if (sheet.getRange(1, 1, 1, HEADERS.length).getValues()[0].join('|') !== HEADERS.join('|')) sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+}
+function escapeHtml_(value) { return String(value).replace(/[&<>'"]/g, function (character) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]; }); }
+function json_(value) { return ContentService.createTextOutput(JSON.stringify(value)).setMimeType(ContentService.MimeType.JSON); }

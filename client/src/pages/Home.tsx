@@ -122,7 +122,7 @@ export default function Home() {
             </h1>
             
             <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Practical, MBA-grade frameworks delivered through AI-powered tools to support enterprise strategy, innovation, and capability development. From leadership alignment and operational clarity to impact reporting and execution readiness.
+              Practical, business-ready frameworks delivered through AI-powered tools to support enterprise strategy, innovation, and capability development. From leadership alignment and operational clarity to impact reporting and execution readiness.
             </p>
             
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -150,6 +150,19 @@ export default function Home() {
               </span>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="bg-primary text-primary-foreground">
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-12 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Free diagnostic</p>
+            <h2 className="mt-2 font-serif text-3xl font-bold">Do you know more than you use?</h2>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-primary-foreground/70">Map where your venture stalls between Framework, Execution and Evidence, then leave with two practical gaps to close this month.</p>
+          </div>
+          <Link href="/execution-gap" asChild>
+            <Button variant="secondary" size="lg" className="shrink-0">Map my gaps <ArrowRight className="ml-2 h-4 w-4" /></Button>
+          </Link>
         </div>
       </section>
 

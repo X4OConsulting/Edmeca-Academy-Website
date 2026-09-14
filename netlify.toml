@@ -16,6 +16,16 @@
 
 # Redirect rules for SPA routing
 [[redirects]]
+  from = "/api/execution-gap"
+  to = "/.netlify/functions/execution-gap"
+  status = 200
+
+[[redirects]]
+  from = "/api/assessment"
+  to = "/.netlify/functions/assessment"
+  status = 200
+
+[[redirects]]
   from = "/api/contact"
   to = "/.netlify/functions/contact"
   status = 200
