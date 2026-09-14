@@ -71,7 +71,7 @@ const FIELD_MAP = [
   ['business', 'client', 'Unlock form', 'unlock only'],
   ['wantsCall', 'client', "Unlock form — 'Yes' or 'No'", 'unlock only'],
   ['reportSource', 'Apps Script', "defaults to 'template'", 'unlock only'],
-  ['reportText', 'function', 'Report body sent to the respondent', 'unlock only'],
+  ['reportText', 'function', 'Full report body: archetype, Gap Ledger, two widest gaps, 30-day plan, AI multiplier', 'unlock only (fixed 3.28)'],
   ['unlockedAt', 'Apps Script', 'new Date() at unlock', 'unlock only'],
   ['userAgent', 'client', 'body.userAgent', STATUS.BROKEN],
   ['referrer', 'client', 'body.referrer', STATUS.BROKEN],
@@ -123,6 +123,13 @@ const KNOWN_GAPS = [
   ],
   [
     7,
+    'reportText (duplicate emails)',
+    'forward() ran unconditionally and again for the unlock, so the Apps Script executed unlock_() twice per submission: two report emails to the respondent (the first with an empty body, falling back to a generic line) and two lead notifications to NOTIFY_TO. reportText itself was a hardcoded placeholder sentence, so no actual report was ever sent.',
+    'The handler now forwards exactly once, and buildReport() composes the real report from the same data the respondent saw on screen.',
+    'FIXED 3.28',
+  ],
+  [
+    8,
     'userAgent, referrer',
     'The Apps Script reads body.userAgent and body.referrer. Neither the client nor the function sends them, so both columns are always blank.',
     'Not fixed. Populate them in the client POST, or drop the two columns.',

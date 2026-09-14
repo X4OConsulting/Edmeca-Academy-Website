@@ -107,6 +107,58 @@ describe("execution gap function — Apps Script failures must surface", () => {
     expect(res.body).not.toContain("test-secret");
   });
 
+  it("forwards exactly once on unlock", async () => {
+    // Two forwards ran the Apps Script's unlock_() twice, so every respondent
+    // got two report emails — the first with an empty body — and NOTIFY_TO got
+    // two lead notifications.
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ ok: true }) });
+    await post(mapBody({
+      action: "unlock", name: "Test Person", email: "test@example.com",
+      business: "Test Business", wantsCall: false,
+    }));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("forwards exactly once on map, with no report body", async () => {
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ ok: true }) });
+    await post(mapBody());
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).reportText).toBe("");
+  });
+
+  it("sends a real report, not a placeholder line", async () => {
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ ok: true }) });
+    await post(mapBody({
+      action: "unlock", name: "Test Person", email: "test@example.com",
+      business: "Test Business", wantsCall: false,
+    }));
+    const { reportText } = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(reportText).toContain("The Planner");
+    expect(reportText).toContain("GAP LEDGER");
+    expect(reportText).toContain("Framework   10 / 12");
+    expect(reportText).toContain("Loop score  56 / 100");
+    expect(reportText).toContain("YOUR TWO WIDEST GAPS");
+    expect(reportText).toContain("YOUR NEXT 30 DAYS");
+    expect(reportText).toContain("AI MULTIPLIER — LEVEL 3");
+    // The two widest gaps, with the close action for each stall stage.
+    expect(reportText).toContain("Problem and customer");
+    expect(reportText).toContain("Pitch and funding readiness");
+    expect(reportText).toMatch(/Do this: \S/);
+    expect(reportText.length).toBeGreaterThan(600);
+  });
+
+  it("uses the trading close actions when the respondent is trading", async () => {
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ ok: true }) });
+    await post(mapBody({
+      action: "unlock", stage: "growing", stageBand: "trading",
+      name: "Test Person", email: "test@example.com", business: "Test Business", wantsCall: false,
+    }));
+    const { reportText } = JSON.parse(fetchMock.mock.calls[0][1].body);
+    // "pre" wording for capability 1 stalled at E; the trading variant differs.
+    expect(reportText).not.toContain("Book ten conversations with people who fit that paragraph");
+    expect(reportText).toContain("Do this:");
+  });
+
   it("carries stage and stageBand through on unlock", async () => {
     fetchMock.mockResolvedValue({ ok: true, json: async () => ({ ok: true }) });
     await post(mapBody({
