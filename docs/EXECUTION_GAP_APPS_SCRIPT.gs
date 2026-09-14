@@ -92,6 +92,31 @@ function routeFor_(body) {
   return count >= 3 ? 'Mid-Tier' : 'Focused Session';
 }
 
+/**
+ * Diagnostics — run these from the Apps Script editor (Run > select function)
+ * and read the output in View > Logs. Neither prints the secret.
+ */
+function checkSetup() {
+  const secret = PropertiesService.getScriptProperties().getProperty('SHARED_SECRET');
+  if (!secret) {
+    Logger.log('SHARED_SECRET: NOT SET. Add it under Project Settings > Script Properties.');
+  } else {
+    const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, secret, Utilities.Charset.UTF_8);
+    const hex = bytes.map(function (b) { return ('0' + (b & 0xFF).toString(16)).slice(-2); }).join('');
+    Logger.log('SHARED_SECRET: length %s, sha256[:16] %s', secret.length, hex.slice(0, 16));
+    Logger.log('  Must match: netlify env:list --context production --json');
+    if (secret !== secret.trim()) Logger.log('  WARNING: leading or trailing whitespace — this alone causes "unauthorised".');
+  }
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    Logger.log('Sheet "%s": MISSING. Every write fails until a tab with this exact name exists.', SHEET_NAME);
+  } else {
+    const headers = sheet.getLastRow() === 0 ? [] : sheet.getRange(1, 1, 1, HEADERS.length).getValues()[0];
+    Logger.log('Sheet "%s": found, %s data row(s).', SHEET_NAME, Math.max(0, sheet.getLastRow() - 1));
+    Logger.log('  Headers %s', headers.join('|') === HEADERS.join('|') ? 'match.' : 'DO NOT match — they will be rewritten on the next POST.');
+  }
+}
+
 function ensureHeaders_(sheet) {
   if (sheet.getLastRow() === 0) sheet.appendRow(HEADERS);
   else if (sheet.getRange(1, 1, 1, HEADERS.length).getValues()[0].join('|') !== HEADERS.join('|')) sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
