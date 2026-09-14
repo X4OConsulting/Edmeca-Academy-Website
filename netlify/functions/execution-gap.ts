@@ -10,9 +10,10 @@ const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // DeepSeek is OpenAI-compatible, same shape as the Groq call in chat.ts.
 const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
 const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-flash";
-// Netlify synchronous functions stop at 10s by default and the Apps Script
-// forward already costs ~1.5s, so the model gets a hard ceiling well inside it.
-const DEEPSEEK_TIMEOUT_MS = Number(process.env.DEEPSEEK_TIMEOUT_MS) || 6500;
+// Netlify synchronous functions allow 60s. The Apps Script forward measures
+// 2.4-3.2s warm and ~7.4s cold, so 15s for the model leaves ample headroom
+// while keeping the respondent's wait on the unlock form reasonable.
+const DEEPSEEK_TIMEOUT_MS = Number(process.env.DEEPSEEK_TIMEOUT_MS) || 15000;
 // Same patterns as netlify/functions/chat.ts — respondent free text reaches the prompt.
 const INJECTION = [/ignore\s+(all\s+)?(previous|prior|above)\s+instructions?/gi, /forget\s+(everything|all|prior|previous)/gi, /disregard\s+(all\s+)?instructions?/gi, /you\s+are\s+now\s+[a-z]/gi, /new\s+instructions?:/gi, /system\s+prompt:/gi, /\[INST\]|\[\/INST\]|<\|im_start\|>|<\|im_end\|>/gi];
 const clean = (value: string) => INJECTION.reduce((text, pattern) => text.replace(pattern, "[removed]"), value).slice(0, 200);

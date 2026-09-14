@@ -56,6 +56,6 @@ which was used (`template` or `deepseek:<model>`).
 | --- | --- | --- | --- |
 | `DEEPSEEK_API_KEY` | No | — | Without it every report is the template |
 | `DEEPSEEK_MODEL` | No | `deepseek-flash` | Or `deepseek-v4-pro` |
-| `DEEPSEEK_TIMEOUT_MS` | No | `6500` | Keep well under the 10s function limit |
+| `DEEPSEEK_TIMEOUT_MS` | No | `15000` | Netlify allows 60s; the Apps Script forward takes 2.4-7.4s |
 
 Never expose these as `VITE_` variables — they are server-side only.
