@@ -88,6 +88,11 @@ export default {
           purple: "#53317A",
           "purple-soft": "#D9CFE6",
           grey: "#5D6266",
+          // AI Enablement Map quadrant tints
+          starters: "#F3F4F6",
+          pathseekers: "#EEF4E6",
+          transformers: "#F1ECF7",
+          fuelled: "#E9F0E4",
         },
       },
       fontFamily: {

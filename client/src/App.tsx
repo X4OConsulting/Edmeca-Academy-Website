@@ -24,6 +24,8 @@ const Engagement = lazy(() => import("@/pages/Engagement"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const AIReadiness = lazy(() => import("@/pages/AIReadiness"));
 const ExecutionGap = lazy(() => import("@/pages/ExecutionGap"));
+const AIMap = lazy(() => import("@/pages/AIMap"));
+const Diagnostic = lazy(() => import("@/pages/Diagnostic"));
 const Login = lazy(() => import("@/pages/Login"));
 const Signup = lazy(() => import("@/pages/Signup"));
 const Dashboard = lazy(() => import("@/pages/portal/Dashboard"));
@@ -96,7 +98,9 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/edmeca-gauge" component={AIReadiness} />
       <Route path="/ai-readiness" component={AIReadiness} />
+      <Route path="/diagnostic" component={Diagnostic} />
       <Route path="/execution-gap" component={ExecutionGap} />
+      <Route path="/ai-map" component={AIMap} />
       <Route path="/signup" component={Signup} />
       <Route path="/login" component={Login} />
 

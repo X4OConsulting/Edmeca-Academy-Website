@@ -138,6 +138,19 @@ export default function Solutions() {
       </section>
 
       {/* For Programmes */}
+      <section className="bg-primary text-primary-foreground">
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-12 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Free baseline. Eight minutes.</p>
+            <h2 className="mt-2 font-serif text-3xl font-bold">Where are you on the AI Enablement Map?</h2>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-primary-foreground/70">Capability is what you can do with AI. Readiness is whether it will stick. Programmes use it as the baseline before Session 1 and the measure after Session 6.</p>
+          </div>
+          <Link href="/ai-map" asChild>
+            <Button variant="secondary" size="lg" className="shrink-0">Place my dot <ArrowRight className="ml-2 h-4 w-4" /></Button>
+          </Link>
+        </div>
+      </section>
+
       <section id="programmes" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
           <div className="order-2 lg:order-1 grid sm:grid-cols-2 gap-4">

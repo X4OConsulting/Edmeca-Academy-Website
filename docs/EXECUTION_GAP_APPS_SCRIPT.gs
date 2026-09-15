@@ -1,7 +1,18 @@
 // Bump when pasting a new version in, then run checkSetup() to confirm the
 // deployment actually serving traffic is the one you just pasted.
-const SCRIPT_VERSION = '3.32';
+const SCRIPT_VERSION = '4.0';
 const SHEET_NAME = 'Responses';
+// The AI Enablement Baseline (/ai-map) shares this web app and spreadsheet.
+// Its rows go to a second tab; see the AI MAP section at the end of this file.
+const AI_MAP_SHEET_NAME = 'AI Map';
+const AI_MAP_RETEST_URL = 'https://edmeca.co.za/ai-map?rt=';
+const AI_MAP_HEADERS = [
+  'timestamp','respondentId','status','wave','retestOf','cohort','mode','quadrant','onTheLine','capability','readiness','index','balance',
+  'c1','c2','c3','c4','r1','r2','r3','r4',
+  'q1','q2','q3','q4','q5','q6','q7','q8','q9','q10','q11','q12','q13','q14','q15','q16','q17','q18','q19','q20','q21','q22','q23','q24',
+  'priority1','priority2','route','sizeOrRole','sector','programmeStatus','context',
+  'name','email','organisation','wantsCall','reportSource','reportText','unlockedAt','userAgent','referrer'
+];
 const NOTIFY_TO = 'raymond@edmeca.co.za';
 const FROM_NAME = 'Edmeca';
 const HEADERS = [
@@ -15,6 +26,7 @@ function doPost(e) {
     const body = JSON.parse(e.postData.contents || '{}');
     const expected = PropertiesService.getScriptProperties().getProperty('SHARED_SECRET');
     if (!expected || body.secret !== expected) return json_({ ok: false, error: 'unauthorised' });
+    if (body.instrument === 'ai-map') return json_(aiMap_(body));
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
     ensureHeaders_(sheet);
     if (body.action === 'map') return json_(map_(sheet, body));
@@ -131,6 +143,14 @@ function checkSetup() {
     Logger.log('Sheet "%s": found, %s data row(s).', SHEET_NAME, Math.max(0, sheet.getLastRow() - 1));
     Logger.log('  Headers %s', headers.join('|') === HEADERS.join('|') ? 'match.' : 'DO NOT match — they will be rewritten on the next POST.');
   }
+  const aiMapSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(AI_MAP_SHEET_NAME);
+  if (!aiMapSheet) {
+    Logger.log('Sheet "%s": not yet created. It is created automatically on the first /ai-map submission.', AI_MAP_SHEET_NAME);
+  } else {
+    const aiHeaders = aiMapSheet.getLastRow() === 0 ? [] : aiMapSheet.getRange(1, 1, 1, AI_MAP_HEADERS.length).getValues()[0];
+    Logger.log('Sheet "%s": found, %s data row(s).', AI_MAP_SHEET_NAME, Math.max(0, aiMapSheet.getLastRow() - 1));
+    Logger.log('  Headers %s', aiHeaders.join('|') === AI_MAP_HEADERS.join('|') ? 'match.' : 'DO NOT match — they will be rewritten on the next POST.');
+  }
 }
 
 /**
@@ -165,3 +185,196 @@ function ensureHeaders_(sheet) {
 }
 function escapeHtml_(value) { return String(value).replace(/[&<>'"]/g, function (character) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]; }); }
 function json_(value) { return ContentService.createTextOutput(JSON.stringify(value)).setMimeType(ContentService.MimeType.JSON); }
+
+/* =====================================================================
+ * AI MAP — the AI Enablement Baseline at edmeca.co.za/ai-map
+ *
+ * Same web app, same SHARED_SECRET, second tab. netlify/functions/ai-map.ts
+ * sends { instrument: 'ai-map', action: 'baseline' | 'unlock' | 'lookup' }.
+ *   baseline: new row at row 2 with status "placed"
+ *   unlock:   fills the contact columns, status "report_sent", emails the report
+ *   lookup:   returns the most recent row for a respondentId or email so the
+ *             function can report movement on a re-test
+ * ===================================================================== */
+const AI_MAP_DIMENSIONS = ['C1','C2','C3','C4','R1','R2','R3','R4'];
+const AI_MAP_QUADRANT_NAMES = { starters: 'Starters', pathseekers: 'Pathseekers', transformers: 'Transformers', fuelled: 'AI-Fuelled' };
+const AI_MAP_DIMENSION_NAMES = { C1: 'Skills and tool fluency', C2: 'Adoption in daily work', C3: 'Data and information readiness', C4: 'Outcomes and value', R1: 'Ambition and strategy', R2: 'Leadership and commitment', R3: 'People and change', R4: 'Governance and responsible use' };
+
+function aiMapCol_(name) { return AI_MAP_HEADERS.indexOf(name) + 1; }
+
+function aiMapSheet_() {
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = spreadsheet.getSheetByName(AI_MAP_SHEET_NAME);
+  if (!sheet) sheet = spreadsheet.insertSheet(AI_MAP_SHEET_NAME);
+  if (sheet.getLastRow() === 0) sheet.appendRow(AI_MAP_HEADERS);
+  else if (sheet.getRange(1, 1, 1, AI_MAP_HEADERS.length).getValues()[0].join('|') !== AI_MAP_HEADERS.join('|')) sheet.getRange(1, 1, 1, AI_MAP_HEADERS.length).setValues([AI_MAP_HEADERS]);
+  return sheet;
+}
+
+function aiMap_(body) {
+  const sheet = aiMapSheet_();
+  if (body.action === 'baseline') return aiMapBaseline_(sheet, body);
+  if (body.action === 'unlock') return aiMapUnlock_(sheet, body);
+  if (body.action === 'lookup') return aiMapLookup_(sheet, body);
+  return { ok: false, error: 'unknown action' };
+}
+
+function aiMapRoute_(body) {
+  const quadrant = (body.result || {}).quadrant;
+  const route = quadrant === 'fuelled' ? 'Focused Sessions / partnership' : quadrant === 'transformers' ? 'Six-week programme or Mid-Tier' : quadrant === 'pathseekers' ? 'Mid-Tier' : 'Focused Session / six-week programme';
+  const inProgramme = (body.profile || {}).programmeStatus === 'In an ESD programme, incubator or accelerator now';
+  return inProgramme ? route + ' (inside programme)' : route;
+}
+
+function aiMapRow_(body, status) {
+  const result = body.result || {};
+  const dims = result.dimensions || {};
+  const answers = body.answers || {};
+  const profile = body.profile || {};
+  const row = [
+    new Date(), body.respondentId, status, body.wave || 'baseline', body.retestOf || '', body.cohort || '', body.mode || '',
+    result.quadrant || '', result.onTheLine ? 'Yes' : 'No', result.capability ?? '', result.readiness ?? '', result.index ?? '', result.balance ?? ''
+  ];
+  AI_MAP_DIMENSIONS.forEach(function (code) { row.push(dims[code] === null || dims[code] === undefined ? '' : dims[code]); });
+  for (let id = 1; id <= 24; id++) row.push(answers[String(id)] === undefined ? '' : answers[String(id)]);
+  const priorities = result.priorities || [];
+  row.push(priorities[0] || '', priorities[1] || '', aiMapRoute_(body), profile.sizeOrRole || '', profile.sector || '', profile.programmeStatus || '', body.context || '');
+  row.push('', '', '', '', '', '', '', body.userAgent || '', body.referrer || '');
+  return row;
+}
+
+function aiMapFindRow_(sheet, respondentId) {
+  const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) if (values[i][aiMapCol_('respondentId') - 1] === respondentId) return i + 1;
+  return -1;
+}
+
+function aiMapBaseline_(sheet, body) {
+  // A respondent who revisits a statement and resolves again keeps one row:
+  // overwrite the scores and answers, leave any contact and report columns.
+  const existing = aiMapFindRow_(sheet, body.respondentId);
+  if (existing > 0) {
+    const row = aiMapRow_(body, sheet.getRange(existing, aiMapCol_('status')).getValue() || 'placed');
+    const keep = aiMapCol_('context');
+    sheet.getRange(existing, 1, 1, keep).setValues([row.slice(0, keep)]);
+    return { ok: true, updated: true };
+  }
+  sheet.insertRowBefore(2);
+  sheet.getRange(2, 1, 1, AI_MAP_HEADERS.length).setValues([aiMapRow_(body, 'placed')]);
+  return { ok: true };
+}
+
+function aiMapUnlock_(sheet, body) {
+  let rowIndex = aiMapFindRow_(sheet, body.respondentId);
+  if (rowIndex < 0) { aiMapBaseline_(sheet, body); rowIndex = 2; }
+  sheet.getRange(rowIndex, aiMapCol_('name'), 1, 9).setValues([[
+    body.name || '', body.email || '', body.organisation || '', body.wantsCall ? 'Yes' : 'No',
+    body.reportSource || 'template', body.reportText || '', new Date(), body.userAgent || '', body.referrer || ''
+  ]]);
+  sheet.getRange(rowIndex, aiMapCol_('status')).setValue('report_sent');
+  aiMapSendReport_(body);
+  aiMapNotify_(body);
+  return { ok: true };
+}
+
+/**
+ * Most recent row matching respondentId, or email (case-insensitive), skipping
+ * `exclude` (the row being unlocked right now). Rows are newest first.
+ */
+function aiMapLookup_(sheet, body) {
+  const values = sheet.getDataRange().getValues();
+  const wantedEmail = String(body.email || '').trim().toLowerCase();
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    const id = row[aiMapCol_('respondentId') - 1];
+    if (body.exclude && id === body.exclude) continue;
+    const matches = body.respondentId ? id === body.respondentId : wantedEmail && String(row[aiMapCol_('email') - 1]).trim().toLowerCase() === wantedEmail;
+    if (!matches) continue;
+    const dimensions = {};
+    AI_MAP_DIMENSIONS.forEach(function (code) { const value = row[aiMapCol_(code.toLowerCase()) - 1]; dimensions[code] = value === '' ? null : Number(value); });
+    const timestamp = row[aiMapCol_('timestamp') - 1];
+    return { ok: true, previous: {
+      respondentId: id, timestamp: timestamp instanceof Date ? timestamp.toISOString() : String(timestamp), wave: row[aiMapCol_('wave') - 1], mode: row[aiMapCol_('mode') - 1],
+      quadrant: row[aiMapCol_('quadrant') - 1], capability: Number(row[aiMapCol_('capability') - 1]), readiness: Number(row[aiMapCol_('readiness') - 1]), dimensions: dimensions,
+      profile: { sizeOrRole: row[aiMapCol_('sizeOrRole') - 1], sector: row[aiMapCol_('sector') - 1], programmeStatus: row[aiMapCol_('programmeStatus') - 1] }
+    } };
+  }
+  return { ok: true, previous: null };
+}
+
+function aiMapMapTable_(result) {
+  const quadrant = result.quadrant;
+  const cell = function (id, label, sub) {
+    const lit = id === quadrant;
+    return '<td style="width:50%;padding:14px;border:1px solid #C9DDB3;text-align:center;background:' + (lit ? '#6E9A43' : '#ffffff') + ';color:' + (lit ? '#ffffff' : '#5D6266') + '"><strong>' + label + '</strong><br><span style="font-size:11px">' + sub + '</span>' + (lit ? '<br><span style="font-size:22px;line-height:1">&#9679;</span>' : '') + '</td>';
+  };
+  return '<table style="border-collapse:collapse;width:100%;max-width:420px;font-family:Arial,sans-serif;font-size:13px">'
+    + '<tr><td colspan="2" style="font-size:11px;color:#53317A;font-weight:bold;padding-bottom:4px">AI CAPABILITY &uarr;</td></tr>'
+    + '<tr>' + cell('pathseekers', 'Pathseekers', 'Building momentum') + cell('fuelled', 'AI-Fuelled', 'At scale, learning') + '</tr>'
+    + '<tr>' + cell('starters', 'Starters', 'Exploring') + cell('transformers', 'Transformers', 'Pilots to impact') + '</tr>'
+    + '<tr><td colspan="2" style="font-size:11px;color:#53317A;font-weight:bold;text-align:right;padding-top:4px">LEADERSHIP AND ORGANISATIONAL READINESS &rarr;</td></tr></table>';
+}
+
+function aiMapSendReport_(body) {
+  const result = body.result || {};
+  const quadrantName = AI_MAP_QUADRANT_NAMES[result.quadrant] || 'Your position';
+  const retestLink = AI_MAP_RETEST_URL + encodeURIComponent(body.respondentId || '');
+  const dims = result.dimensions || {};
+  const dimRows = AI_MAP_DIMENSIONS.map(function (code) {
+    const score = dims[code] === null || dims[code] === undefined ? '-' : dims[code];
+    return '<tr><td style="padding:4px 8px 4px 0;color:#5D6266">' + code + ' ' + AI_MAP_DIMENSION_NAMES[code] + '</td><td style="padding:4px 0;font-weight:bold;color:#53317A;text-align:right">' + score + '</td></tr>';
+  }).join('');
+  const report = escapeHtml_(body.reportText || 'Your AI Enablement Report is ready.');
+  const plain = (body.reportText || 'Your AI Enablement Report is ready.') + '\n\nRetake your baseline in 90 days: ' + retestLink + '\n\nWe use your details to send this report and, if you asked for one, to arrange a conversation. We do not share them.';
+  GmailApp.sendEmail(body.email, 'Your Edmeca AI Enablement Report: ' + quadrantName, plain, {
+    name: FROM_NAME,
+    replyTo: NOTIFY_TO,
+    htmlBody: '<div style="font-family:Arial,sans-serif;color:#5D6266;max-width:640px;background:#ffffff;padding:8px">'
+      + '<img src="https://edmeca.co.za/logo.png" alt="EdMeCa" style="width:160px;display:block">'
+      + '<p style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#53317A;font-weight:bold;margin:20px 0 4px">Your position on the AI Enablement Map</p>'
+      + '<h1 style="color:#53317A;margin:0 0 12px;font-size:28px">' + escapeHtml_(quadrantName) + '</h1>'
+      + '<p style="margin:0 0 16px"><strong>Capability ' + escapeHtml_(String(result.capability ?? '')) + '</strong> &middot; <strong>Readiness ' + escapeHtml_(String(result.readiness ?? '')) + '</strong> &middot; Enablement index ' + escapeHtml_(String(result.index ?? '')) + '</p>'
+      + aiMapMapTable_(result)
+      + '<h2 style="color:#53317A;font-size:16px;margin:24px 0 8px">Your eight dimensions</h2><table style="border-collapse:collapse;font-size:13px;font-family:Arial,sans-serif">' + dimRows + '</table>'
+      + '<h2 style="color:#53317A;font-size:16px;margin:24px 0 8px">Your AI Enablement Report</h2>'
+      + '<div style="white-space:pre-line;line-height:1.6">' + report + '</div>'
+      + '<p style="margin:24px 0"><a href="' + retestLink + '" style="background:#6E9A43;color:#fff;padding:12px 18px;text-decoration:none;font-weight:bold">Come back and move the dot</a></p>'
+      + '<p style="font-size:13px">That link re-opens your baseline so you can retake it after a programme and see how far your dot has moved. Talk to Edmeca: <a href="https://edmeca.co.za/contact" style="color:#53317A">edmeca.co.za/contact</a>.</p>'
+      + '<p style="font-size:11px;color:#8a8f93;margin-top:24px">We use your details to send this report and, if you asked for one, to arrange a conversation. We do not share them.</p>'
+      + '</div>'
+  });
+}
+
+function aiMapNotify_(body) {
+  const result = body.result || {};
+  const profile = body.profile || {};
+  const movement = body.movement;
+  GmailApp.sendEmail(NOTIFY_TO, '[Edmeca] AI Map report: ' + (body.name || 'Unknown') + ' (' + (AI_MAP_QUADRANT_NAMES[result.quadrant] || '') + ')',
+    ['New AI Enablement Report unlocked', '', 'Name: ' + (body.name || ''), 'Email: ' + (body.email || ''), 'Organisation: ' + (body.organisation || ''), 'Wants a call: ' + (body.wantsCall ? 'YES' : 'no'),
+     'Mode: ' + (body.mode || ''), 'Wave: ' + (body.wave || 'baseline'), 'Cohort: ' + (body.cohort || '-'), 'Size or role: ' + (profile.sizeOrRole || ''), 'Sector: ' + (profile.sector || ''), 'Programme status: ' + (profile.programmeStatus || ''),
+     '', 'Quadrant: ' + (AI_MAP_QUADRANT_NAMES[result.quadrant] || ''), 'Capability: ' + (result.capability ?? ''), 'Readiness: ' + (result.readiness ?? ''), 'Index: ' + (result.index ?? ''), 'On the line: ' + (result.onTheLine ? 'yes' : 'no'),
+     'Priorities: ' + ((result.priorities || []).join(', ')), movement ? 'Movement since baseline: capability ' + movement.capability + ', readiness ' + movement.readiness : 'First baseline',
+     '', 'Context: ' + (body.context || '-'), '', 'Report source: ' + (body.reportSource || 'template')].join('\n'),
+    { name: FROM_NAME, replyTo: NOTIFY_TO });
+}
+
+/** Replays the AI Map report email for the most recent report_sent row; the AI Map twin of resendLastReport(). */
+function aiMapResendLastReport() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(AI_MAP_SHEET_NAME);
+  if (!sheet) { Logger.log('Sheet "%s" is missing.', AI_MAP_SHEET_NAME); return; }
+  const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    if (row[aiMapCol_('status') - 1] !== 'report_sent') continue;
+    const dimensions = {};
+    AI_MAP_DIMENSIONS.forEach(function (code) { dimensions[code] = row[aiMapCol_(code.toLowerCase()) - 1]; });
+    try {
+      aiMapSendReport_({ respondentId: row[aiMapCol_('respondentId') - 1], email: row[aiMapCol_('email') - 1], reportText: row[aiMapCol_('reportText') - 1], result: { quadrant: row[aiMapCol_('quadrant') - 1], capability: row[aiMapCol_('capability') - 1], readiness: row[aiMapCol_('readiness') - 1], index: row[aiMapCol_('index') - 1], dimensions: dimensions } });
+      Logger.log('Sent to %s. Quota left: %s.', row[aiMapCol_('email') - 1], MailApp.getRemainingDailyQuota());
+    } catch (error) {
+      Logger.log('FAILED: %s', String(error));
+    }
+    return;
+  }
+  Logger.log('No AI Map row with status report_sent found.');
+}
