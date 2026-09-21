@@ -126,7 +126,7 @@ export default function Home() {
             </p>
             
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/contact" asChild>
+              <Link href="/diagnostic" asChild>
                 <Button size="lg" className="min-w-40" data-testid="button-hero-cta">
                   Get Started
                   <ArrowRight className="ml-2 h-4 w-4" />
