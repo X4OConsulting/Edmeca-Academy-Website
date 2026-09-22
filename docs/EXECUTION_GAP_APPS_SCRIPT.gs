@@ -1,6 +1,6 @@
 // Bump when pasting a new version in, then run checkSetup() to confirm the
 // deployment actually serving traffic is the one you just pasted.
-const SCRIPT_VERSION = '4.2';
+const SCRIPT_VERSION = '4.3';
 const SHEET_NAME = 'Responses';
 // The AI Enablement Baseline (/ai-map) shares this web app and spreadsheet.
 // Its rows go to a second tab; see the AI MAP section at the end of this file.
@@ -79,9 +79,26 @@ function unlock_(sheet, body) {
     body.reportSource || 'template', body.reportText || '', new Date(), body.userAgent || '', body.referrer || ''
   ]]);
   sheet.getRange(rowIndex, 36).setValue(routeFor_(body));
-  sheet.getRange(rowIndex, 3).setValue('report_sent');
-  sendRespondentEmail_(body);
-  sendNotification_(body);
+  return sendBoth_(sheet, rowIndex, 3, function () { sendRespondentEmail_(body); }, function () { sendNotification_(body); });
+}
+
+/**
+ * Sends the respondent report, then the lead notification, and records the
+ * outcome in the status column: "report_sent" only when the report actually
+ * left, otherwise "send_failed: <reason>" so the sheet shows why. The status
+ * used to be written before sending, which made a failed send look successful.
+ * A notification failure (the bounce to raymond@edmeca.co.za was one) never
+ * costs the respondent their report.
+ */
+function sendBoth_(sheet, rowIndex, statusColumn, sendReport, sendNotification) {
+  try {
+    sendReport();
+  } catch (error) {
+    sheet.getRange(rowIndex, statusColumn).setValue('send_failed: ' + String(error).slice(0, 200));
+    return { ok: false, error: 'report email failed: ' + String(error) };
+  }
+  sheet.getRange(rowIndex, statusColumn).setValue('report_sent');
+  try { sendNotification(); } catch (error) { Logger.log('Notification failed: %s', String(error)); }
   return { ok: true };
 }
 
@@ -129,6 +146,10 @@ function checkSetup() {
   try {
     GmailApp.getAliases();
     Logger.log('GmailApp: authorised. Sends will appear in this account\'s Sent folder.');
+    // A real send, with the same options the reports use, to the notification
+    // address. If this arrives but reports do not, compare the two in Gmail.
+    GmailApp.sendEmail(notifyTo_(), '[Edmeca] checkSetup test ' + SCRIPT_VERSION, 'Plain-text part. If you can read this, GmailApp sends from ' + Session.getEffectiveUser().getEmail() + ' work.', { name: FROM_NAME, replyTo: notifyTo_(), htmlBody: '<div style="font-family:Arial,sans-serif"><img src="https://edmeca.co.za/logo.png" alt="EdMeCa" style="width:160px"><p>HTML part with the logo, as the reports send it.</p></div>' });
+    Logger.log('Test email sent to %s. Check that inbox (and spam) for "[Edmeca] checkSetup test".', notifyTo_());
   } catch (error) {
     Logger.log('GmailApp: NOT AUTHORISED — %s', String(error));
     Logger.log('  Re-approve the script, then redeploy the Web App as a NEW version.');
@@ -172,7 +193,7 @@ function resendLastReport() {
   if (!sheet) { Logger.log('Sheet "%s" is missing.', SHEET_NAME); return; }
   const values = sheet.getDataRange().getValues();
   for (let i = 1; i < values.length; i++) {
-    if (values[i][2] !== 'report_sent') continue;
+    if (values[i][2] !== 'report_sent' && String(values[i][2]).indexOf('send_failed') !== 0) continue;
     const row = values[i];
     Logger.log('Row %s — %s <%s>, reportText %s chars', i + 1, row[36], row[37], String(row[41]).length);
     if (!row[37]) { Logger.log('No email address on that row.'); return; }
@@ -184,7 +205,7 @@ function resendLastReport() {
     }
     return;
   }
-  Logger.log('No row with status report_sent found.');
+  Logger.log('No row with status report_sent or send_failed found.');
 }
 
 function ensureHeaders_(sheet) {
@@ -277,10 +298,7 @@ function aiMapUnlock_(sheet, body) {
     body.name || '', body.email || '', body.organisation || '', body.wantsCall ? 'Yes' : 'No',
     body.reportSource || 'template', body.reportText || '', new Date(), body.userAgent || '', body.referrer || ''
   ]]);
-  sheet.getRange(rowIndex, aiMapCol_('status')).setValue('report_sent');
-  aiMapSendReport_(body);
-  aiMapNotify_(body);
-  return { ok: true };
+  return sendBoth_(sheet, rowIndex, aiMapCol_('status'), function () { aiMapSendReport_(body); }, function () { aiMapNotify_(body); });
 }
 
 /**
@@ -371,7 +389,8 @@ function aiMapResendLastReport() {
   const values = sheet.getDataRange().getValues();
   for (let i = 1; i < values.length; i++) {
     const row = values[i];
-    if (row[aiMapCol_('status') - 1] !== 'report_sent') continue;
+    const status = String(row[aiMapCol_('status') - 1]);
+    if (status !== 'report_sent' && status.indexOf('send_failed') !== 0) continue;
     const dimensions = {};
     AI_MAP_DIMENSIONS.forEach(function (code) { dimensions[code] = row[aiMapCol_(code.toLowerCase()) - 1]; });
     try {
@@ -382,5 +401,5 @@ function aiMapResendLastReport() {
     }
     return;
   }
-  Logger.log('No AI Map row with status report_sent found.');
+  Logger.log('No AI Map row with status report_sent or send_failed found.');
 }
