@@ -1,6 +1,6 @@
 // Bump when pasting a new version in, then run checkSetup() to confirm the
 // deployment actually serving traffic is the one you just pasted.
-const SCRIPT_VERSION = '4.5';
+const SCRIPT_VERSION = '4.6';
 const SHEET_NAME = 'Responses';
 // The AI Enablement Baseline (/ai-map) shares this web app and spreadsheet.
 // Its rows go to a second tab; see the AI MAP section at the end of this file.
@@ -27,7 +27,7 @@ const FROM_NAME = 'Edmeca';
  * Sends one email. GmailApp first (the message then shows in the account's
  * Sent folder, which makes delivery traceable); if the project has not been
  * granted the Gmail scope, MailApp, which only needs the send_mail scope this
- * project already has. Both accept the same options (name, replyTo, htmlBody).
+ * project already has. Both accept the same options (name, replyTo, cc, htmlBody).
  *
  * Why: checkSetup() on 22 Sep 2026 logged "The script does not have
  * permission to perform that action. Required permissions: https://mail.google.com/"
@@ -42,7 +42,7 @@ function sendMail_(to, subject, plainBody, options) {
     return 'gmail';
   } catch (error) {
     if (String(error).indexOf('does not have permission') < 0) throw error;
-    MailApp.sendEmail({ to: to, subject: subject, body: plainBody, name: options.name, replyTo: options.replyTo, htmlBody: options.htmlBody });
+    MailApp.sendEmail({ to: to, subject: subject, body: plainBody, name: options.name, replyTo: options.replyTo, cc: options.cc, htmlBody: options.htmlBody });
     return 'mailapp';
   }
 }
@@ -134,9 +134,11 @@ function sendRespondentEmail_(body) {
   // respondent reports nothing arrived. MailApp sends leave no such record.
   // Note the signature — GmailApp is positional and does not accept MailApp's
   // single options object; passing one silently sends a malformed message.
+  // Respondent in To, Edmeca in CC so every report is visible in the inbox.
   sendMail_(body.email, subject, body.reportText || 'Your Execution Gap Report is ready.', {
     name: FROM_NAME,
     replyTo: notifyTo_(),
+    cc: notifyTo_(),
     htmlBody: '<div style="font-family:Arial,sans-serif;color:#5D6266;max-width:640px"><img src="https://edmeca.co.za/logo.png" alt="EdMeCa" style="width:160px"><h1 style="color:#53317A">Your Execution Gap Report</h1><p><strong>' + escapeHtml_(body.result?.archetype || 'Your Loop Map') + '</strong></p><div style="white-space:pre-line;line-height:1.6">' + report + '</div><p><a href="https://edmeca.co.za/contact" style="background:#53317A;color:#fff;padding:12px 18px;text-decoration:none">Book a conversation</a></p></div>'
   });
 }
@@ -382,9 +384,11 @@ function aiMapSendReport_(body) {
   }).join('');
   const report = escapeHtml_(body.reportText || 'Your AI Enablement Report is ready.');
   const plain = (body.reportText || 'Your AI Enablement Report is ready.') + '\n\nRetake your baseline in 90 days, or after an intervention: ' + retestLink + '\n\nWe use your details to send this report and, if you asked for one, to arrange a conversation. We do not share them.';
+  // Respondent in To, Edmeca in CC so every report is visible in the inbox.
   sendMail_(body.email, 'Your Edmeca AI Enablement Report: ' + quadrantName, plain, {
     name: FROM_NAME,
     replyTo: notifyTo_(),
+    cc: notifyTo_(),
     htmlBody: '<div style="font-family:Arial,sans-serif;color:#5D6266;max-width:640px;background:#ffffff;padding:8px">'
       + '<img src="https://edmeca.co.za/logo.png" alt="EdMeCa" style="width:160px;display:block">'
       + '<p style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#53317A;font-weight:bold;margin:20px 0 4px">Your position on the AI Enablement Map</p>'
