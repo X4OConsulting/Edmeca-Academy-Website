@@ -147,7 +147,7 @@ describe("unlock", () => {
   it("delivers inline, with one forward carrying the template report, when the background call is unavailable", async () => {
     const res = await post(baselineBody({ action: "unlock", name: "Raymond", email: "R@Example.com", organisation: "Edmeca", wantsCall: true }));
     expect(res.statusCode).toBe(200);
-    expect(JSON.parse(res.body).reportSource).toBe("template");
+    expect(JSON.parse(res.body).reportSource).toBe("template (no model key)");
     // Exactly one Apps Script call: the script matches the email itself.
     const actions = fetchMock.mock.calls.map((call) => JSON.parse(call[1].body).action);
     expect(actions).toEqual(["unlock"]);
@@ -155,7 +155,7 @@ describe("unlock", () => {
     expect(sent.email).toBe("r@example.com");
     expect(sent.reportText).toContain("PATHSEEKERS");
     expect(sent.reportText).toContain("WHAT MOVES YOUR DOT");
-    expect(sent.reportSource).toBe("template");
+    expect(sent.reportSource).toBe("template (no model key)");
   });
 
   it("uses the email match returned by the unlock to report movement for a returning respondent", async () => {

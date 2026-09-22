@@ -113,7 +113,7 @@ type Completion = { choices?: { finish_reason?: string; message?: { content?: st
 export async function writeReport(facts: ReportFacts, timeoutMs: number): Promise<{ text: string; source: string }> {
   const template = buildTemplateReport(facts);
   const key = process.env.EDMECA_DEEPSEEK_API || process.env.DEEPSEEK_API_KEY;
-  if (!key) return { text: template, source: "template" };
+  if (!key) return { text: template, source: "template (no model key)" };
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -122,7 +122,7 @@ export async function writeReport(facts: ReportFacts, timeoutMs: number): Promis
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
       signal: controller.signal,
-      body: JSON.stringify({ model: DEEPSEEK_MODEL, temperature: 0.4, max_tokens: 4000, messages: [{ role: "system", content: SYSTEM_PROMPT }, { role: "user", content: buildUserMessage(safeFacts, template) }] }),
+      body: JSON.stringify({ model: DEEPSEEK_MODEL, temperature: 0.4, max_tokens: 8000, messages: [{ role: "system", content: SYSTEM_PROMPT }, { role: "user", content: buildUserMessage(safeFacts, template) }] }),
     });
     const raw = await upstream.text();
     if (!upstream.ok) throw new Error(`DeepSeek ${upstream.status}: ${raw.slice(0, 200)}`);
@@ -135,8 +135,11 @@ export async function writeReport(facts: ReportFacts, timeoutMs: number): Promis
     }
     return { text, source: `deepseek:${DEEPSEEK_MODEL}` };
   } catch (error) {
-    console.error("AI map report elaboration failed, sending template", error instanceof Error ? error.message : "unknown error");
-    return { text: template, source: "template" };
+    // The reason travels with the row (reportSource column): background
+    // function logs are not readable from the CLI, the sheet always is.
+    const reason = error instanceof Error ? (error.name === "AbortError" ? `timed out after ${timeoutMs} ms` : error.message) : "unknown error";
+    console.error("AI map report elaboration failed, sending template", reason);
+    return { text: template, source: `template (${reason.replace(/\s+/g, " ").slice(0, 180)})` };
   } finally {
     clearTimeout(timer);
   }

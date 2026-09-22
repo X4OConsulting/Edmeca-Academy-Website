@@ -48,7 +48,7 @@ describe("deliverUnlock", () => {
     expect(outcome.reportSource).toBe("deepseek:deepseek-flash");
     expect(callsTo("deepseek")).toHaveLength(1);
     const deepseekBody = JSON.parse(callsTo("deepseek")[0][1].body);
-    expect(deepseekBody.max_tokens).toBeGreaterThanOrEqual(4000);
+    expect(deepseekBody.max_tokens).toBeGreaterThanOrEqual(8000);
     expect(callsTo("deepseek")[0][1].headers.Authorization).toBe("Bearer sk-test");
     const sheet = JSON.parse(callsTo("script.google")[0][1].body);
     expect(sheet.action).toBe("unlock");
@@ -63,10 +63,9 @@ describe("deliverUnlock", () => {
       return json({ ok: true });
     });
     const outcome = await deliverUnlock(JOB);
-    expect(outcome.reportSource).toBe("template");
-    const logged = (console.error as unknown as ReturnType<typeof vi.fn>).mock.calls.map((call) => call.join(" ")).join("\n");
-    expect(logged).toContain("finish length");
-    expect(logged).toContain("reasoning 11 chars");
+    expect(outcome.reportSource).toMatch(/^template \(DeepSeek returned no usable report/);
+    expect(outcome.reportSource).toContain("finish length");
+    expect(outcome.reportSource).toContain("reasoning 11 chars");
     const sheet = JSON.parse(callsTo("script.google")[0][1].body);
     expect(sheet.reportText).toContain("YOUR EIGHT DIMENSIONS");
   });
@@ -77,7 +76,7 @@ describe("deliverUnlock", () => {
       if (url.includes("deepseek")) return json({ choices: [{ finish_reason: "length", message: { content: LONG_REPORT } }] });
       return json({ ok: true });
     });
-    expect((await deliverUnlock(JOB)).reportSource).toBe("template");
+    expect((await deliverUnlock(JOB)).reportSource).toMatch(/^template \(.*finish length/);
   });
 
   it("falls back to the template on an HTTP error and includes the DeepSeek message in the log", async () => {
@@ -87,10 +86,8 @@ describe("deliverUnlock", () => {
       return json({ ok: true });
     });
     const outcome = await deliverUnlock(JOB);
-    expect(outcome.reportSource).toBe("template");
-    const logged = (console.error as unknown as ReturnType<typeof vi.fn>).mock.calls.map((call) => call.join(" ")).join("\n");
-    expect(logged).toContain("DeepSeek 401");
-    expect(logged).toContain("Authentication Fails");
+    expect(outcome.reportSource).toContain("DeepSeek 401");
+    expect(outcome.reportSource).toContain("Authentication Fails");
   });
 
   it("makes exactly one Apps Script call without a re-test link and reads movement from its answer", async () => {
