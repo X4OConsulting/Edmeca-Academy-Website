@@ -95,7 +95,7 @@ function buildReport(body: Body, result: ReturnType<typeof compute>) {
  * returns the template unchanged, so the respondent always gets their report.
  */
 async function elaborate(template: string, body: Body): Promise<{ text: string; source: string }> {
-  const key = process.env.DEEPSEEK_API_KEY;
+  const key = (process.env.EDMECA_DEEPSEEK_API || process.env.DEEPSEEK_API_KEY);
   if (!key) return { text: template, source: "template" };
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), DEEPSEEK_TIMEOUT_MS);

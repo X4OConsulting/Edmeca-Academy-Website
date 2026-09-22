@@ -138,7 +138,7 @@ async function lookup(criteria: { respondentId?: string; email?: string; exclude
 /** Expands the template report with DeepSeek. Never throws; falls back to the template. */
 async function writeReport(facts: ReportFacts): Promise<{ text: string; source: string }> {
   const template = buildTemplateReport(facts);
-  const key = process.env.DEEPSEEK_API_KEY;
+  const key = (process.env.EDMECA_DEEPSEEK_API || process.env.DEEPSEEK_API_KEY);
   if (!key) return { text: template, source: "template" };
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), DEEPSEEK_TIMEOUT_MS);

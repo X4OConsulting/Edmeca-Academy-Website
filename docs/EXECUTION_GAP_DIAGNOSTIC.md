@@ -54,7 +54,7 @@ which was used (`template` or `deepseek:<model>`).
 
 | Variable | Required | Default | Notes |
 | --- | --- | --- | --- |
-| `DEEPSEEK_API_KEY` | No | — | Without it every report is the template |
+| `EDMECA_DEEPSEEK_API` | No | — | Without it every report is the template (`DEEPSEEK_API_KEY` also accepted) |
 | `DEEPSEEK_MODEL` | No | `deepseek-flash` | Or `deepseek-v4-pro` |
 | `DEEPSEEK_TIMEOUT_MS` | No | `15000` | Netlify allows 60s; the Apps Script forward takes 2.4-7.4s |
 

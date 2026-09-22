@@ -66,7 +66,7 @@ The plan listed 63 columns; the actual list is 61 including the `status` column 
 | --- | --- | --- |
 | `AI_MAP_SCRIPT_URL` | No | Falls back to `EXECUTION_GAP_SCRIPT_URL`, the same web app |
 | `AI_MAP_SHARED_SECRET` | No | Falls back to `EXECUTION_GAP_SHARED_SECRET` |
-| `DEEPSEEK_API_KEY` | No | Without it every report is the template. Shared with the Execution Gap |
+| `EDMECA_DEEPSEEK_API` | No | Without it every report is the template. Shared with the Execution Gap. `DEEPSEEK_API_KEY` also accepted |
 | `DEEPSEEK_MODEL`, `DEEPSEEK_TIMEOUT_MS` | No | As for the Execution Gap |
 
 The plan named the Anthropic SDK for the report. The site's live report pipeline runs on DeepSeek with the key already in Netlify, so the AI Map uses the same call and the plan's section 8 prompt, with the template report as the factual anchor the model may not alter.
