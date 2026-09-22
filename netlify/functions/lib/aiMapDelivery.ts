@@ -147,6 +147,19 @@ export async function writeReport(facts: ReportFacts, timeoutMs: number): Promis
 
 export type DeliveryOutcome = { result: AIMapResult; movement: Movement | null; reportSource: string };
 
+/** The sheet write for "Show my position": everything the row needs, scores included. */
+export type BaselineJob = {
+  respondentId: string; wave: Wave; retestOf: string; cohort: string; mode: RespondentMode; answers: Answers; profile: Profile; context: string;
+  result: AIMapResult; movement: Movement | null; userAgent: string; referrer: string;
+};
+
+export type BackgroundJob = ({ kind: "unlock" } & UnlockJob) | ({ kind: "baseline" } & BaselineJob);
+
+export async function deliverBaseline(job: BaselineJob, timeoutMs = 60000): Promise<void> {
+  const { kind: _kind, ...row } = job as BaselineJob & { kind?: string };
+  await forward({ action: "baseline", ...row }, timeoutMs);
+}
+
 /**
  * The whole unlock: find the baseline for a re-test, score, write the report,
  * forward to the sheet (which sends the emails and matches a returning

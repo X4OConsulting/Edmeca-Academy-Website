@@ -1,5 +1,5 @@
 import type { Handler, HandlerEvent } from "@netlify/functions";
-import { type UnlockJob, compute, deliverUnlock, forward, scriptTarget } from "./lib/executionGapDelivery";
+import { type BackgroundJob, type MapJob, type UnlockJob, compute, deliverMap, deliverUnlock, scriptTarget } from "./lib/executionGapDelivery";
 
 const origins = ["https://edmeca.co.za", "https://edmecaacademy.netlify.app", "https://staging--edmecaacademy.netlify.app", "http://localhost:5173", "http://localhost:4173"];
 const stages = ["F", "E", "V"] as const;
@@ -24,7 +24,7 @@ function response(statusCode: number, body: unknown, origin?: string) { return {
  * not be made (no site URL, no secret, network error), in which case the
  * caller delivers inline as a best effort.
  */
-async function enqueueUnlock(job: UnlockJob): Promise<boolean> {
+async function enqueue(job: BackgroundJob): Promise<boolean> {
   const base = process.env.URL || process.env.DEPLOY_PRIME_URL;
   const { secret } = scriptTarget();
   if (!base || !secret) return false;
@@ -54,7 +54,7 @@ export const handler: Handler = async (event: HandlerEvent) => {
         sector: body.sector || "", programmeStatus: body.programmeStatus || "", name: body.name, email: body.email, business: body.business || "", wantsCall: body.wantsCall,
       };
       // The browser gets its answer now; the report is written and emailed in the background.
-      if (await enqueueUnlock(job)) return response(200, { ok: true, result, queued: true }, origin);
+      if (await enqueue({ kind: "unlock", ...job })) return response(200, { ok: true, result, queued: true }, origin);
       // Exactly one forward per request. Calling forward() unconditionally here
       // and again for the unlock ran the Apps Script's unlock_() twice, so every
       // respondent got two report emails (the first with an empty body) and
@@ -62,7 +62,10 @@ export const handler: Handler = async (event: HandlerEvent) => {
       const outcome = await deliverUnlock(job, { script: SCRIPT_TIMEOUT_MS, model: INLINE_MODEL_TIMEOUT_MS });
       return response(200, { ok: true, result, reportSource: outcome.reportSource }, origin);
     }
-    await forward(body, result, "", "", SCRIPT_TIMEOUT_MS);
+    const map: MapJob = { respondentId: body.respondentId, cells: body.cells, stage: body.stage || "", stageBand: body.stageBand || "", aiMultiplier: body.aiMultiplier, sector: body.sector || "", programmeStatus: body.programmeStatus || "" };
+    // The browser only needs the scores; the sheet write happens in the background so a cold script cannot lose the row.
+    if (await enqueue({ kind: "map", ...map })) return response(200, { ok: true, result, queued: true }, origin);
+    await deliverMap(map, SCRIPT_TIMEOUT_MS);
     return response(200, { ok: true, result }, origin);
   } catch (error) { console.error("Execution gap error", error instanceof Error ? error.message : "unknown error"); return response(500, { message: "Could not process the diagnostic" }, origin); }
 };

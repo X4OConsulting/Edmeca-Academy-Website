@@ -1,5 +1,5 @@
 import type { Handler, HandlerEvent } from "@netlify/functions";
-import { type UnlockJob, deliverUnlock, scriptTarget } from "./lib/aiMapDelivery";
+import { type BackgroundJob, deliverBaseline, deliverUnlock, scriptTarget } from "./lib/aiMapDelivery";
 
 /**
  * Background delivery of an AI Enablement Report. Netlify answers the caller
@@ -17,18 +17,23 @@ export const handler: Handler = async (event: HandlerEvent) => {
     console.error("AI map background: rejected call without the shared token");
     return { statusCode: 401, body: "" };
   }
-  let job: UnlockJob;
+  let job: BackgroundJob;
   try {
-    job = JSON.parse(event.body || "{}") as UnlockJob;
+    job = JSON.parse(event.body || "{}") as BackgroundJob;
   } catch {
     console.error("AI map background: unreadable job");
     return { statusCode: 400, body: "" };
   }
   try {
-    const outcome = await deliverUnlock(job);
-    console.log(`AI map report delivered to ${job.email} (${outcome.reportSource}, ${outcome.result.quadrant}${outcome.movement ? ", with movement" : ""})`);
+    if (job.kind === "baseline") {
+      await deliverBaseline(job);
+      console.log(`AI map baseline stored for ${job.respondentId} (${job.result.quadrant})`);
+    } else {
+      const outcome = await deliverUnlock(job);
+      console.log(`AI map report delivered to ${job.email} (${outcome.reportSource}, ${outcome.result.quadrant}${outcome.movement ? ", with movement" : ""})`);
+    }
   } catch (error) {
-    console.error(`AI map report delivery failed for ${job.email}:`, error instanceof Error ? error.message : "unknown error");
+    console.error(`AI map background ${job.kind ?? "unlock"} failed for ${job.respondentId}:`, error instanceof Error ? error.message : "unknown error");
   }
   return { statusCode: 200, body: "" };
 };

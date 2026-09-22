@@ -201,10 +201,20 @@ export async function forward(body: Record<string, unknown>, result: Computed, r
   if (!payload || payload.ok !== true) throw new Error(`Sheet delivery failed: ${payload?.error ?? "unrecognised response"}`);
 }
 
+/** The sheet write for "Resolve my map": the validated submission plus its scores. */
+export type MapJob = { respondentId: string; cells: Cells; stage: string; stageBand: string; aiMultiplier: number; sector: string; programmeStatus: string };
+export type BackgroundJob = ({ kind: "unlock" } & UnlockJob) | ({ kind: "map" } & MapJob);
+
+export async function deliverMap(job: MapJob, timeoutMs = 60000): Promise<void> {
+  const { kind: _kind, ...row } = job as MapJob & { kind?: string };
+  await forward({ action: "map", ...row }, compute(job.cells), "", "", timeoutMs);
+}
+
 /** The whole unlock: score, write the report, forward once (the script emails). Throws when the sheet refuses. */
 export async function deliverUnlock(job: UnlockJob, timeouts = { script: 60000, model: 60000 }): Promise<{ result: Computed; reportSource: string }> {
+  const { kind: _kind, ...row } = job as UnlockJob & { kind?: string };
   const result = compute(job.cells);
   const report = await elaborate(buildReport(job, result), job, timeouts.model);
-  await forward({ action: "unlock", ...job }, result, report.text, report.source, timeouts.script);
+  await forward({ action: "unlock", ...row }, result, report.text, report.source, timeouts.script);
   return { result, reportSource: report.source };
 }

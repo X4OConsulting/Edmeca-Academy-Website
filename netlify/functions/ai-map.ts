@@ -4,7 +4,7 @@ import {
   businessSizes, programmeStatuses, roles, sectors,
 } from "../../client/src/data/aiMap";
 import { type AIMapResult, type Movement, isAnswer, itemsForWave, movementBetween, scoreAIMap } from "../../client/src/lib/aiMap";
-import { type Profile, type UnlockJob, deliverUnlock, forward, lookup, scriptTarget } from "./lib/aiMapDelivery";
+import { type BackgroundJob, type Profile, type UnlockJob, deliverBaseline, deliverUnlock, lookup, scriptTarget } from "./lib/aiMapDelivery";
 
 const origins = ["https://edmeca.co.za", "https://edmecaacademy.netlify.app", "https://staging--edmecaacademy.netlify.app", "https://ai-map--edmecaacademy.netlify.app", "http://localhost:5173", "http://localhost:4173", "http://localhost:8888"];
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[4-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -68,7 +68,7 @@ function parseProfile(mode: RespondentMode, raw: Profile | undefined): Profile |
  * not be made (no site URL, no secret, network error), in which case the
  * caller delivers inline as a best effort.
  */
-async function enqueueUnlock(job: UnlockJob): Promise<boolean> {
+async function enqueue(job: BackgroundJob): Promise<boolean> {
   const base = process.env.URL || process.env.DEPLOY_PRIME_URL;
   const { secret } = scriptTarget();
   if (!base || !secret) return false;
@@ -120,7 +120,7 @@ export const handler: Handler = async (event: HandlerEvent) => {
         name: body.name.trim(), email: body.email.trim().toLowerCase(), organisation: (body.organisation || "").trim(), wantsCall: body.wantsCall, userAgent, referrer,
       };
       // The browser gets its answer now; the report is written and emailed in the background.
-      if (await enqueueUnlock(job)) return response(200, { ok: true, result: scoreAIMap(answers), queued: true }, origin);
+      if (await enqueue({ kind: "unlock", ...job })) return response(200, { ok: true, result: scoreAIMap(answers), queued: true }, origin);
       const outcome = await deliverUnlock(job, { script: SCRIPT_TIMEOUT_MS, model: 8000 });
       return response(200, { ok: true, ...outcome }, origin);
     }
@@ -129,10 +129,10 @@ export const handler: Handler = async (event: HandlerEvent) => {
     const prior = body.retestOf ? await lookup({ respondentId: body.retestOf }, SCRIPT_TIMEOUT_MS) : null;
     const result: AIMapResult = scoreAIMap(answers, prior);
     const movement: Movement | null = prior ? movementBetween(prior, result) : null;
-    await forward({
-      action: "baseline", respondentId: body.respondentId, wave, retestOf: body.retestOf || "", cohort: body.cohort || "", mode,
-      answers, profile, context, result, movement, userAgent, referrer,
-    }, SCRIPT_TIMEOUT_MS);
+    const baseline = { respondentId: body.respondentId, wave, retestOf: body.retestOf || "", cohort: body.cohort || "", mode, answers, profile, context, result, movement, userAgent, referrer };
+    // The browser only needs the scores; the sheet write happens in the background so a cold script cannot lose the row.
+    if (await enqueue({ kind: "baseline", ...baseline })) return response(200, { ok: true, result, movement, queued: true }, origin);
+    await deliverBaseline(baseline, SCRIPT_TIMEOUT_MS);
     return response(200, { ok: true, result, movement }, origin);
   } catch (error) {
     console.error("AI map error", error instanceof Error ? error.message : "unknown error");

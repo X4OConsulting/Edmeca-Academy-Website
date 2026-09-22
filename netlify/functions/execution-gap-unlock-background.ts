@@ -1,5 +1,5 @@
 import type { Handler, HandlerEvent } from "@netlify/functions";
-import { type UnlockJob, deliverUnlock, scriptTarget } from "./lib/executionGapDelivery";
+import { type BackgroundJob, deliverMap, deliverUnlock, scriptTarget } from "./lib/executionGapDelivery";
 
 /**
  * Background delivery of an Execution Gap Report. Netlify answers the caller
@@ -17,18 +17,23 @@ export const handler: Handler = async (event: HandlerEvent) => {
     console.error("Execution gap background: rejected call without the shared token");
     return { statusCode: 401, body: "" };
   }
-  let job: UnlockJob;
+  let job: BackgroundJob;
   try {
-    job = JSON.parse(event.body || "{}") as UnlockJob;
+    job = JSON.parse(event.body || "{}") as BackgroundJob;
   } catch {
     console.error("Execution gap background: unreadable job");
     return { statusCode: 400, body: "" };
   }
   try {
-    const outcome = await deliverUnlock(job);
-    console.log(`Execution gap report delivered to ${job.email} (${outcome.reportSource}, ${outcome.result.archetype})`);
+    if (job.kind === "map") {
+      await deliverMap(job);
+      console.log(`Execution gap map stored for ${job.respondentId}`);
+    } else {
+      const outcome = await deliverUnlock(job);
+      console.log(`Execution gap report delivered to ${job.email} (${outcome.reportSource}, ${outcome.result.archetype})`);
+    }
   } catch (error) {
-    console.error(`Execution gap report delivery failed for ${job.email}:`, error instanceof Error ? error.message : "unknown error");
+    console.error(`Execution gap background ${job.kind ?? "unlock"} failed for ${job.respondentId}:`, error instanceof Error ? error.message : "unknown error");
   }
   return { statusCode: 200, body: "" };
 };
