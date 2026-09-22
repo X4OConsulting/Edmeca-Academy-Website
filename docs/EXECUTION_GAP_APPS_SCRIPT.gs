@@ -1,6 +1,6 @@
 // Bump when pasting a new version in, then run checkSetup() to confirm the
 // deployment actually serving traffic is the one you just pasted.
-const SCRIPT_VERSION = '4.4';
+const SCRIPT_VERSION = '4.5';
 const SHEET_NAME = 'Responses';
 // The AI Enablement Baseline (/ai-map) shares this web app and spreadsheet.
 // Its rows go to a second tab; see the AI MAP section at the end of this file.
@@ -22,6 +22,30 @@ function notifyTo_() {
   return PropertiesService.getScriptProperties().getProperty('NOTIFY_TO') || NOTIFY_TO_DEFAULT;
 }
 const FROM_NAME = 'Edmeca';
+
+/**
+ * Sends one email. GmailApp first (the message then shows in the account's
+ * Sent folder, which makes delivery traceable); if the project has not been
+ * granted the Gmail scope, MailApp, which only needs the send_mail scope this
+ * project already has. Both accept the same options (name, replyTo, htmlBody).
+ *
+ * Why: checkSetup() on 22 Sep 2026 logged "The script does not have
+ * permission to perform that action. Required permissions: https://mail.google.com/"
+ * and no authorisation prompt appeared, so every report since 3.32 was lost.
+ * To use GmailApp permanently, add "https://mail.google.com/" to oauthScopes in
+ * appsscript.json (Project Settings > show manifest), run checkSetup() and
+ * accept the prompt, then deploy a new version.
+ */
+function sendMail_(to, subject, plainBody, options) {
+  try {
+    GmailApp.sendEmail(to, subject, plainBody, options);
+    return 'gmail';
+  } catch (error) {
+    if (String(error).indexOf('does not have permission') < 0) throw error;
+    MailApp.sendEmail({ to: to, subject: subject, body: plainBody, name: options.name, replyTo: options.replyTo, htmlBody: options.htmlBody });
+    return 'mailapp';
+  }
+}
 const HEADERS = [
   'timestamp','respondentId','status','archetype','loopScore','frameworkTotal','executionTotal','evidenceTotal','executionGap','evidenceGap',
   'c1_F','c1_E','c1_V','c2_F','c2_E','c2_V','c3_F','c3_E','c3_V','c4_F','c4_E','c4_V','c5_F','c5_E','c5_V','c6_F','c6_E','c6_V',
@@ -110,7 +134,7 @@ function sendRespondentEmail_(body) {
   // respondent reports nothing arrived. MailApp sends leave no such record.
   // Note the signature — GmailApp is positional and does not accept MailApp's
   // single options object; passing one silently sends a malformed message.
-  GmailApp.sendEmail(body.email, subject, body.reportText || 'Your Execution Gap Report is ready.', {
+  sendMail_(body.email, subject, body.reportText || 'Your Execution Gap Report is ready.', {
     name: FROM_NAME,
     replyTo: notifyTo_(),
     htmlBody: '<div style="font-family:Arial,sans-serif;color:#5D6266;max-width:640px"><img src="https://edmeca.co.za/logo.png" alt="EdMeCa" style="width:160px"><h1 style="color:#53317A">Your Execution Gap Report</h1><p><strong>' + escapeHtml_(body.result?.archetype || 'Your Loop Map') + '</strong></p><div style="white-space:pre-line;line-height:1.6">' + report + '</div><p><a href="https://edmeca.co.za/contact" style="background:#53317A;color:#fff;padding:12px 18px;text-decoration:none">Book a conversation</a></p></div>'
@@ -118,7 +142,7 @@ function sendRespondentEmail_(body) {
 }
 
 function sendNotification_(body) {
-  GmailApp.sendEmail(notifyTo_(), '[Edmeca] Execution Gap lead: ' + (body.name || 'Unknown'),
+  sendMail_(notifyTo_(), '[Edmeca] Execution Gap lead: ' + (body.name || 'Unknown'),
     ['New Execution Gap report unlocked', '', 'Name: ' + (body.name || ''), 'Email: ' + (body.email || ''), 'Business: ' + (body.business || ''), 'Wants a call: ' + (body.wantsCall ? 'YES' : 'no'), 'Stage: ' + (body.stage || ''), 'Sector: ' + (body.sector || ''), 'Archetype: ' + (body.result?.archetype || ''), 'Loop score: ' + (body.result?.loopScore || '')].join('\n'),
     { name: FROM_NAME, replyTo: notifyTo_() });
 }
@@ -146,13 +170,16 @@ function checkSetup() {
   try {
     GmailApp.getAliases();
     Logger.log('GmailApp: authorised. Sends will appear in this account\'s Sent folder.');
-    // A real send, with the same options the reports use, to the notification
-    // address. If this arrives but reports do not, compare the two in Gmail.
-    GmailApp.sendEmail(notifyTo_(), '[Edmeca] checkSetup test ' + SCRIPT_VERSION, 'Plain-text part. If you can read this, GmailApp sends from ' + Session.getEffectiveUser().getEmail() + ' work.', { name: FROM_NAME, replyTo: notifyTo_(), htmlBody: '<div style="font-family:Arial,sans-serif"><img src="https://edmeca.co.za/logo.png" alt="EdMeCa" style="width:160px"><p>HTML part with the logo, as the reports send it.</p></div>' });
-    Logger.log('Test email sent to %s. Check that inbox (and spam) for "[Edmeca] checkSetup test".', notifyTo_());
   } catch (error) {
-    Logger.log('GmailApp: NOT AUTHORISED — %s', String(error));
-    Logger.log('  Re-approve the script, then redeploy the Web App as a NEW version.');
+    Logger.log('GmailApp: NOT AUTHORISED — reports go out through MailApp instead (no Sent-folder copy). %s', String(error).slice(0, 120));
+    Logger.log('  To fix: add "https://mail.google.com/" to oauthScopes in appsscript.json, run checkSetup() again, accept the prompt, deploy a new version.');
+  }
+  // A real send, with the same options the reports use, to the notification address.
+  try {
+    const via = sendMail_(notifyTo_(), '[Edmeca] checkSetup test ' + SCRIPT_VERSION, 'Plain-text part. If you can read this, sends from ' + Session.getEffectiveUser().getEmail() + ' work.', { name: FROM_NAME, replyTo: notifyTo_(), htmlBody: '<div style="font-family:Arial,sans-serif"><img src="https://edmeca.co.za/logo.png" alt="EdMeCa" style="width:160px"><p>HTML part with the logo, as the reports send it.</p></div>' });
+    Logger.log('Test email sent to %s via %s. Check that inbox (and spam) for "[Edmeca] checkSetup test".', notifyTo_(), via);
+  } catch (error) {
+    Logger.log('TEST SEND FAILED: %s', String(error));
   }
   const secret = PropertiesService.getScriptProperties().getProperty('SHARED_SECRET');
   if (!secret) {
@@ -355,7 +382,7 @@ function aiMapSendReport_(body) {
   }).join('');
   const report = escapeHtml_(body.reportText || 'Your AI Enablement Report is ready.');
   const plain = (body.reportText || 'Your AI Enablement Report is ready.') + '\n\nRetake your baseline in 90 days, or after an intervention: ' + retestLink + '\n\nWe use your details to send this report and, if you asked for one, to arrange a conversation. We do not share them.';
-  GmailApp.sendEmail(body.email, 'Your Edmeca AI Enablement Report: ' + quadrantName, plain, {
+  sendMail_(body.email, 'Your Edmeca AI Enablement Report: ' + quadrantName, plain, {
     name: FROM_NAME,
     replyTo: notifyTo_(),
     htmlBody: '<div style="font-family:Arial,sans-serif;color:#5D6266;max-width:640px;background:#ffffff;padding:8px">'
@@ -378,7 +405,7 @@ function aiMapNotify_(body) {
   const result = body.result || {};
   const profile = body.profile || {};
   const movement = body.movement;
-  GmailApp.sendEmail(notifyTo_(), '[Edmeca] AI Map report: ' + (body.name || 'Unknown') + ' (' + (AI_MAP_QUADRANT_NAMES[result.quadrant] || '') + ')',
+  sendMail_(notifyTo_(), '[Edmeca] AI Map report: ' + (body.name || 'Unknown') + ' (' + (AI_MAP_QUADRANT_NAMES[result.quadrant] || '') + ')',
     ['New AI Enablement Report unlocked', '', 'Name: ' + (body.name || ''), 'Email: ' + (body.email || ''), 'Organisation: ' + (body.organisation || ''), 'Wants a call: ' + (body.wantsCall ? 'YES' : 'no'),
      'Mode: ' + (body.mode || ''), 'Wave: ' + (body.wave || 'baseline'), 'Cohort: ' + (body.cohort || '-'), 'Size or role: ' + (profile.sizeOrRole || ''), 'Sector: ' + (profile.sector || ''), 'Programme status: ' + (profile.programmeStatus || ''),
      '', 'Quadrant: ' + (AI_MAP_QUADRANT_NAMES[result.quadrant] || ''), 'Capability: ' + (result.capability ?? ''), 'Readiness: ' + (result.readiness ?? ''), 'Index: ' + (result.index ?? ''), 'On the line: ' + (result.onTheLine ? 'yes' : 'no'),
