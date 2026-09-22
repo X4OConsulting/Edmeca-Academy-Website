@@ -48,7 +48,7 @@ describe("deliverUnlock", () => {
     expect(outcome.reportSource).toBe("deepseek:deepseek-flash");
     expect(callsTo("deepseek")).toHaveLength(1);
     const deepseekBody = JSON.parse(callsTo("deepseek")[0][1].body);
-    expect(deepseekBody.max_tokens).toBeGreaterThanOrEqual(2000);
+    expect(deepseekBody.max_tokens).toBeGreaterThanOrEqual(4000);
     expect(callsTo("deepseek")[0][1].headers.Authorization).toBe("Bearer sk-test");
     const sheet = JSON.parse(callsTo("script.google")[0][1].body);
     expect(sheet.action).toBe("unlock");
@@ -69,6 +69,15 @@ describe("deliverUnlock", () => {
     expect(logged).toContain("reasoning 11 chars");
     const sheet = JSON.parse(callsTo("script.google")[0][1].body);
     expect(sheet.reportText).toContain("YOUR EIGHT DIMENSIONS");
+  });
+
+  it("falls back to the template when the answer was cut off by the token limit", async () => {
+    process.env.EDMECA_DEEPSEEK_API = "sk-test";
+    fetchMock.mockImplementation(async (url: string) => {
+      if (url.includes("deepseek")) return json({ choices: [{ finish_reason: "length", message: { content: LONG_REPORT } }] });
+      return json({ ok: true });
+    });
+    expect((await deliverUnlock(JOB)).reportSource).toBe("template");
   });
 
   it("falls back to the template on an HTTP error and includes the DeepSeek message in the log", async () => {

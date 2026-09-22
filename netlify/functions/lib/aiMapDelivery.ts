@@ -122,14 +122,15 @@ export async function writeReport(facts: ReportFacts, timeoutMs: number): Promis
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
       signal: controller.signal,
-      body: JSON.stringify({ model: DEEPSEEK_MODEL, temperature: 0.4, max_tokens: 2500, messages: [{ role: "system", content: SYSTEM_PROMPT }, { role: "user", content: buildUserMessage(safeFacts, template) }] }),
+      body: JSON.stringify({ model: DEEPSEEK_MODEL, temperature: 0.4, max_tokens: 4000, messages: [{ role: "system", content: SYSTEM_PROMPT }, { role: "user", content: buildUserMessage(safeFacts, template) }] }),
     });
     const raw = await upstream.text();
     if (!upstream.ok) throw new Error(`DeepSeek ${upstream.status}: ${raw.slice(0, 200)}`);
     const payload = JSON.parse(raw) as Completion;
     const choice = payload.choices?.[0];
     const text = choice?.message?.content?.trim();
-    if (!text || text.length < template.length / 2) {
+    // A cut-off report (finish_reason "length") is worse than the template: it ends mid-sentence.
+    if (!text || text.length < template.length / 2 || choice?.finish_reason === "length") {
       throw new Error(`DeepSeek returned no usable report (model ${DEEPSEEK_MODEL}, finish ${choice?.finish_reason ?? "?"}, content ${text?.length ?? 0} chars, reasoning ${choice?.message?.reasoning_content?.length ?? 0} chars, template ${template.length} chars): ${raw.slice(0, 200)}`);
     }
     return { text, source: `deepseek:${DEEPSEEK_MODEL}` };
