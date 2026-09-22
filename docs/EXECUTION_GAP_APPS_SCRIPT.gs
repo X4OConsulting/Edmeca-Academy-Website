@@ -14,13 +14,12 @@ const AI_MAP_HEADERS = [
   'name','email','organisation','wantsCall','reportSource','reportText','unlockedAt','userAgent','referrer'
 ];
 // Where lead notifications go, and the reply-to on every respondent email.
-// Set the NOTIFY_TO script property (Project Settings > Script Properties) to
-// choose the mailbox; without it, the Google account that owns this script is
-// used, which always exists. The old hard-coded raymond@edmeca.co.za had no
-// mailbox, so every unlock produced an "Address not found" bounce instead of
-// a lead notification.
+// A NOTIFY_TO script property (Project Settings > Script Properties) overrides
+// the default. The earlier raymond@edmeca.co.za had no mailbox, so every unlock
+// produced an "Address not found" bounce instead of a lead notification.
+const NOTIFY_TO_DEFAULT = 'rcrown@edmeca.co.za';
 function notifyTo_() {
-  return PropertiesService.getScriptProperties().getProperty('NOTIFY_TO') || Session.getEffectiveUser().getEmail();
+  return PropertiesService.getScriptProperties().getProperty('NOTIFY_TO') || NOTIFY_TO_DEFAULT;
 }
 const FROM_NAME = 'Edmeca';
 const HEADERS = [
@@ -121,7 +120,7 @@ function routeFor_(body) {
 function checkSetup() {
   Logger.log('Script version: %s', SCRIPT_VERSION);
   Logger.log('Sending as: %s', Session.getEffectiveUser().getEmail());
-  Logger.log('Notifications and reply-to: %s (%s)', notifyTo_(), PropertiesService.getScriptProperties().getProperty('NOTIFY_TO') ? 'NOTIFY_TO script property' : 'script owner; set NOTIFY_TO to change');
+  Logger.log('Notifications and reply-to: %s (%s)', notifyTo_(), PropertiesService.getScriptProperties().getProperty('NOTIFY_TO') ? 'NOTIFY_TO script property' : 'default; set NOTIFY_TO to change');
   Logger.log('Emails left today: %s (shared daily quota)', MailApp.getRemainingDailyQuota());
   // Touching GmailApp forces the authorisation prompt for the broader
   // https://mail.google.com/ scope it needs. MailApp only needed script.send_mail,
