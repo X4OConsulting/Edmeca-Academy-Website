@@ -10,7 +10,7 @@ import { ProfileCard, type Profile } from "@/components/aimap/ProfileCard";
 import { ContextCard } from "@/components/aimap/ContextCard";
 import { ReportPanel } from "@/components/aimap/ReportPanel";
 import type { UnlockFormValues, UnlockState } from "@/components/aimap/UnlockForm";
-import { type Answer, type Answers, type ItemId, type RespondentMode, type Wave, cohortNames, pulseItems } from "@/data/aiMap";
+import { type Answer, type Answers, type ItemId, type RespondentMode, type Wave, cohortNames } from "@/data/aiMap";
 import { type AIMapResult, type Movement, type PriorPosition, allAnswered, isAnswer, itemsForWave, movementBetween, nextUnanswered, runningPosition, scoreAIMap } from "@/lib/aiMap";
 
 type View = "landing" | "map";
@@ -230,7 +230,7 @@ export default function AIMap() {
     setUnlockError("");
   };
 
-  const cohortLabel = cohort ? cohortNames[cohort] ?? `cohort ${cohort}` : undefined;
+  const cohortLabel = cohort ? cohortNames[cohort] ?? cohort : undefined;
 
   if (view === "landing") {
     return <MarketingLayout><Landing onStart={start} cohortLabel={cohortLabel} returning={Boolean(prior)} /></MarketingLayout>;
@@ -257,7 +257,7 @@ export default function AIMap() {
               ? <ReportPanel result={result} mode={mode} profile={profile} movement={movement} previous={previousDot} cohort={cohort || undefined} unlockState={unlockState} unlockError={unlockError} onUnlock={unlock} onReset={reset} onRevisit={goTo} />
               : null;
 
-  const waveLabel = wave === "mid" ? `Mid-programme pulse: ${pulseItems.length} statements` : wave === "post" ? "Post-programme baseline" : "AI Enablement Baseline";
+  const waveLabel = wave === "mid" ? "Mid-point pulse" : wave === "post" ? "Follow-up assessment" : "AI Enablement Baseline";
 
   return (
     <MarketingLayout>

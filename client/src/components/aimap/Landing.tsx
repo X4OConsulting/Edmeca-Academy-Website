@@ -27,7 +27,7 @@ export function Landing({ onStart, cohortLabel, returning }: Props) {
           </div>
           <div className="rounded-2xl border border-edmeca-green-soft bg-edmeca-green-tint p-6 sm:p-8">
             <MapMiniature className="h-auto w-full" />
-            <p className="mt-5 text-sm leading-relaxed text-edmeca-grey">Your dot moves as you answer 24 short statements. Nothing is judged until you say "show my position".</p>
+            <p className="mt-5 text-sm leading-relaxed text-edmeca-grey">Your dot moves with every statement you answer. Nothing is judged until you say "show my position".</p>
           </div>
         </div>
       </section>
@@ -46,7 +46,7 @@ export function Landing({ onStart, cohortLabel, returning }: Props) {
               );
             })}
           </div>
-          <p className="mt-8 max-w-3xl text-sm leading-relaxed text-edmeca-grey">Programmes use the same 24 statements as a baseline before Session 1 and a measure after Session 6, so every participant, and the programme itself, can see the dot move. Cohort members answer with their programme code and still get their own results and report.</p>
+          <p className="mt-8 max-w-3xl text-sm leading-relaxed text-edmeca-grey">Take it on your own, for your business or for yourself. If you then engage Edmeca, the interventions are built around what your map shows, and you can retake the baseline afterwards to see the dot move.</p>
         </div>
       </section>
     </div>

@@ -195,7 +195,9 @@ describe("report prompt", () => {
     const result = scoreAIMap(ANSWERS as unknown as Answers);
     const text = buildTemplateReport({ mode: "business", result, profile: { programmeStatus: "In an ESD programme, incubator or accelerator now" } });
     ["C1", "C2", "C3", "C4", "R1", "R2", "R3", "R4"].forEach((code) => expect(text).toContain(code));
-    expect(text).toContain("inside your programme");
+    expect(text).toContain("interventions are built around this map");
+    expect(text).toContain("Edmeca intervention:");
+    expect(text).not.toMatch(/Session \d/);
     expect(text).toContain("Capability 75, Readiness 25");
   });
 

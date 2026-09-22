@@ -1,6 +1,6 @@
 // Bump when pasting a new version in, then run checkSetup() to confirm the
 // deployment actually serving traffic is the one you just pasted.
-const SCRIPT_VERSION = '4.0';
+const SCRIPT_VERSION = '4.1';
 const SHEET_NAME = 'Responses';
 // The AI Enablement Baseline (/ai-map) shares this web app and spreadsheet.
 // Its rows go to a second tab; see the AI MAP section at the end of this file.
@@ -102,8 +102,8 @@ function sendNotification_(body) {
 function routeFor_(body) {
   const stalls = body.result?.stalls || [];
   const count = stalls.filter(function (stall) { return stall !== 'C'; }).length;
-  if (body.stageBand === 'trading') return count >= 5 ? 'Full Journey' : count >= 3 ? 'Mid-Tier' : 'Focused Session';
-  return count >= 3 ? 'Mid-Tier' : 'Focused Session';
+  if (body.stageBand === 'trading') return count >= 5 ? 'Extended intervention series' : count >= 3 ? 'Targeted interventions' : 'Focused intervention';
+  return count >= 3 ? 'Targeted interventions' : 'Focused intervention';
 }
 
 /**
@@ -221,9 +221,7 @@ function aiMap_(body) {
 
 function aiMapRoute_(body) {
   const quadrant = (body.result || {}).quadrant;
-  const route = quadrant === 'fuelled' ? 'Focused Sessions / partnership' : quadrant === 'transformers' ? 'Six-week programme or Mid-Tier' : quadrant === 'pathseekers' ? 'Mid-Tier' : 'Focused Session / six-week programme';
-  const inProgramme = (body.profile || {}).programmeStatus === 'In an ESD programme, incubator or accelerator now';
-  return inProgramme ? route + ' (inside programme)' : route;
+  return quadrant === 'fuelled' ? 'Focused interventions / partnership' : quadrant === 'transformers' ? 'Structured hands-on interventions' : quadrant === 'pathseekers' ? 'Targeted interventions' : 'Focused intervention to start';
 }
 
 function aiMapRow_(body, status) {
@@ -325,7 +323,7 @@ function aiMapSendReport_(body) {
     return '<tr><td style="padding:4px 8px 4px 0;color:#5D6266">' + code + ' ' + AI_MAP_DIMENSION_NAMES[code] + '</td><td style="padding:4px 0;font-weight:bold;color:#53317A;text-align:right">' + score + '</td></tr>';
   }).join('');
   const report = escapeHtml_(body.reportText || 'Your AI Enablement Report is ready.');
-  const plain = (body.reportText || 'Your AI Enablement Report is ready.') + '\n\nRetake your baseline in 90 days: ' + retestLink + '\n\nWe use your details to send this report and, if you asked for one, to arrange a conversation. We do not share them.';
+  const plain = (body.reportText || 'Your AI Enablement Report is ready.') + '\n\nRetake your baseline in 90 days, or after an intervention: ' + retestLink + '\n\nWe use your details to send this report and, if you asked for one, to arrange a conversation. We do not share them.';
   GmailApp.sendEmail(body.email, 'Your Edmeca AI Enablement Report: ' + quadrantName, plain, {
     name: FROM_NAME,
     replyTo: NOTIFY_TO,
@@ -339,7 +337,7 @@ function aiMapSendReport_(body) {
       + '<h2 style="color:#53317A;font-size:16px;margin:24px 0 8px">Your AI Enablement Report</h2>'
       + '<div style="white-space:pre-line;line-height:1.6">' + report + '</div>'
       + '<p style="margin:24px 0"><a href="' + retestLink + '" style="background:#6E9A43;color:#fff;padding:12px 18px;text-decoration:none;font-weight:bold">Come back and move the dot</a></p>'
-      + '<p style="font-size:13px">That link re-opens your baseline so you can retake it after a programme and see how far your dot has moved. Talk to Edmeca: <a href="https://edmeca.co.za/contact" style="color:#53317A">edmeca.co.za/contact</a>.</p>'
+      + '<p style="font-size:13px">That link re-opens your baseline so you can retake it in 90 days, or after an intervention, and see how far your dot has moved. Talk to Edmeca: <a href="https://edmeca.co.za/contact" style="color:#53317A">edmeca.co.za/contact</a>.</p>'
       + '<p style="font-size:11px;color:#8a8f93;margin-top:24px">We use your details to send this report and, if you asked for one, to arrange a conversation. We do not share them.</p>'
       + '</div>'
   });

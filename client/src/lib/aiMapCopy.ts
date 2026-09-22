@@ -2,15 +2,14 @@
  * Sentences derived from a result that both the report panel and the emailed
  * report use, so the screen and the email say the same thing.
  */
-import { type DimensionCode, type Quadrant, bandFor, bandMeaning, dimensionFor, inProgrammeRouteNote, inProgrammeStatus, quadrants } from "@/data/aiMap";
+import { type DimensionCode, type Quadrant, bandFor, bandMeaning, dimensionFor, engagementNote, quadrants } from "@/data/aiMap";
 import { type AIMapResult, type Movement, balanceLabel, neighbouringQuadrants } from "@/lib/aiMap";
 
 const quadrantName = (quadrant: Quadrant) => quadrants[quadrant].name;
 
-export function routeParagraph(result: Pick<AIMapResult, "quadrant">, programmeStatus?: string): string {
+export function routeParagraph(result: Pick<AIMapResult, "quadrant">): string {
   const copy = quadrants[result.quadrant];
-  const route = `${copy.route} Format: ${copy.format}`;
-  return programmeStatus === inProgrammeStatus ? `${route} ${inProgrammeRouteNote}` : route;
+  return `${copy.route} Format: ${copy.format} ${engagementNote}`;
 }
 
 export function onTheLineSentence(result: AIMapResult): string {

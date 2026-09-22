@@ -21,7 +21,7 @@ export type Dimension = {
   axis: Axis;
   name: string;
   measures: string;
-  sessions: string;
+  intervention: string;
   items: [ItemId, ItemId, ItemId];
 };
 
@@ -41,14 +41,14 @@ export const axisLabels: Record<Axis, string> = {
 export const axisShortLabels: Record<Axis, string> = { capability: "Capability", readiness: "Readiness" };
 
 export const dimensions: Dimension[] = [
-  { code: "C1", axis: "capability", name: "Skills and tool fluency", measures: "Can people get real work done with AI assistants, consistently", sessions: "Sessions 1 and 2", items: [1, 2, 3] },
-  { code: "C2", axis: "capability", name: "Adoption in daily work", measures: "Is AI inside real, recurring processes rather than experiments", sessions: "Sessions 2 and 3", items: [4, 5, 6] },
-  { code: "C3", axis: "capability", name: "Data and information readiness", measures: "Is the information AI needs organised, accurate and safely shareable", sessions: "Session 4", items: [7, 8, 9] },
-  { code: "C4", axis: "capability", name: "Outcomes and value", measures: "Can results be named, measured and traced to decisions", sessions: "Sessions 4 and 6", items: [10, 11, 12] },
-  { code: "R1", axis: "readiness", name: "Ambition and strategy", measures: "A clear, written view of where AI creates value in the next 12 months", sessions: "Sessions 1 and 5", items: [13, 14, 15] },
-  { code: "R2", axis: "readiness", name: "Leadership and commitment", measures: "Leaders use it, someone owns it, time and money are set aside", sessions: "Sessions 1 and 6", items: [16, 17, 18] },
-  { code: "R3", axis: "readiness", name: "People and change", measures: "Willingness to change ways of working, a structured way to build skills, sharing what works", sessions: "Sessions 2 and 6", items: [19, 20, 21] },
-  { code: "R4", axis: "readiness", name: "Governance and responsible use", measures: "Simple rules, human review before it matters, data and privacy obligations understood", sessions: "Session 6", items: [22, 23, 24] },
+  { code: "C1", axis: "capability", name: "Skills and tool fluency", measures: "Can people get real work done with AI assistants, consistently", intervention: "Hands-on tool fluency", items: [1, 2, 3] },
+  { code: "C2", axis: "capability", name: "Adoption in daily work", measures: "Is AI inside real, recurring processes rather than experiments", intervention: "Rebuilding one process with AI", items: [4, 5, 6] },
+  { code: "C3", axis: "capability", name: "Data and information readiness", measures: "Is the information AI needs organised, accurate and safely shareable", intervention: "Data and information readiness", items: [7, 8, 9] },
+  { code: "C4", axis: "capability", name: "Outcomes and value", measures: "Can results be named, measured and traced to decisions", intervention: "Measurement and value tracking", items: [10, 11, 12] },
+  { code: "R1", axis: "readiness", name: "Ambition and strategy", measures: "A clear, written view of where AI creates value in the next 12 months", intervention: "AI opportunity mapping", items: [13, 14, 15] },
+  { code: "R2", axis: "readiness", name: "Leadership and commitment", measures: "Leaders use it, someone owns it, time and money are set aside", intervention: "Leadership and ownership", items: [16, 17, 18] },
+  { code: "R3", axis: "readiness", name: "People and change", measures: "Willingness to change ways of working, a structured way to build skills, sharing what works", intervention: "Skills and change practice", items: [19, 20, 21] },
+  { code: "R4", axis: "readiness", name: "Governance and responsible use", measures: "Simple rules, human review before it matters, data and privacy obligations understood", intervention: "Responsible use rules", items: [22, 23, 24] },
 ];
 
 export const dimensionCodes = dimensions.map((dimension) => dimension.code) as DimensionCode[];
@@ -70,10 +70,10 @@ export const items: Item[] = [
   { id: 14, dimension: "R1", business: "That view is written down with priorities, not just talked about.", individual: "That view is written down with priorities.", why: "A written priority survives a busy month. A spoken one does not." },
   { id: 15, dimension: "R1", business: "AI features in our business plan or strategy, not as an add-on.", individual: "AI features in my business or development plan, not as an add-on.", why: "Add-ons get cut first. Strategy gets funded." },
   { id: 16, dimension: "R2", business: "The owner or leadership actively uses AI and talks about it with the team.", individual: "I set aside regular time each week to learn and apply AI.", why: "People copy what leaders do, not what they say." },
-  { id: 17, dimension: "R2", business: "There is a named person responsible for AI in the business.", individual: "I have made my progress accountable to someone: a mentor, a peer or a programme.", why: "What nobody owns, nobody moves." },
+  { id: 17, dimension: "R2", business: "There is a named person responsible for AI in the business.", individual: "I have made my progress accountable to someone: a mentor, a peer or a coach.", why: "What nobody owns, nobody moves." },
   { id: 18, dimension: "R2", business: "Time and money are set aside for AI: tools, learning and experimentation.", individual: "I have a budget, in time or money, for AI tools and learning.", why: "A budget, however small, is the difference between intent and commitment." },
   { id: 19, dimension: "R3", business: "People are willing to change how they work when AI offers a better way.", individual: "I am willing to change how I work when AI offers a better way.", why: "The tool is rarely the blocker. The habit is." },
-  { id: 20, dimension: "R3", business: "We have a structured way to build skills: a programme, courses, peer learning or set practice.", individual: "I have a structured way to build my AI skills, not just trial and error.", why: "Trial and error works, slowly. Structure gets you there this quarter." },
+  { id: 20, dimension: "R3", business: "We have a structured way to build skills: courses, peer learning or set practice.", individual: "I have a structured way to build my AI skills, not just trial and error.", why: "Trial and error works, slowly. Structure gets you there this quarter." },
   { id: 21, dimension: "R3", business: "When something works, it gets shared and copied across the business.", individual: "When something works, I write it down and reuse it.", why: "A win nobody hears about happens once." },
   { id: 22, dimension: "R4", business: "We have simple rules for AI use: what is allowed, what is not, and what a person must check.", individual: "I have my own rules for AI use: what I will not put into it and what I always check.", why: "Simple rules let people move fast without guessing." },
   { id: 23, dimension: "R4", business: "A person reviews AI output before it reaches a customer, a funder or a contract.", individual: "I review AI output before it goes to anyone who matters.", why: "One unchecked paragraph in a contract costs more than a year of checking." },
@@ -82,7 +82,7 @@ export const items: Item[] = [
 
 export const itemIds = items.map((item) => item.id) as ItemId[];
 
-/** The mid-programme pulse: one statement per dimension except C3, two for R4, about two minutes. */
+/** The mid-point pulse: one statement per dimension except C3, two for R4, about two minutes. */
 export const pulseItems: ItemId[] = [1, 4, 10, 13, 16, 19, 22, 24];
 
 export const scale: { value: Answer; label: string; short: string }[] = [
@@ -97,10 +97,9 @@ export const businessSizes = ["Just me", "2 to 5", "6 to 20", "21 to 50", "51 to
 export const roles = ["Founder or owner", "Manager or team lead", "Professional or specialist", "Student or job seeker", "Other"];
 export const sectors = ["Construction and trades", "Property and facilities services", "Professional services and consulting", "Retail and e-commerce", "Manufacturing", "Hospitality and tourism", "Logistics and transport", "Agriculture and agri-processing", "Technology and digital", "Education and training", "Health and wellness", "Creative and media", "Public sector and non-profit", "Other"];
 export const programmeStatuses = ["In an ESD programme, incubator or accelerator now", "Applying or planning to", "Not currently"];
-export const inProgrammeStatus = programmeStatuses[0];
 
-/** Known cohort codes. Unknown codes still work; they are shown as the code itself. */
-export const cohortNames: Record<string, string> = { PP2026: "Property Point 2026" };
+/** Friendly names for group codes passed as ?cohort=. Unknown codes are shown as the code itself. */
+export const cohortNames: Record<string, string> = {};
 
 export type QuadrantCopy = {
   id: Quadrant;
@@ -120,8 +119,8 @@ export const quadrants: Record<Quadrant, QuadrantCopy> = {
     subtitle: "Exploring the possibilities",
     position: "Lower capability, lower readiness",
     reading: "You have tried AI, mostly in isolation. There is no clear plan yet, skills sit with one or two people, and you cannot yet point to a result. Everything is ahead of you, which is where most businesses honestly are.",
-    route: "AI Foundations: opportunity mapping plus hands-on tooling on real tasks, then a simple 90-day plan. Sessions 1, 2 and 6 as the core.",
-    format: "A Focused Session to start; the six-week programme when in a cohort.",
+    route: "AI Foundations: opportunity mapping plus hands-on tooling on real tasks, then a simple 90-day plan.",
+    format: "A focused intervention to start, extended as results show.",
     tint: "#F3F4F6",
   },
   pathseekers: {
@@ -130,8 +129,8 @@ export const quadrants: Record<Quadrant, QuadrantCopy> = {
     subtitle: "Building momentum",
     position: "Higher capability, lower readiness",
     reading: "You can do real things with AI and have a result or two to show, but it lives in pockets. Without a plan, an owner who leads it, and simple rules, it will not spread or survive a staff change.",
-    route: "From pockets to plan: keep the capability, add the strategy, ownership and rules that let it spread. Sessions 1, 5 and 6 lead; 2 to 4 reinforce.",
-    format: "Mid-Tier, four to five targeted interventions.",
+    route: "From pockets to plan: keep the capability, add the strategy, ownership and rules that let it spread.",
+    format: "Four to five targeted interventions.",
     tint: "#EEF4E6",
   },
   transformers: {
@@ -140,8 +139,8 @@ export const quadrants: Record<Quadrant, QuadrantCopy> = {
     subtitle: "From pilots to real impact",
     position: "Lower capability, higher readiness",
     reading: "You are ready: leadership wants this, there is a plan and rules are forming. The gap is hands-on capability, which is the fastest gap to close with structured, applied training.",
-    route: "Hands-on enablement: readiness is there, so run the applied curriculum end to end and measure the results. Sessions 2, 3 and 4 lead.",
-    format: "The six-week programme or Mid-Tier.",
+    route: "Hands-on enablement: readiness is there, so build the applied capability end to end and measure the results.",
+    format: "A structured series of hands-on interventions.",
     tint: "#F1ECF7",
   },
   fuelled: {
@@ -150,25 +149,25 @@ export const quadrants: Record<Quadrant, QuadrantCopy> = {
     subtitle: "At scale and continuously learning",
     position: "Higher capability, higher readiness",
     reading: "AI is in how you work and how you decide, you measure what it produces, and you keep improving. The next step is compounding: new offers, sharper decisions, and helping others get there.",
-    route: "Compound and lead: AI-augmented strategy, measurement discipline, new offers, and a case study Edmeca can tell. Sessions 4 and 5 at depth.",
-    format: "Focused Sessions on demand; a partnership conversation.",
+    route: "Compound and lead: AI-augmented strategy, measurement discipline, new offers, and a case study Edmeca can tell.",
+    format: "Focused interventions on demand, and a partnership conversation.",
     tint: "#E9F0E4",
   },
 };
 
-export const inProgrammeRouteNote = "Edmeca delivers this as the AI capability layer inside your programme, with your baseline and post-programme movement reported to the programme.";
+export const engagementNote = "When Edmeca engages with you, the interventions are built around this map, and you retake the baseline afterwards to measure the movement.";
 
-export type Action = { business: string; individual: string; session: string };
+export type Action = { business: string; individual: string };
 
 export const actions: Record<DimensionCode, Action> = {
-  C1: { business: "Pick one AI assistant for the business, run one 90-minute hands-on session on three real tasks, and start a shared prompt library.", individual: "Spend 20 minutes a day for two weeks doing real tasks with one assistant, and keep every prompt that worked.", session: "Sessions 1 and 2" },
-  C2: { business: "Choose the most repetitive weekly process (quotes, reports, follow-ups) and rebuild it with AI and a checklist.", individual: "Choose one weekly task and make AI the default way you do it for a month.", session: "Session 2" },
-  C3: { business: "Put customer records, pricing and key documents in one organised place, and label what is sensitive.", individual: "Organise your working notes and documents into folders an assistant can search, and separate anything confidential.", session: "Session 4" },
-  C4: { business: "Pick one result to measure (hours saved, quote turnaround, leads) and record it weekly for a month.", individual: "Track one result for a month: time saved or output produced.", session: "Sessions 4 and 6" },
-  R1: { business: "Write a one-page AI opportunity map: the three to five places AI will pay off first, with an owner and a date.", individual: "Write down the three places AI will pay off for you this year and what \"done\" looks like.", session: "Sessions 1 and 5" },
-  R2: { business: "Name the person who owns AI, agree a monthly review, and set a small budget for tools and learning.", individual: "Block a weekly learning slot, tell someone about it, and set a review date.", session: "Session 6" },
-  R3: { business: "Run a monthly 30-minute \"what worked\" session and put every win in a shared place.", individual: "Join a peer group or programme so you learn from others' wins, and reuse what works.", session: "Session 6" },
-  R4: { business: "Write a one-page AI use rule: what goes in, what does not, what a person checks before it goes out.", individual: "Write your own three rules for AI use and stick them where you work.", session: "Session 6" },
+  C1: { business: "Pick one AI assistant for the business, run one 90-minute hands-on session on three real tasks, and start a shared prompt library.", individual: "Spend 20 minutes a day for two weeks doing real tasks with one assistant, and keep every prompt that worked." },
+  C2: { business: "Choose the most repetitive weekly process (quotes, reports, follow-ups) and rebuild it with AI and a checklist.", individual: "Choose one weekly task and make AI the default way you do it for a month." },
+  C3: { business: "Put customer records, pricing and key documents in one organised place, and label what is sensitive.", individual: "Organise your working notes and documents into folders an assistant can search, and separate anything confidential." },
+  C4: { business: "Pick one result to measure (hours saved, quote turnaround, leads) and record it weekly for a month.", individual: "Track one result for a month: time saved or output produced." },
+  R1: { business: "Write a one-page AI opportunity map: the three to five places AI will pay off first, with an owner and a date.", individual: "Write down the three places AI will pay off for you this year and what \"done\" looks like." },
+  R2: { business: "Name the person who owns AI, agree a monthly review, and set a small budget for tools and learning.", individual: "Block a weekly learning slot, tell someone about it, and set a review date." },
+  R3: { business: "Run a monthly 30-minute \"what worked\" session and put every win in a shared place.", individual: "Join a peer group or a course so you learn from others' wins, and reuse what works." },
+  R4: { business: "Write a one-page AI use rule: what goes in, what does not, what a person checks before it goes out.", individual: "Write your own three rules for AI use and stick them where you work." },
 };
 
 /** Score bands used in the profile bars and the templated report. */

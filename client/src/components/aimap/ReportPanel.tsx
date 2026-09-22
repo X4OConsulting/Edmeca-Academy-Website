@@ -66,7 +66,7 @@ export function ReportPanel({ result, mode, profile, movement, previous, cohort,
         </div>
       </div>
 
-      {cohort && <p className="rounded-full bg-edmeca-green-tint px-3 py-1 text-xs font-semibold text-edmeca-green">Answering as part of {cohortNames[cohort] ?? `cohort ${cohort}`}</p>}
+      {cohort && <p className="rounded-full bg-edmeca-green-tint px-3 py-1 text-xs font-semibold text-edmeca-green">Answering as part of {cohortNames[cohort] ?? cohort}</p>}
 
       <section>
         <p className="text-base leading-relaxed text-edmeca-grey">{copy.reading}</p>
@@ -101,7 +101,7 @@ export function ReportPanel({ result, mode, profile, movement, previous, cohort,
                 <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-edmeca-grey">Next 30 days</p>
                 <p className="mt-1 text-sm leading-relaxed text-edmeca-grey">{action[mode]}</p>
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
-                  <span className="font-semibold text-edmeca-green">Covered in {action.session}</span>
+                  <span className="font-semibold text-edmeca-green">Edmeca intervention: {dimension.intervention}</span>
                   <Link href={`/contact?topic=${encodeURIComponent(dimension.name)}`} className="inline-flex items-center gap-1 font-semibold text-edmeca-purple underline-offset-2 hover:underline"><MessageCircle className="h-3.5 w-3.5" /> Ask about this</Link>
                 </div>
                 <button type="button" onClick={() => onRevisit(dimension.items[0])} className="mt-2 text-xs text-edmeca-grey underline-offset-2 hover:underline">Revisit these statements</button>
@@ -113,7 +113,7 @@ export function ReportPanel({ result, mode, profile, movement, previous, cohort,
 
       <section className="rounded-xl border border-edmeca-purple-soft bg-edmeca-purple-soft/30 p-5">
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-edmeca-purple">Your Edmeca route</p>
-        <p className="mt-2 text-sm leading-relaxed text-edmeca-grey">{routeParagraph(result, profile.programmeStatus)}</p>
+        <p className="mt-2 text-sm leading-relaxed text-edmeca-grey">{routeParagraph(result)}</p>
       </section>
 
       <section>
@@ -137,7 +137,7 @@ export function ReportPanel({ result, mode, profile, movement, previous, cohort,
 
       <section>
         <h3 className="text-base font-bold text-edmeca-purple">Come back and move the dot</h3>
-        <p className="mt-1 text-sm leading-relaxed text-edmeca-grey">The link in your email re-opens this baseline. Retake it after a programme, or in 90 days, and your results will show how far your dot has moved on both axes and in every dimension.</p>
+        <p className="mt-1 text-sm leading-relaxed text-edmeca-grey">The link in your email re-opens this baseline. Retake it in 90 days, or after an intervention, and your results will show how far your dot has moved on both axes and in every dimension.</p>
       </section>
 
       <div className="flex flex-wrap gap-2">

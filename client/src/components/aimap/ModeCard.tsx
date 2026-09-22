@@ -13,7 +13,7 @@ export function ModeCard({ mode, onSelect }: Props) {
     <section>
       <p className="text-xs font-bold uppercase tracking-[0.16em] text-edmeca-purple">First, one choice</p>
       <h2 className="mt-3 text-2xl font-bold text-edmeca-purple">Who are you answering for?</h2>
-      <p className="mt-2 text-sm leading-relaxed text-edmeca-grey">Same map, same scoring. This sets how the 24 statements are phrased.</p>
+      <p className="mt-2 text-sm leading-relaxed text-edmeca-grey">Same map, same scoring. This sets how each statement is phrased.</p>
       <div className="mt-6 grid gap-3">
         {tiles.map(({ value, title, detail, Icon }) => (
           <button key={value} type="button" onClick={() => onSelect(value)} className={`flex items-start gap-4 rounded-xl border p-4 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-edmeca-purple ${mode === value ? "border-edmeca-purple bg-edmeca-purple-soft" : "border-edmeca-green-soft bg-white hover:border-edmeca-purple"}`}>

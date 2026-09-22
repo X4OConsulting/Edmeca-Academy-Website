@@ -30,7 +30,7 @@ export default function Diagnostic() {
               <span className="inline-flex w-fit rounded-lg bg-edmeca-green-tint p-3 text-edmeca-green"><User className="h-6 w-6" /></span>
               <span className="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-edmeca-green">I am an individual</span>
               <span className="mt-2 text-2xl font-bold text-edmeca-purple">Where am I on the AI Enablement Map?</span>
-              <span className="mt-3 flex-1 text-sm leading-relaxed text-edmeca-grey">A founder, a professional or a programme participant answering for yourself. Eight minutes, 24 statements, and a dot that moves as you answer. You leave with your position, your two priorities and a report.</span>
+              <span className="mt-3 flex-1 text-sm leading-relaxed text-edmeca-grey">A founder, a professional or a team member answering for yourself. Eight minutes, and a dot that moves as you answer. You leave with your position, your two priorities and a report.</span>
               <span className="mt-6 inline-flex items-center gap-2 font-semibold text-edmeca-purple">Place my dot <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
             </Link>
 
@@ -43,7 +43,7 @@ export default function Diagnostic() {
             </Link>
           </div>
 
-          <p className="mt-8 text-sm text-edmeca-grey">Answering for a business or team on the AI Enablement Map? <Link href="/ai-map?for=business" className="font-semibold text-edmeca-purple underline-offset-2 hover:underline">Start the business version</Link>. Programme cohorts use the link their programme sent them.</p>
+          <p className="mt-8 text-sm text-edmeca-grey">Answering for a business or team on the AI Enablement Map? <Link href="/ai-map?for=business" className="font-semibold text-edmeca-purple underline-offset-2 hover:underline">Start the business version</Link>.</p>
         </section>
       </div>
     </MarketingLayout>

@@ -46,7 +46,7 @@ function buildReport(body: Body, result: ReturnType<typeof compute>) {
     if (!capability) return "";
     const stall = result.stalls[id - 1];
     const close = capability.closes[stall === "E" ? "E" : stall === "V" ? "V" : "F"][band];
-    return `${index}. ${capability.name} — ${result.stallLabels[id - 1]}\n   Do this: ${close}\n   Edmeca: ${capability.tool} · ${capability.session}`;
+    return `${index}. ${capability.name} — ${result.stallLabels[id - 1]}\n   Do this: ${close}\n   Edmeca intervention: ${capability.intervention}`;
   };
   const widest = result.widestGaps.map((id, i) => gap(id, i + 1)).filter(Boolean);
   const level = Number(body.aiMultiplier) || 0;
@@ -118,7 +118,7 @@ async function elaborate(template: string, body: Body): Promise<{ text: string; 
               "You will be given a completed diagnostic report. Expand it into a warmer, fuller report the founder can act on.",
               "RULES, all absolute:",
               "1. Never invent, change, remove or add any number, score, total, gap figure or percentage. Reproduce every figure exactly as given.",
-              "2. Never invent capability names, recommended actions, tools or session names. Use only those supplied.",
+              "2. Never invent capability names, recommended actions or intervention names. Use only those supplied.",
               "3. Keep every section and keep them in the same order, under the same headings.",
               "4. Expand the commentary around the facts: explain what each figure means for the business and why the recommended action matters.",
               "5. South African English. Plain text only — no markdown, asterisks or bullet characters.",

@@ -143,7 +143,7 @@ export default function Solutions() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Free baseline. Eight minutes.</p>
             <h2 className="mt-2 font-serif text-3xl font-bold">Where are you on the AI Enablement Map?</h2>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-primary-foreground/70">Capability is what you can do with AI. Readiness is whether it will stick. Programmes use it as the baseline before Session 1 and the measure after Session 6.</p>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-primary-foreground/70">Capability is what you can do with AI. Readiness is whether it will stick. Take it on your own, then retake it after an intervention to see the dot move.</p>
           </div>
           <Link href="/ai-map" asChild>
             <Button variant="secondary" size="lg" className="shrink-0">Place my dot <ArrowRight className="ml-2 h-4 w-4" /></Button>

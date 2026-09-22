@@ -27,7 +27,7 @@ export function ProfileCard({ mode, profile, onChange, onContinue }: Props) {
       <h2 className="mt-3 text-2xl font-bold text-edmeca-purple">Three quick details so your report fits</h2>
       <Choice label={mode === "business" ? "Business size" : "Your role"} options={mode === "business" ? businessSizes : roles} value={profile.sizeOrRole} onPick={(sizeOrRole) => onChange({ ...profile, sizeOrRole })} />
       <Choice label="Sector" options={sectors} value={profile.sector} onPick={(sector) => onChange({ ...profile, sector })} />
-      <Choice label="Programme status" options={programmeStatuses} value={profile.programmeStatus} onPick={(programmeStatus) => onChange({ ...profile, programmeStatus })} columns={1} />
+      <Choice label="Development support" options={programmeStatuses} value={profile.programmeStatus} onPick={(programmeStatus) => onChange({ ...profile, programmeStatus })} columns={1} />
       <Button disabled={!complete} onClick={onContinue} className="mt-6 bg-edmeca-purple text-white hover:bg-edmeca-purple/90">Continue <ArrowRight className="ml-2 h-4 w-4" /></Button>
     </section>
   );
