@@ -58,10 +58,23 @@ function scriptTarget() {
  * Apps Script answers HTTP 200 even when doPost() caught an error, so the JSON
  * body is the real status.
  */
+// Netlify stops a synchronous function at 26 s. One Apps Script call takes
+// 2-8 s warm and up to ~20 s cold, so each forward gets its own budget and the
+// unlock path makes exactly one call.
+const SCRIPT_TIMEOUT_MS = Number(process.env.AI_MAP_SCRIPT_TIMEOUT_MS) || 22000;
 async function forward(payload: Record<string, unknown>): Promise<Record<string, unknown>> {
   const { url, secret } = scriptTarget();
   if (!url || !secret) return { ok: true, skipped: true };
-  const upstream = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ secret, instrument: "ai-map", ...payload }) });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), SCRIPT_TIMEOUT_MS);
+  let upstream: Response;
+  try {
+    upstream = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ secret, instrument: "ai-map", ...payload }), signal: controller.signal });
+  } catch (error) {
+    throw new Error(error instanceof Error && error.name === "AbortError" ? `Sheet delivery timed out after ${SCRIPT_TIMEOUT_MS} ms` : "Sheet delivery failed");
+  } finally {
+    clearTimeout(timer);
+  }
   if (!upstream.ok) throw new Error("Sheet delivery failed");
   const parsed = await upstream.json().catch(() => null) as Record<string, unknown> | null;
   if (!parsed || parsed.ok !== true) throw new Error(`Sheet delivery failed: ${(parsed?.error as string) ?? "unrecognised response"}`);
@@ -192,13 +205,13 @@ export const handler: Handler = async (event: HandlerEvent) => {
     if (body.action === "unlock") {
       if (!body.name || body.name.length > 100 || !body.email || body.email.length > 200 || !emailPattern.test(body.email) || (body.organisation && body.organisation.length > 200) || typeof body.wantsCall !== "boolean") return response(400, { message: "Invalid contact details" }, origin);
       const email = body.email.trim().toLowerCase();
-      // Without a re-test link, match on the email so a returning respondent still sees movement.
+      const report = await writeReport({ mode, result, profile, context: body.context, cohort: body.cohort, organisation: body.organisation, movement });
+      const delivered = await forward({ action: "unlock", ...common, movement, name: body.name.trim(), email, organisation: (body.organisation || "").trim(), wantsCall: body.wantsCall, reportText: report.text, reportSource: report.source });
+      // Without a re-test link the Apps Script matches the email itself and returns the earlier row, so a returning respondent still sees movement.
       if (!movement) {
-        const byEmail = await lookup({ email, exclude: body.respondentId });
+        const byEmail = toPrior(delivered.previous);
         if (byEmail) movement = movementBetween(byEmail, result);
       }
-      const report = await writeReport({ mode, result, profile, context: body.context, cohort: body.cohort, organisation: body.organisation, movement });
-      await forward({ action: "unlock", ...common, movement, name: body.name.trim(), email, organisation: (body.organisation || "").trim(), wantsCall: body.wantsCall, reportText: report.text, reportSource: report.source });
       return response(200, { ok: true, result, movement, reportSource: report.source }, origin);
     }
 

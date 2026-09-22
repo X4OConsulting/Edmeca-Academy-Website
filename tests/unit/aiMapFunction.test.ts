@@ -127,20 +127,20 @@ describe("unlock", () => {
     const res = await post(baselineBody({ action: "unlock", name: "Raymond", email: "R@Example.com", organisation: "Edmeca", wantsCall: true }));
     expect(res.statusCode).toBe(200);
     expect(JSON.parse(res.body).reportSource).toBe("template");
-    // One lookup by email (for movement) and one unlock forward.
+    // Exactly one Apps Script call: the script matches the email itself.
     const actions = fetchMock.mock.calls.map((call) => JSON.parse(call[1].body).action);
-    expect(actions).toEqual(["lookup", "unlock"]);
-    const sent = JSON.parse(fetchMock.mock.calls[1][1].body);
+    expect(actions).toEqual(["unlock"]);
+    const sent = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(sent.email).toBe("r@example.com");
     expect(sent.reportText).toContain("PATHSEEKERS");
     expect(sent.reportText).toContain("WHAT MOVES YOUR DOT");
     expect(sent.reportSource).toBe("template");
   });
 
-  it("uses the email match to report movement for a returning respondent", async () => {
+  it("uses the email match returned by the unlock to report movement for a returning respondent", async () => {
     fetchMock.mockImplementation(async (_url: string, init: { body: string }) => {
       const body = JSON.parse(init.body);
-      if (body.action === "lookup") return scriptOk({ ok: true, previous: { respondentId: BASELINE_ID, capability: 50, readiness: 25, quadrant: "fuelled", dimensions: { C1: 50, C2: 50, C3: 50, C4: 50, R1: 25, R2: 25, R3: 25, R4: 25 } } });
+      if (body.action === "unlock") return scriptOk({ ok: true, previous: { respondentId: BASELINE_ID, capability: 50, readiness: 25, quadrant: "fuelled", dimensions: { C1: 50, C2: 50, C3: 50, C4: 50, R1: 25, R2: 25, R3: 25, R4: 25 } } });
       return scriptOk();
     });
     const res = await post(baselineBody({ action: "unlock", name: "Raymond", email: "r@example.com", wantsCall: false }));

@@ -1,6 +1,6 @@
 // Bump when pasting a new version in, then run checkSetup() to confirm the
 // deployment actually serving traffic is the one you just pasted.
-const SCRIPT_VERSION = '4.3';
+const SCRIPT_VERSION = '4.4';
 const SHEET_NAME = 'Responses';
 // The AI Enablement Baseline (/ai-map) shares this web app and spreadsheet.
 // Its rows go to a second tab; see the AI MAP section at the end of this file.
@@ -298,7 +298,12 @@ function aiMapUnlock_(sheet, body) {
     body.name || '', body.email || '', body.organisation || '', body.wantsCall ? 'Yes' : 'No',
     body.reportSource || 'template', body.reportText || '', new Date(), body.userAgent || '', body.referrer || ''
   ]]);
-  return sendBoth_(sheet, rowIndex, aiMapCol_('status'), function () { aiMapSendReport_(body); }, function () { aiMapNotify_(body); });
+  const outcome = sendBoth_(sheet, rowIndex, aiMapCol_('status'), function () { aiMapSendReport_(body); }, function () { aiMapNotify_(body); });
+  // A returning respondent without a re-test link is matched on email here,
+  // in the same execution, rather than by a separate lookup call from the
+  // Netlify function: each web-app call costs several seconds of latency.
+  if (outcome.ok && body.email) outcome.previous = aiMapLookup_(sheet, { email: body.email, exclude: body.respondentId }).previous;
+  return outcome;
 }
 
 /**
