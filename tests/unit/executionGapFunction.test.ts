@@ -71,6 +71,7 @@ describe("execution gap function — Apps Script failures must surface", () => {
   beforeEach(() => {
     process.env.EXECUTION_GAP_SCRIPT_URL = "https://script.google.com/macros/s/test/exec";
     process.env.EXECUTION_GAP_SHARED_SECRET = "test-secret";
+    delete process.env.URL; delete process.env.DEPLOY_PRIME_URL;
     fetchMock = vi.fn();
     global.fetch = fetchMock as never;
   });
@@ -105,6 +106,23 @@ describe("execution gap function — Apps Script failures must surface", () => {
     const sent = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(sent.secret).toBe("test-secret");
     expect(res.body).not.toContain("test-secret");
+  });
+
+  it("hands the validated unlock to the background function and answers at once when the site URL is known", async () => {
+    process.env.URL = "https://edmeca.co.za";
+    fetchMock.mockResolvedValue({ ok: true, status: 202, json: async () => ({}) });
+    const res = await post(mapBody({ action: "unlock", name: "Test Person", email: "test@example.com", business: "Test Business", wantsCall: false }));
+    expect(res.statusCode).toBe(200);
+    expect(JSON.parse(res.body).queued).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("https://edmeca.co.za/.netlify/functions/execution-gap-unlock-background");
+    expect(init.headers["x-execution-gap-token"]).toBe("test-secret");
+    const job = JSON.parse(init.body);
+    expect(job.email).toBe("test@example.com");
+    expect(job.cells["1"].F).toBe(2);
+    expect(job.secret).toBeUndefined();
+    delete process.env.URL;
   });
 
   it("forwards exactly once on unlock", async () => {
@@ -209,6 +227,7 @@ describe("execution gap function — DeepSeek elaboration", () => {
   beforeEach(() => {
     process.env.EXECUTION_GAP_SCRIPT_URL = "https://script.google.com/macros/s/test/exec";
     process.env.EXECUTION_GAP_SHARED_SECRET = "test-secret";
+    delete process.env.URL; delete process.env.DEPLOY_PRIME_URL;
     process.env.DEEPSEEK_API_KEY = "test-deepseek-key";
     sheetCall = {}; deepseekCall = null;
   });
