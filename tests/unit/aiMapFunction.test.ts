@@ -27,6 +27,9 @@ const scriptOk = (payload: Record<string, unknown> = { ok: true }) => ({ ok: tru
 
 beforeEach(() => {
   delete process.env.DEEPSEEK_API_KEY;
+  delete process.env.EDMECA_DEEPSEEK_API;
+  delete process.env.URL;
+  delete process.env.DEPLOY_PRIME_URL;
   process.env.AI_MAP_SCRIPT_URL = "https://script.google.com/macros/s/test/exec";
   process.env.AI_MAP_SHARED_SECRET = "test-secret";
   fetchMock = vi.fn(async () => scriptOk());
@@ -123,7 +126,25 @@ describe("scoring parity and sheet payload", () => {
 });
 
 describe("unlock", () => {
-  it("sends one forward carrying the template report when no model key is set", async () => {
+  it("hands the validated job to the background function and answers at once when the site URL is known", async () => {
+    process.env.URL = "https://edmeca.co.za";
+    fetchMock.mockResolvedValueOnce({ ok: true, status: 202, json: async () => ({}) });
+    const res = await post(baselineBody({ action: "unlock", name: " Raymond ", email: "R@Example.com", organisation: "Edmeca", wantsCall: true }));
+    expect(res.statusCode).toBe(200);
+    expect(JSON.parse(res.body).queued).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("https://edmeca.co.za/.netlify/functions/ai-map-unlock-background");
+    expect(init.headers["x-ai-map-token"]).toBe("test-secret");
+    const job = JSON.parse(init.body);
+    expect(job.name).toBe("Raymond");
+    expect(job.email).toBe("r@example.com");
+    expect(job.answers["24"]).toBe(1);
+    expect(job.secret).toBeUndefined();
+    delete process.env.URL;
+  });
+
+  it("delivers inline, with one forward carrying the template report, when the background call is unavailable", async () => {
     const res = await post(baselineBody({ action: "unlock", name: "Raymond", email: "R@Example.com", organisation: "Edmeca", wantsCall: true }));
     expect(res.statusCode).toBe(200);
     expect(JSON.parse(res.body).reportSource).toBe("template");
