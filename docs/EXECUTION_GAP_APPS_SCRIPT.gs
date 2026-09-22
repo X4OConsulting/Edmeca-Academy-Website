@@ -1,6 +1,6 @@
 // Bump when pasting a new version in, then run checkSetup() to confirm the
 // deployment actually serving traffic is the one you just pasted.
-const SCRIPT_VERSION = '4.1';
+const SCRIPT_VERSION = '4.2';
 const SHEET_NAME = 'Responses';
 // The AI Enablement Baseline (/ai-map) shares this web app and spreadsheet.
 // Its rows go to a second tab; see the AI MAP section at the end of this file.
@@ -13,7 +13,15 @@ const AI_MAP_HEADERS = [
   'priority1','priority2','route','sizeOrRole','sector','programmeStatus','context',
   'name','email','organisation','wantsCall','reportSource','reportText','unlockedAt','userAgent','referrer'
 ];
-const NOTIFY_TO = 'raymond@edmeca.co.za';
+// Where lead notifications go, and the reply-to on every respondent email.
+// Set the NOTIFY_TO script property (Project Settings > Script Properties) to
+// choose the mailbox; without it, the Google account that owns this script is
+// used, which always exists. The old hard-coded raymond@edmeca.co.za had no
+// mailbox, so every unlock produced an "Address not found" bounce instead of
+// a lead notification.
+function notifyTo_() {
+  return PropertiesService.getScriptProperties().getProperty('NOTIFY_TO') || Session.getEffectiveUser().getEmail();
+}
 const FROM_NAME = 'Edmeca';
 const HEADERS = [
   'timestamp','respondentId','status','archetype','loopScore','frameworkTotal','executionTotal','evidenceTotal','executionGap','evidenceGap',
@@ -88,15 +96,15 @@ function sendRespondentEmail_(body) {
   // single options object; passing one silently sends a malformed message.
   GmailApp.sendEmail(body.email, subject, body.reportText || 'Your Execution Gap Report is ready.', {
     name: FROM_NAME,
-    replyTo: NOTIFY_TO,
+    replyTo: notifyTo_(),
     htmlBody: '<div style="font-family:Arial,sans-serif;color:#5D6266;max-width:640px"><img src="https://edmeca.co.za/logo.png" alt="EdMeCa" style="width:160px"><h1 style="color:#53317A">Your Execution Gap Report</h1><p><strong>' + escapeHtml_(body.result?.archetype || 'Your Loop Map') + '</strong></p><div style="white-space:pre-line;line-height:1.6">' + report + '</div><p><a href="https://edmeca.co.za/contact" style="background:#53317A;color:#fff;padding:12px 18px;text-decoration:none">Book a conversation</a></p></div>'
   });
 }
 
 function sendNotification_(body) {
-  GmailApp.sendEmail(NOTIFY_TO, '[Edmeca] Execution Gap lead: ' + (body.name || 'Unknown'),
+  GmailApp.sendEmail(notifyTo_(), '[Edmeca] Execution Gap lead: ' + (body.name || 'Unknown'),
     ['New Execution Gap report unlocked', '', 'Name: ' + (body.name || ''), 'Email: ' + (body.email || ''), 'Business: ' + (body.business || ''), 'Wants a call: ' + (body.wantsCall ? 'YES' : 'no'), 'Stage: ' + (body.stage || ''), 'Sector: ' + (body.sector || ''), 'Archetype: ' + (body.result?.archetype || ''), 'Loop score: ' + (body.result?.loopScore || '')].join('\n'),
-    { name: FROM_NAME, replyTo: NOTIFY_TO });
+    { name: FROM_NAME, replyTo: notifyTo_() });
 }
 
 function routeFor_(body) {
@@ -113,6 +121,7 @@ function routeFor_(body) {
 function checkSetup() {
   Logger.log('Script version: %s', SCRIPT_VERSION);
   Logger.log('Sending as: %s', Session.getEffectiveUser().getEmail());
+  Logger.log('Notifications and reply-to: %s (%s)', notifyTo_(), PropertiesService.getScriptProperties().getProperty('NOTIFY_TO') ? 'NOTIFY_TO script property' : 'script owner; set NOTIFY_TO to change');
   Logger.log('Emails left today: %s (shared daily quota)', MailApp.getRemainingDailyQuota());
   // Touching GmailApp forces the authorisation prompt for the broader
   // https://mail.google.com/ scope it needs. MailApp only needed script.send_mail,
@@ -326,7 +335,7 @@ function aiMapSendReport_(body) {
   const plain = (body.reportText || 'Your AI Enablement Report is ready.') + '\n\nRetake your baseline in 90 days, or after an intervention: ' + retestLink + '\n\nWe use your details to send this report and, if you asked for one, to arrange a conversation. We do not share them.';
   GmailApp.sendEmail(body.email, 'Your Edmeca AI Enablement Report: ' + quadrantName, plain, {
     name: FROM_NAME,
-    replyTo: NOTIFY_TO,
+    replyTo: notifyTo_(),
     htmlBody: '<div style="font-family:Arial,sans-serif;color:#5D6266;max-width:640px;background:#ffffff;padding:8px">'
       + '<img src="https://edmeca.co.za/logo.png" alt="EdMeCa" style="width:160px;display:block">'
       + '<p style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#53317A;font-weight:bold;margin:20px 0 4px">Your position on the AI Enablement Map</p>'
@@ -347,13 +356,13 @@ function aiMapNotify_(body) {
   const result = body.result || {};
   const profile = body.profile || {};
   const movement = body.movement;
-  GmailApp.sendEmail(NOTIFY_TO, '[Edmeca] AI Map report: ' + (body.name || 'Unknown') + ' (' + (AI_MAP_QUADRANT_NAMES[result.quadrant] || '') + ')',
+  GmailApp.sendEmail(notifyTo_(), '[Edmeca] AI Map report: ' + (body.name || 'Unknown') + ' (' + (AI_MAP_QUADRANT_NAMES[result.quadrant] || '') + ')',
     ['New AI Enablement Report unlocked', '', 'Name: ' + (body.name || ''), 'Email: ' + (body.email || ''), 'Organisation: ' + (body.organisation || ''), 'Wants a call: ' + (body.wantsCall ? 'YES' : 'no'),
      'Mode: ' + (body.mode || ''), 'Wave: ' + (body.wave || 'baseline'), 'Cohort: ' + (body.cohort || '-'), 'Size or role: ' + (profile.sizeOrRole || ''), 'Sector: ' + (profile.sector || ''), 'Programme status: ' + (profile.programmeStatus || ''),
      '', 'Quadrant: ' + (AI_MAP_QUADRANT_NAMES[result.quadrant] || ''), 'Capability: ' + (result.capability ?? ''), 'Readiness: ' + (result.readiness ?? ''), 'Index: ' + (result.index ?? ''), 'On the line: ' + (result.onTheLine ? 'yes' : 'no'),
      'Priorities: ' + ((result.priorities || []).join(', ')), movement ? 'Movement since baseline: capability ' + movement.capability + ', readiness ' + movement.readiness : 'First baseline',
      '', 'Context: ' + (body.context || '-'), '', 'Report source: ' + (body.reportSource || 'template')].join('\n'),
-    { name: FROM_NAME, replyTo: NOTIFY_TO });
+    { name: FROM_NAME, replyTo: notifyTo_() });
 }
 
 /** Replays the AI Map report email for the most recent report_sent row; the AI Map twin of resendLastReport(). */
