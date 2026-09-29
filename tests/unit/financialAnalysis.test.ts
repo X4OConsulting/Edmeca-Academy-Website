@@ -6,14 +6,21 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import type { HandlerEvent } from '@netlify/functions';
 
+// One map per named store; `blobs` is the job store, `stores` holds the rest (rate limits).
+const stores = new Map<string, Map<string, unknown>>();
 const blobs = new Map<string, unknown>();
+stores.set('financial-analysis-jobs', blobs);
 vi.mock('@netlify/blobs', () => ({
   connectLambda: vi.fn(),
-  getStore: () => ({
-    get: async (key: string) => blobs.get(key) ?? null,
-    setJSON: async (key: string, value: unknown) => { blobs.set(key, structuredClone(value)); },
-    delete: async (key: string) => { blobs.delete(key); },
-  }),
+  getStore: (name: string) => {
+    if (!stores.has(name)) stores.set(name, new Map());
+    const map = stores.get(name)!;
+    return {
+      get: async (key: string) => map.get(key) ?? null,
+      setJSON: async (key: string, value: unknown) => { map.set(key, structuredClone(value)); },
+      delete: async (key: string) => { map.delete(key); },
+    };
+  },
 }));
 
 const users: Record<string, string> = { 'token-a': 'user-a', 'token-b': 'user-b' };
@@ -53,7 +60,7 @@ const event = (init: Partial<HandlerEvent> & { token?: string }): HandlerEvent =
 const call = async (h: typeof start, e: HandlerEvent) => (await h(e, {} as never)) as { statusCode: number; body: string };
 
 beforeEach(() => {
-  blobs.clear();
+  for (const map of stores.values()) map.clear();
   create.mockReset();
   process.env.VITE_SUPABASE_URL = 'https://example.supabase.co';
   process.env.VITE_SUPABASE_ANON_KEY = 'anon';
@@ -152,5 +159,19 @@ describe('the job flow', () => {
     const res = await call(background, event({ token: 'token-b', body: JSON.stringify({ jobId, input: { statements: 'x' } }) }));
     expect(res.statusCode).toBe(404);
     expect(create).not.toHaveBeenCalled();
+  });
+});
+
+describe('hourly limits', () => {
+  it('stops a user after 10 financial analyses in an hour, with a message saying when to retry', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, status: 202 }));
+    const body = JSON.stringify({ statements: 'Revenue 1000', analysisMode: 'quick' });
+    for (let i = 0; i < 10; i++) expect((await call(start, event({ token: 'token-a', body }))).statusCode).toBe(202);
+    const blocked = await call(start, event({ token: 'token-a', body }));
+    expect(blocked.statusCode).toBe(429);
+    expect(JSON.parse(blocked.body).error).toMatch(/limit of 10 financial analyses an hour.*try again in \d+ minute/);
+    // Another user is unaffected.
+    expect((await call(start, event({ token: 'token-b', body }))).statusCode).toBe(202);
+    vi.unstubAllGlobals();
   });
 });

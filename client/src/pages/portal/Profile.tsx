@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -36,6 +36,11 @@ export default function Profile() {
   const [fullName, setFullName] = useState(
     user?.user_metadata?.full_name || ""
   );
+  // useAuth starts with no user; fill the name once it arrives, unless the user has typed.
+  const nameTouchedRef = useRef(false);
+  useEffect(() => {
+    if (!nameTouchedRef.current && user?.user_metadata?.full_name) setFullName(user.user_metadata.full_name);
+  }, [user]);
 
   // Business profile form state
   const [businessName, setBusinessName] = useState("");
@@ -99,7 +104,7 @@ export default function Profile() {
   const updateNameMutation = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.auth.updateUser({
-        data: { full_name: fullName },
+        data: { full_name: fullName.trim() },
       });
       if (error) throw new Error(error.message);
     },
@@ -133,24 +138,28 @@ export default function Profile() {
 
       const { data: allArtifacts, error: fetchError } = await supabase
         .from("artifacts")
-        .select("id, tool_type, title");
+        .select("id, tool_type, title")
+        .order("updated_at", { ascending: false });
 
       if (fetchError) throw new Error(`Fetch error: ${fetchError.message}`);
-      if (!allArtifacts || allArtifacts.length === 0) {
-        return { updated: 0, total: 0 };
+      // Only each tool's current document; older versions keep their titles.
+      const latest = new Map<string, { id: string; title: string }>();
+      for (const a of (allArtifacts ?? []) as { id: string; tool_type: string; title: string }[]) {
+        if (!latest.has(a.tool_type)) latest.set(a.tool_type, a);
       }
+      if (latest.size === 0) return { updated: 0, total: 0 };
 
       let updated = 0;
-      for (const a of allArtifacts) {
-        const newTitle = `${businessName.trim()} \u2014 ${titleMap[(a as any).tool_type] || "Document"}`;
-        const { error: updateError } = await supabase
-          .from("artifacts")
-          .update({ title: newTitle, updated_at: new Date().toISOString() })
-          .eq("id", (a as any).id);
-        if (updateError) throw new Error(`Update error on ${(a as any).id}: ${updateError.message}`);
+      for (const [toolType, a] of Array.from(latest)) {
+        const newTitle = `${businessName.trim()} \u2014 ${titleMap[toolType] || "Document"}`;
+        if (a.title === newTitle) continue;
+        // The title only; updated_at is left alone so the activity feed stays truthful.
+        const { error: updateError } = await supabase.from("artifacts").update({ title: newTitle }).eq("id", a.id);
+        if (updateError) throw new Error(`Update error on ${a.id}: ${updateError.message}`);
         updated++;
       }
-      return { updated, total: allArtifacts.length };
+      queryClient.invalidateQueries({ queryKey: ["artifacts"] });
+      return { updated, total: latest.size };
     },
     onSuccess: (result) => {
       const { updated, total } = result ?? { updated: 0, total: 0 };
@@ -292,14 +301,14 @@ export default function Profile() {
               <Input
                 id="fullName"
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={(e) => { nameTouchedRef.current = true; setFullName(e.target.value); }}
                 placeholder="Your full name"
                 data-testid="input-full-name"
               />
             </div>
             <Button
               onClick={() => updateNameMutation.mutate()}
-              disabled={updateNameMutation.isPending}
+              disabled={updateNameMutation.isPending || !fullName.trim()}
               size="sm"
               data-testid="button-save-name"
             >

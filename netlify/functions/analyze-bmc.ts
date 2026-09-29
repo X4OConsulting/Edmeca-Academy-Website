@@ -1,5 +1,7 @@
 import { Handler, HandlerEvent } from '@netlify/functions';
 import Anthropic from '@anthropic-ai/sdk';
+import { userFromRequest } from './lib/auth';
+import { overLimit } from './lib/rateLimit';
 
 const MAX_CANVAS_CHARS = 15000;
 
@@ -7,6 +9,14 @@ export const handler: Handler = async (event: HandlerEvent) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
+
+  // ── Signed-in users only, within the hourly limit ──────────────────────────
+  const user = await userFromRequest(event);
+  if (!user) {
+    return { statusCode: 401, body: JSON.stringify({ error: 'Please sign in again to analyse your canvas.' }) };
+  }
+  const limited = await overLimit(event, 'analyze-bmc', user.id);
+  if (limited) return { statusCode: 429, body: JSON.stringify({ error: limited }) };
 
   // ── API key check ──────────────────────────────────────────────────────────
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -22,10 +32,12 @@ export const handler: Handler = async (event: HandlerEvent) => {
     return { statusCode: 400, body: JSON.stringify({ error: 'Invalid request body' }) };
   }
 
-  const { companyName = 'Untitled Business', canvasData } = body;
-  if (!canvasData || typeof canvasData !== 'object') {
+  const { canvasData } = body;
+  if (!canvasData || typeof canvasData !== 'object' || Array.isArray(canvasData)) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Canvas data is required' }) };
   }
+  // The name goes into the system prompt: plain text, one line, capped.
+  const companyName = String(body.companyName ?? '').replace(/[\x00-\x1F\x7F"]/g, ' ').trim().slice(0, 200) || 'Untitled Business';
 
   // ── Build canvas summary for the prompt ────────────────────────────────────
   const sectionLabels: Record<string, string> = {
@@ -42,7 +54,8 @@ export const handler: Handler = async (event: HandlerEvent) => {
 
   const canvasSummary = Object.entries(sectionLabels)
     .map(([key, label]) => {
-      const items = (canvasData[key] || []).filter((s: string) => s && s.trim());
+      const raw = canvasData[key];
+      const items = (Array.isArray(raw) ? raw : []).filter((s): s is string => typeof s === 'string' && s.trim().length > 0);
       if (items.length === 0) return `${label}: [EMPTY]`;
       return `${label}:\n${items.map((item: string, i: number) => `  ${i + 1}. ${item}`).join('\n')}`;
     })
@@ -81,7 +94,8 @@ Be specific and reference the student's actual content. Do not give generic advi
 Return ONLY valid JSON — no markdown, no code fences, no explanation outside the JSON.`;
 
   try {
-    const client = new Anthropic({ apiKey });
+    // Netlify stops a synchronous function at 26 s; fail inside that with a message.
+    const client = new Anthropic({ apiKey, timeout: 20_000, maxRetries: 1 });
     const message = await client.messages.create({
       model: 'claude-haiku-4-5',
       max_tokens: 1500,
@@ -94,6 +108,7 @@ Return ONLY valid JSON — no markdown, no code fences, no explanation outside t
       system: systemPrompt,
     });
 
+    if (message.stop_reason === 'max_tokens') throw new Error('Analysis cut off at max_tokens');
     const responseText = message.content
       .filter((block): block is Anthropic.TextBlock => block.type === 'text')
       .map((block) => block.text)

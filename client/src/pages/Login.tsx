@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Github } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import { MarketingLayout } from '@/components/marketing/MarketingLayout';
 
 export default function Login() {
@@ -17,6 +18,38 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [signInEmail, setSignInEmail] = useState('');
+  // Set when sign-in fails because the address was never confirmed.
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
+
+  const handleForgotPassword = async () => {
+    setError(null);
+    setSuccess(null);
+    const email = signInEmail.trim();
+    if (!email) {
+      setError('Enter your email address above, then click "Forgot password?" again.');
+      return;
+    }
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (resetError) setError(resetError.message);
+    else setSuccess(`If an account exists for ${email}, we've emailed a link to set a new password.`);
+  };
+
+  const handleResendConfirmation = async (email: string) => {
+    setError(null);
+    const { error: resendError } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/portal` },
+    });
+    if (resendError) setError(resendError.message);
+    else {
+      setUnconfirmedEmail(null);
+      setSuccess(`We've sent a new confirmation link to ${email}. Check your spam folder if it doesn't arrive.`);
+    }
+  };
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,11 +60,17 @@ export default function Login() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
+    setUnconfirmedEmail(null);
     try {
       await signInWithEmail(email, password);
       navigate('/portal');
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in');
+      if (err?.code === 'email_not_confirmed' || /email not confirmed/i.test(err?.message ?? '')) {
+        setUnconfirmedEmail(email);
+        setError('Please confirm your email address first, using the link we sent when you signed up.');
+      } else {
+        setError(err.message || 'Failed to sign in');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -62,7 +101,8 @@ export default function Login() {
 
     try {
       await signUpWithEmail(email, password);
-      setSuccess('Please check your email for a confirmation link');
+      setUnconfirmedEmail(email);
+      setSuccess('Please check your email for a confirmation link. It can take a few minutes; check your spam folder too.');
     } catch (err: any) {
       setError(err.message || 'Failed to create account');
     } finally {
@@ -70,7 +110,7 @@ export default function Login() {
     }
   };
 
-  const handleOAuthSignIn = async (provider: 'google' | 'github') => {
+  const handleOAuthSignIn = async (provider: 'google') => {
     try {
       setError(null);
       await signInWithOAuth(provider);
@@ -128,6 +168,18 @@ export default function Login() {
                   </Alert>
                 )}
 
+                {unconfirmedEmail && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="mt-2 h-auto px-0 text-sm underline-offset-2 hover:underline"
+                    onClick={() => handleResendConfirmation(unconfirmedEmail)}
+                    data-testid="button-resend-confirmation"
+                  >
+                    Resend the confirmation email
+                  </Button>
+                )}
+
                 <TabsContent value="signin" className="space-y-4">
                   <form onSubmit={handleSignIn} className="space-y-4">
                     <div className="space-y-2">
@@ -137,12 +189,24 @@ export default function Login() {
                         name="email"
                         type="email"
                         required
+                        value={signInEmail}
+                        onChange={(e) => setSignInEmail(e.target.value)}
                         placeholder="your@email.com"
                         data-testid="input-signin-email"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="signin-password">Password</Label>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="signin-password">Password</Label>
+                        <button
+                          type="button"
+                          className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+                          onClick={handleForgotPassword}
+                          data-testid="button-forgot-password"
+                        >
+                          Forgot password?
+                        </button>
+                      </div>
                       <Input
                         id="signin-password"
                         name="password"
@@ -179,15 +243,6 @@ export default function Login() {
                           <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                         </svg>
                         Continue with Google
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => handleOAuthSignIn('github')}
-                      >
-                        <Github className="mr-2 h-4 w-4" />
-                        Continue with GitHub
                       </Button>
                     </div>
                   </div>
@@ -251,15 +306,6 @@ export default function Login() {
                           <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                         </svg>
                         Sign up with Google
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => handleOAuthSignIn('github')}
-                      >
-                        <Github className="mr-2 h-4 w-4" />
-                        Sign up with GitHub
                       </Button>
                     </div>
                   </div>

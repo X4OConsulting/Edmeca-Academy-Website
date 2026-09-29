@@ -654,14 +654,28 @@ export default function BusinessModelCanvas() {
 
   const analyzeCanvasMutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch("/api/analyze-bmc", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          companyName: companyName || "Untitled Business",
-          canvasData: filteredCanvasData,
-        }),
-      });
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Please sign in to analyse your canvas.");
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 30_000);
+      let res: Response;
+      try {
+        res = await fetch("/api/analyze-bmc", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+          body: JSON.stringify({
+            companyName: companyName || "Untitled Business",
+            canvasData: filteredCanvasData,
+          }),
+          signal: controller.signal,
+        });
+      } catch (error) {
+        throw new Error(error instanceof Error && error.name === "AbortError"
+          ? "The analysis took too long. Please try again."
+          : "Could not reach the analysis service. Check your connection and try again.");
+      } finally {
+        clearTimeout(timer);
+      }
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: "Analysis failed" }));
         throw new Error(err.error || "Analysis failed");

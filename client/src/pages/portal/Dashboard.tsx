@@ -84,7 +84,7 @@ const tools = [
 ];
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading: authLoading } = useAuth();
   const [, navigate] = useLocation();
   const [newToolOpen, setNewToolOpen] = useState(false);
 
@@ -96,7 +96,7 @@ export default function Dashboard() {
     navigate("/");
   };
 
-  const { data: artifacts, isLoading: artifactsLoading, isFetching: artifactsFetching, isError: artifactsError, refetch } = useQuery<Artifact[]>({
+  const { data: artifacts, isLoading: artifactsLoading, isError: artifactsError, refetch } = useQuery<Artifact[]>({
     queryKey: ["artifacts"],
     queryFn: () => artifactsService.getArtifacts(),
     enabled: !!user,
@@ -170,7 +170,8 @@ export default function Dashboard() {
     return labels[status] || "Draft";
   };
 
-  if (artifactsLoading || artifactsFetching) return <PageLoader message="Loading your dashboard..." />;
+  // Only the first load replaces the page; background refreshes keep what is on screen.
+  if (authLoading || artifactsLoading) return <PageLoader message="Loading your dashboard..." />;
   if (artifactsError) return <PageError message="Could not load your work. Please check your connection." onRetry={refetch} />;
 
   const LEARNING_PATH = [

@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { Handler, HandlerEvent } from "@netlify/functions";
 import { InputError, parseInput } from "./lib/financialAnalysis";
 import { type Job, JOB_ID, jobStore, userFromRequest } from "./lib/analysisJobs";
+import { overLimit } from "./lib/rateLimit";
 
 /**
  * Financial Analysis, same-origin (/api/analyze-financials).
@@ -43,6 +44,8 @@ export const handler: Handler = async (event) => {
   } catch (error) {
     return json(400, { error: error instanceof InputError ? error.message : "Invalid request" });
   }
+  const limited = await overLimit(event, "analyze-financials", user.id);
+  if (limited) return json(429, { error: limited });
   const jobId = randomUUID();
   const job: Job = { userId: user.id, status: "queued", createdAt: new Date().toISOString() };
   await store.setJSON(jobId, job);

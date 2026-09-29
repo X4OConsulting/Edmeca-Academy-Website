@@ -32,6 +32,8 @@ async function signUpWithEmail(email: string, password: string) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
+    // Back to this site (staging or production) once the email is confirmed.
+    options: { emailRedirectTo: `${window.location.origin}/portal` },
   });
   
   if (error) throw error;

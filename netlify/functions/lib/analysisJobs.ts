@@ -4,7 +4,6 @@
  */
 import { connectLambda, getStore } from "@netlify/blobs";
 import type { HandlerEvent } from "@netlify/functions";
-import { createClient } from "@supabase/supabase-js";
 import type { AnalysisResult, Step } from "./financialAnalysis";
 
 export type Job = {
@@ -24,13 +23,4 @@ export function jobStore(event: HandlerEvent) {
   return getStore("financial-analysis-jobs");
 }
 
-/** The signed-in user behind the request's bearer token, or null. */
-export async function userFromRequest(event: HandlerEvent): Promise<{ id: string } | null> {
-  const header = event.headers.authorization || event.headers.Authorization || "";
-  const token = header.replace(/^Bearer\s+/i, "");
-  const url = process.env.VITE_SUPABASE_URL;
-  const anonKey = process.env.VITE_SUPABASE_ANON_KEY;
-  if (!token || !url || !anonKey) return null;
-  const { data, error } = await createClient(url, anonKey).auth.getUser(token);
-  return error || !data.user ? null : { id: data.user.id };
-}
+export { userFromRequest } from "./auth";

@@ -10,6 +10,7 @@
  */
 
 import { supabase } from '@/lib/supabase';
+import { queryClient } from '@/lib/queryClient';
 import type {
   Artifact,
   InsertArtifact,
@@ -53,6 +54,11 @@ export function withAliases<T>(row: unknown): T {
 }
 
 const withAliasesAll = <T,>(rows: unknown): T[] => ((rows as unknown[] | null) ?? []).map((row) => withAliases<T>(row));
+
+/** Every tool's save refreshes the Dashboard's list, which otherwise stays stale for 5 minutes. */
+function artifactsChanged() {
+  queryClient.invalidateQueries({ queryKey: ['artifacts'] });
+}
 
 async function getCurrentUserId(): Promise<string> {
   const { data: { user }, error } = await supabase.auth.getUser();
@@ -156,6 +162,7 @@ export const artifactsService = {
         .update({ ...toColumns(payload), updated_at: new Date().toISOString() })
         .eq('id', existingId);
       if (error) throw error;
+      artifactsChanged();
       return existingId;
     }
     const { data, error } = await supabase
@@ -164,6 +171,7 @@ export const artifactsService = {
       .select('id')
       .single();
     if (error) throw error;
+    artifactsChanged();
     return (data as { id: string }).id;
   },
 };

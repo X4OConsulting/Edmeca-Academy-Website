@@ -27,6 +27,7 @@ const ExecutionGap = lazy(() => import("@/pages/ExecutionGap"));
 const AIMap = lazy(() => import("@/pages/AIMap"));
 const Diagnostic = lazy(() => import("@/pages/Diagnostic"));
 const Login = lazy(() => import("@/pages/Login"));
+const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const Signup = lazy(() => import("@/pages/Signup"));
 const Dashboard = lazy(() => import("@/pages/portal/Dashboard"));
 const BMCTool = lazy(() => import("@/pages/portal/BMCTool"));
@@ -103,6 +104,7 @@ function Router() {
       <Route path="/ai-map" component={AIMap} />
       <Route path="/signup" component={Signup} />
       <Route path="/login" component={Login} />
+      <Route path="/reset-password" component={ResetPassword} />
 
       {/* Portal Routes (Protected) */}
       <Route path="/portal">

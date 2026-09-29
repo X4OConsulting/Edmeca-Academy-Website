@@ -1,5 +1,6 @@
 import { Handler, HandlerEvent } from '@netlify/functions';
 import { createClient } from '@supabase/supabase-js';
+import { overLimit } from './lib/rateLimit';
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const MODEL = 'llama-3.1-8b-instant';
@@ -55,6 +56,9 @@ export const handler: Handler = async (event: HandlerEvent) => {
   if (authError || !user) {
     return { statusCode: 401, body: JSON.stringify({ error: 'Invalid or expired session' }) };
   }
+
+  const limited = await overLimit(event, 'chat', user.id);
+  if (limited) return { statusCode: 429, body: JSON.stringify({ error: limited }) };
 
   // -------------------------------------------------------------------------
   // Groq API key check
@@ -113,8 +117,12 @@ Guidelines:
   // -------------------------------------------------------------------------
   // Call Groq
   // -------------------------------------------------------------------------
+  // Answer inside Netlify's 26 s limit rather than letting the platform return an HTML 502.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 20_000);
   try {
     const response = await fetch(GROQ_API_URL, {
+      signal: controller.signal,
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -147,6 +155,11 @@ Guidelines:
     };
   } catch (err) {
     console.error('Chat function error:', err);
+    if (err instanceof Error && err.name === 'AbortError') {
+      return { statusCode: 504, body: JSON.stringify({ error: 'The assistant took too long to answer. Please try again.' }) };
+    }
     return { statusCode: 500, body: JSON.stringify({ error: 'Something went wrong. Please try again.' }) };
+  } finally {
+    clearTimeout(timer);
   }
 };
