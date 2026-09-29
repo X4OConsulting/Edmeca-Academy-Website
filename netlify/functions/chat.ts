@@ -3,7 +3,12 @@ import { createClient } from '@supabase/supabase-js';
 import { overLimit } from './lib/rateLimit';
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const MODEL = 'llama-3.1-8b-instant';
+// Groq retired llama-3.1-8b-instant (model_not_found from Sep 2026). GROQ_MODEL
+// overrides the default so the next retirement is a Netlify setting, not a deploy.
+const MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
+// gpt-oss reasons before answering; low effort keeps that short enough that
+// the answer fits the token cap.
+const REASONING = MODEL.startsWith('openai/gpt-oss') ? { reasoning_effort: 'low' } : {};
 
 // Size limits to prevent API cost attacks
 const MAX_CONTEXT_CHARS = 6000;
@@ -135,7 +140,8 @@ Guidelines:
           ...trimmedMessages,
         ],
         temperature: 0.7,
-        max_tokens: 400,
+        max_tokens: 600,
+        ...REASONING,
       }),
     });
 
@@ -146,7 +152,12 @@ Guidelines:
     }
 
     const data = await response.json() as any;
-    const reply = data.choices?.[0]?.message?.content ?? 'Sorry, I could not generate a response.';
+    const choice = data.choices?.[0];
+    const reply = choice?.message?.content?.trim();
+    if (!reply) {
+      console.error(`Groq returned no answer (model ${MODEL}, finish ${choice?.finish_reason ?? '?'})`);
+      return { statusCode: 502, body: JSON.stringify({ error: 'The assistant could not answer that. Please try rephrasing.' }) };
+    }
 
     return {
       statusCode: 200,
