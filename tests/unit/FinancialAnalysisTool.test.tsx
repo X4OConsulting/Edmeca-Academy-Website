@@ -242,15 +242,17 @@ describe('FinancialAnalysisTool', () => {
     expect(screen.getByTestId('button-analyse')).toBeInTheDocument();
   });
 
-  it('displays the analysis report markdown after a successful API call', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        success: true,
-        report: '## Summary\nRevenue looks healthy.',
-        meta: { company: 'EdMeCa', model_categorisation: 'Haiku', model_analysis: 'Sonnet' },
-      }),
-    });
+  /** POST starts the job; GET ?job= reports it. */
+  const jobFetch = (job: Record<string, unknown>) => vi.fn(async (url: string, opts?: { method?: string }) =>
+    (opts?.method === 'POST'
+      ? { ok: true, status: 202, json: async () => ({ jobId: 'job-1' }) }
+      : { ok: true, status: 200, json: async () => job }) as unknown as Response);
+
+  it('starts a job, then shows the report once the job is done', async () => {
+    global.fetch = jobFetch({
+      status: 'done',
+      result: { success: true, report: '## Summary\nRevenue looks healthy.', meta: { company: 'EdMeCa', model_categorisation: 'Haiku', model_analysis: 'Haiku' } },
+    }) as never;
 
     renderFinancial();
     await selectQuickMode();
@@ -258,7 +260,44 @@ describe('FinancialAnalysisTool', () => {
     await userEvent.type(textarea, 'Date, Amount\n2024-01-01, 5000');
     await userEvent.click(screen.getByTestId('button-analyse'));
 
-    // No `structured` field in the response, so the dashboard falls back to markdown.
-    expect(await screen.findByTestId('markdown')).toBeInTheDocument();
+    // No `structured` field in the result, so the dashboard falls back to markdown.
+    expect(await screen.findByTestId('markdown', {}, { timeout: 6000 })).toBeInTheDocument();
+    const calls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls[0][1].method).toBe('POST');
+    expect(calls[1][0]).toBe('/api/analyze-financials?job=job-1');
+    expect(calls[1][1].headers.Authorization).toBe('Bearer test-token-123');
+  }, 10000);
+
+  it('shows the reason when the job fails', async () => {
+    global.fetch = jobFetch({ status: 'error', error: 'The analysis ran longer than allowed and was cut off.' }) as never;
+    renderFinancial();
+    await selectQuickMode();
+    await userEvent.type(await goToInputStep(), 'Revenue 1000');
+    await userEvent.click(screen.getByTestId('button-analyse'));
+    expect(await screen.findByText(/ran longer than allowed/i, {}, { timeout: 6000 })).toBeInTheDocument();
+    expect(screen.getByTestId('button-analyse')).toBeInTheDocument();
+  }, 10000);
+
+  it('explains a network failure instead of showing "Failed to fetch"', async () => {
+    global.fetch = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'));
+    renderFinancial();
+    await selectQuickMode();
+    await userEvent.type(await goToInputStep(), 'Revenue 1000');
+    await userEvent.click(screen.getByTestId('button-analyse'));
+    expect(await screen.findByText(/could not reach the analysis service/i)).toBeInTheDocument();
+  });
+
+  it('refuses more than the character limit before sending anything', async () => {
+    global.fetch = vi.fn();
+    renderFinancial();
+    await selectQuickMode();
+    const textarea = await goToInputStep();
+    // Pasting is instant; typing 50 000 characters is not.
+    await userEvent.click(textarea);
+    await userEvent.paste('x'.repeat(50_001));
+    expect(screen.getByTestId('text-char-count')).toHaveTextContent(/50\s?001/);
+    await userEvent.click(screen.getByTestId('button-analyse'));
+    expect(await screen.findByText(/the limit is 50/i)).toBeInTheDocument();
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 });

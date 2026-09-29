@@ -26,6 +26,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/analyze-financials"
+  to = "/.netlify/functions/analyze-financials"
+  status = 200
+
+[[redirects]]
   from = "/api/assessment"
   to = "/.netlify/functions/assessment"
   status = 200

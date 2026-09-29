@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -140,8 +140,28 @@ async function saveUploadRecord(record: {
   model_analysis: string | null;
 }) {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
-  await supabase.from("financial_uploads").insert({ user_id: user.id, ...record });
+  if (!user) throw new Error("Not signed in");
+  const { error } = await supabase.from("financial_uploads").insert({ user_id: user.id, ...record, file_name: record.file_name.slice(0, 255) });
+  if (error) throw error;
+}
+
+/** Same limit as the server (netlify/functions/lib/financialAnalysis.ts), checked before submitting. */
+export const MAX_INPUT_CHARS = 50_000;
+const POLL_MS = 3000;
+const POLL_LIMIT_MS = 6 * 60_000;
+
+type JobStatus = { status: "queued" | "running" | "done" | "error"; step?: "categorising" | "analysing"; result?: AnalysisResult; error?: string };
+
+/** A network failure reads as "Failed to fetch"; say what it means instead. */
+function friendlyError(err: unknown): string {
+  if (err instanceof TypeError) return "Could not reach the analysis service. Check your connection and try again.";
+  return err instanceof Error && err.message ? err.message : "Analysis failed.";
+}
+
+async function readJson<T>(response: Response): Promise<T> {
+  const body = await response.json().catch(() => null);
+  if (!response.ok) throw new Error((body as { error?: string } | null)?.error || `The analysis service returned an error (${response.status}).`);
+  return body as T;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -281,6 +301,9 @@ export default function FinancialAnalysisTool() {
   const [processingStep, setProcessingStep] = useState<ProcessingStep>("idle");
   const [currentQuote, setCurrentQuote] = useState<{ text: string; author: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Polling stops when the user leaves the tool; the job's result is simply not collected.
+  const unmountedRef = useRef(false);
+  useEffect(() => () => { unmountedRef.current = true; }, []);
 
   // Result
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -300,7 +323,7 @@ export default function FinancialAnalysisTool() {
   const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: profileService.getUserProfile });
   const companyName = companyNameOverride || profile?.businessName || "";
 
-  const { data: uploadHistory = [] } = useQuery({
+  const { data: uploadHistory = [], isError: historyFailed } = useQuery({
     queryKey: ["financial-uploads"],
     queryFn: fetchUploadHistory,
   });
@@ -308,6 +331,11 @@ export default function FinancialAnalysisTool() {
   const saveMutation = useMutation({
     mutationFn: saveUploadRecord,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["financial-uploads"] }),
+    onError: () => toast({
+      title: "Report not saved to your history",
+      description: "Your analysis is shown below. Export it now if you want to keep a copy.",
+      variant: "destructive",
+    }),
   });
 
   // Multi-file combined text
@@ -326,33 +354,30 @@ export default function FinancialAnalysisTool() {
       return;
     }
 
+    const statementText = isPaste
+      ? statements.trim()
+      : (uploadedFiles.length > 0 ? combinedUploadText : singleUpload!.text);
+    if (statementText.length > MAX_INPUT_CHARS) {
+      const message = `Your financial data is ${statementText.length.toLocaleString("en-ZA")} characters; the limit is ${MAX_INPUT_CHARS.toLocaleString("en-ZA")}. Remove older periods or upload fewer files.`;
+      setError(message);
+      toast({ title: "Too much data for one analysis", description: message, variant: "destructive" });
+      return;
+    }
+
     setWizardStep("processing");
     setError(null);
     setResult(null);
-
-    if (analysisMode === "deep") {
-      setProcessingStep("categorising");
-    } else {
-      setProcessingStep("analysing");
-    }
+    setProcessingStep(analysisMode === "deep" ? "categorising" : "analysing");
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Not authenticated");
+      if (!session) throw new Error("Please sign in again to run an analysis.");
+      const auth = { Authorization: `Bearer ${session.access_token}` };
 
-      if (analysisMode === "deep") {
-        await new Promise(r => setTimeout(r, 600));
-        setProcessingStep("analysing");
-      }
-
-      const aiBase = (import.meta.env.VITE_AI_API_URL ?? "").replace(/\/$/, "");
-      const statementText = isPaste
-        ? statements.trim()
-        : (uploadedFiles.length > 0 ? combinedUploadText : singleUpload!.text);
-
-      const response = await fetch(`${aiBase}/api/analyze-financials`, {
+      // The analysis runs as a background job; this starts it, then checks every few seconds.
+      const { jobId } = await readJson<{ jobId: string }>(await fetch("/api/analyze-financials", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        headers: { "Content-Type": "application/json", ...auth },
         body: JSON.stringify({
           statements: statementText,
           companyName: companyName || "the business",
@@ -362,14 +387,25 @@ export default function FinancialAnalysisTool() {
           yearEnd: yearEnd || String(new Date().getFullYear()),
           inputType,
         }),
-      });
+      }));
 
-      if (!response.ok) {
-        const errBody = await response.json().catch(() => ({}));
-        throw new Error(errBody.error || `Server error ${response.status}`);
+      if (!jobId) throw new Error("The analysis service did not start the job. Please try again.");
+
+      const startedAt = Date.now();
+      let data: AnalysisResult | undefined;
+      while (!data) {
+        if (Date.now() - startedAt > POLL_LIMIT_MS) throw new Error("The analysis is taking longer than expected. Please try again.");
+        await new Promise((resolve) => setTimeout(resolve, POLL_MS));
+        if (unmountedRef.current) return;
+        const job = await readJson<JobStatus>(await fetch(`/api/analyze-financials?job=${encodeURIComponent(jobId)}`, { headers: auth }));
+        if (job.step) setProcessingStep(job.step);
+        if (job.status === "error") throw new Error(job.error || "Analysis failed.");
+        if (job.status === "done") {
+          if (!job.result) throw new Error("The analysis finished without a report. Please try again.");
+          data = job.result;
+        }
       }
 
-      const data: AnalysisResult = await response.json();
       setResult(data);
       setProcessingStep("done");
       setWizardStep("dashboard");
@@ -386,11 +422,12 @@ export default function FinancialAnalysisTool() {
       });
 
       toast({ title: "Analysis complete!", description: "Your financial report is ready." });
-    } catch (err: any) {
-      setError(err.message ?? "Analysis failed.");
+    } catch (err) {
+      const message = friendlyError(err);
+      setError(message);
       setWizardStep("input");
       setProcessingStep("idle");
-      toast({ title: "Analysis failed", description: err.message, variant: "destructive" });
+      toast({ title: "Analysis failed", description: message, variant: "destructive" });
     }
   };
 
@@ -602,7 +639,9 @@ export default function FinancialAnalysisTool() {
                     value={statements}
                     onChange={e => setStatements(e.target.value)}
                     rows={14} className="font-mono text-sm resize-y" />
-                  <p className="text-xs text-muted-foreground mt-1">Supports CSV, plain text, or copied bank rows. Max ~12 000 characters.</p>
+                  <p className={`text-xs mt-1 ${statements.trim().length > MAX_INPUT_CHARS ? "text-destructive font-medium" : "text-muted-foreground"}`} data-testid="text-char-count">
+                    Supports CSV, plain text, or copied bank rows. {statements.trim().length.toLocaleString("en-ZA")} / {MAX_INPUT_CHARS.toLocaleString("en-ZA")} characters.
+                  </p>
                 </div>
               )}
 
@@ -620,7 +659,10 @@ export default function FinancialAnalysisTool() {
                   />
                   {uploadedFiles.length > 0 && (
                     <div className="rounded-lg bg-muted/50 p-3">
-                      <p className="text-xs text-muted-foreground font-medium mb-1">Combined preview ({uploadedFiles.length} file{uploadedFiles.length > 1 ? "s" : ""}):</p>
+                      <p className="text-xs text-muted-foreground font-medium mb-1">
+                        Combined preview ({uploadedFiles.length} file{uploadedFiles.length > 1 ? "s" : ""},{" "}
+                        <span className={combinedUploadText.length > MAX_INPUT_CHARS ? "text-destructive" : ""}>{combinedUploadText.length.toLocaleString("en-ZA")} / {MAX_INPUT_CHARS.toLocaleString("en-ZA")} characters</span>):
+                      </p>
                       <pre className="text-xs font-mono overflow-auto max-h-28 whitespace-pre-wrap">
                         {combinedUploadText.slice(0, 500)}{combinedUploadText.length > 500 ? "\n…" : ""}
                       </pre>
@@ -889,6 +931,10 @@ export default function FinancialAnalysisTool() {
               <Button variant="outline" onClick={handleReset}>Analyse Different Data</Button>
             </div>
           </>
+        )}
+
+        {(wizardStep === "setup" || wizardStep === "input") && historyFailed && (
+          <p className="text-sm text-muted-foreground" data-testid="text-history-error">Your recent analyses couldn't be loaded. Refresh the page to try again.</p>
         )}
 
         {/* ── Upload history — shown on setup/input steps ─────────────────── */}
