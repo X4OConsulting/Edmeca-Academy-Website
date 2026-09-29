@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Link } from "wouter";
 const edmecaLogo = "/logo.png";
 import { Button } from "@/components/ui/button";
@@ -9,9 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import { profileService } from "@/lib/services";
+import { artifactsService, profileService } from "@/lib/services";
+import { type BmcCanvas, EMPTY_CANVAS, answeredOnly, sanitizeCanvas } from "@/lib/bmc";
 import {
   Document,
   Packer,
@@ -87,17 +88,7 @@ type SectionId =
   | "keyPartnerships"
   | "costStructure";
 
-interface CanvasData {
-  customerSegments: string[];
-  valuePropositions: string[];
-  channels: string[];
-  customerRelationships: string[];
-  revenueStreams: string[];
-  keyResources: string[];
-  keyActivities: string[];
-  keyPartnerships: string[];
-  costStructure: string[];
-}
+type CanvasData = BmcCanvas;
 
 interface PromptConfig {
   starter: string;
@@ -424,28 +415,37 @@ const SECTIONS: SectionConfig[] = [
   },
 ];
 
-const INITIAL_CANVAS_DATA: CanvasData = {
-  customerSegments: [],
-  valuePropositions: [],
-  channels: [],
-  customerRelationships: [],
-  revenueStreams: [],
-  keyResources: [],
-  keyActivities: [],
-  keyPartnerships: [],
-  costStructure: [],
-};
+const INITIAL_CANVAS_DATA: CanvasData = EMPTY_CANVAS;
 
 const STORAGE_KEY = "business-model-canvas";
 
+/** Accepts a saved or stored analysis only when it has the shape the dashboard renders. */
+function toAnalysis(raw: unknown): AIAnalysis | null {
+  const a = raw as Partial<AIAnalysis> | null;
+  if (!a || typeof a !== "object" || typeof a.overallAssessment !== "string") return null;
+  const list = (value: unknown) => (Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : []);
+  return { overallAssessment: a.overallAssessment, strengths: list(a.strengths), areasToImprove: list(a.areasToImprove), coherenceChecks: list(a.coherenceChecks) };
+}
+
+/** Older rows have no companyName in content; their title is "<name> — Business Model Canvas". */
+function nameFromTitle(title: unknown): string {
+  const name = typeof title === "string" ? title.split(" — ")[0].trim() : "";
+  return name === "Untitled" ? "" : name;
+}
+
 export default function BusinessModelCanvas() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session?.user);
     });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session?.user);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   const [companyName, setCompanyName] = useState("");
@@ -461,41 +461,93 @@ export default function BusinessModelCanvas() {
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
   const [aiAnalysisError, setAiAnalysisError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        if (data.companyName) setCompanyName(data.companyName);
-        if (data.companyNameSet) setCompanyNameSet(data.companyNameSet);
-        if (data.currentStep !== undefined) setCurrentStep(data.currentStep);
-        if (data.canvasData) setCanvasData(data.canvasData);
-        // If localStorage has a name we're done — no profile fetch needed
-        if (data.companyName && data.companyNameSet) return;
-      } catch (e) {
-        console.error("Failed to load saved data:", e);
-      }
-    }
-    // Fallback: load business name from Supabase profile so the prompt
-    // doesn't re-appear after every sign-out / sign-in cycle
-    profileService.getUserProfile().then((profile) => {
-      const name = (profile as any)?.business_name;
-      if (name) {
-        setCompanyName(name);
-        setCompanyNameSet(true);
-      }
-    }).catch(() => {});
-  }, []);
+  // The database row is the canvas of record: one row per user, updated in
+  // place. localStorage only holds a draft newer than the last save (offline,
+  // or edits made seconds before a reload).
+  const existingIdRef = useRef<string | null>(null);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const loadedRef = useRef<{ canvas: CanvasData; name: string } | null>(null);
+  const lastEditRef = useRef(0);
+  const [dirtyAt, setDirtyAt] = useState(0);
+  const [autosaveFailed, setAutosaveFailed] = useState(false);
+  // Saves run one after another, so a second save always sees the row the first created.
+  const saveChainRef = useRef<Promise<unknown>>(Promise.resolve());
 
   useEffect(() => {
-    const data = {
-      companyName,
-      companyNameSet,
-      currentStep,
-      canvasData,
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [companyName, companyNameSet, currentStep, canvasData]);
+    let cancelled = false;
+    let local: Record<string, unknown> | null = null;
+    try {
+      local = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+    } catch {
+      local = null;
+    }
+    (async () => {
+      const [saved, profile] = await Promise.all([
+        artifactsService.getLatestArtifactByType("bmc").catch(() => null),
+        profileService.getUserProfile().catch(() => null),
+      ]);
+      if (cancelled) return;
+      const content = (saved?.content ?? {}) as Record<string, unknown>;
+      const savedRow = saved as unknown as Record<string, unknown> | null;
+      const savedAt = savedRow ? Date.parse(String(savedRow.updated_at ?? savedRow.created_at ?? "")) || 0 : 0;
+      const savedCanvas = sanitizeCanvas(content.canvas ?? content);
+      const savedName = (typeof content.companyName === "string" && content.companyName) || nameFromTitle(saved?.title);
+      if (saved) existingIdRef.current = saved.id;
+
+      let canvas = INITIAL_CANVAS_DATA;
+      let name = "";
+      if (local && (Number(local.updatedAt) || 0) > savedAt) {
+        canvas = sanitizeCanvas(local.canvasData);
+        name = typeof local.companyName === "string" ? local.companyName.slice(0, 200) : "";
+        if (local.companyNameSet) setCompanyNameSet(true);
+        setAiAnalysis(toAnalysis(local.aiAnalysis));
+        // A local draft identical to the saved canvas is not an unsaved edit.
+        setIsFinalized(saved?.status === "complete" && JSON.stringify(canvas) === JSON.stringify(savedCanvas));
+        lastEditRef.current = Number(local.updatedAt) || 0;
+      } else if (saved) {
+        canvas = savedCanvas;
+        name = savedName;
+        setCompanyNameSet(true);
+        setAiAnalysis(toAnalysis(content.analysis));
+        setIsFinalized(saved.status === "complete");
+      }
+      const step = Number(local?.currentStep);
+      if (Number.isInteger(step) && step >= 0 && step < SECTIONS.length) setCurrentStep(step);
+      if (!name) {
+        // The business name from the profile, so the prompt doesn't reappear after every sign-in.
+        const profileName = (profile as unknown as { businessName?: string } | null)?.businessName;
+        if (profileName) {
+          name = profileName;
+          setCompanyNameSet(true);
+        }
+      }
+      loadedRef.current = { canvas, name };
+      setCanvasData(canvas);
+      setCompanyName(name);
+      setHasLoaded(true);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Any change after loading is an edit: it un-finalizes the canvas and queues an autosave.
+  useEffect(() => {
+    if (!hasLoaded) return;
+    const loaded = loadedRef.current;
+    if (loaded && canvasData === loaded.canvas && companyName === loaded.name) return;
+    loadedRef.current = null;
+    lastEditRef.current = Date.now();
+    setIsFinalized(false);
+    setDirtyAt(lastEditRef.current);
+  }, [canvasData, companyName, hasLoaded]);
+
+  useEffect(() => {
+    if (!hasLoaded) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ companyName, companyNameSet, currentStep, canvasData, aiAnalysis, updatedAt: lastEditRef.current }));
+    } catch {
+      /* storage full or blocked: the database copy still holds the canvas */
+    }
+  }, [companyName, companyNameSet, currentStep, canvasData, aiAnalysis, hasLoaded]);
 
   const currentSection = SECTIONS[currentStep];
 
@@ -516,38 +568,54 @@ export default function BusinessModelCanvas() {
     return Math.round((completedSections / 9) * 100);
   }, [completedSections]);
 
+  /**
+   * Saves the canvas to its one row (insert the first time, update after).
+   * The canvas keeps empty answers so each answer stays under its prompt.
+   */
+  const persist = useCallback((status: "in_progress" | "complete", analysis: AIAnalysis | null) => {
+    const name = companyName.trim().slice(0, 200);
+    const run = () => artifactsService.saveArtifact(existingIdRef.current, {
+      toolType: "bmc",
+      title: `${name || "Untitled"} — Business Model Canvas`,
+      content: {
+        companyName: name,
+        canvas: canvasData,
+        statistics: { completedSections, totalItems, completionPercentage: progressPercentage },
+        analysis,
+        savedAt: new Date().toISOString(),
+      },
+      status,
+    }).then((id) => {
+      existingIdRef.current = id;
+      queryClient.invalidateQueries({ queryKey: ["artifact", "bmc"] });
+      queryClient.invalidateQueries({ queryKey: ["artifacts"] });
+    });
+    const next = saveChainRef.current.then(run, run);
+    saveChainRef.current = next.catch(() => undefined);
+    return next;
+  }, [companyName, canvasData, completedSections, totalItems, progressPercentage, queryClient]);
+
+  // Autosave 2 s after the last edit, for signed-in users.
+  useEffect(() => {
+    if (!dirtyAt || !isAuthenticated) return;
+    const timer = setTimeout(() => {
+      persist("in_progress", aiAnalysis)
+        .then(() => setAutosaveFailed(false))
+        .catch(() => setAutosaveFailed(true));
+    }, 2000);
+    return () => clearTimeout(timer);
+    // persist and aiAnalysis are read at the moment the timer fires.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dirtyAt, isAuthenticated]);
+
   const finalizeMutation = useMutation({
-    mutationFn: async (data: {
-      companyName: string;
-      canvasData: CanvasData;
-      completedSections: number;
-      totalItems: number;
-      completionPercentage: number;
-      aiAnalysis: AIAnalysis | null;
-    }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-      const { error } = await supabase.from("artifacts").insert({
-        user_id: user.id,
-        tool_type: "bmc",
-        title: `${data.companyName || "Untitled"} — Business Model Canvas`,
-        content: {
-          canvas: data.canvasData,
-          statistics: {
-            completedSections: data.completedSections,
-            totalItems: data.totalItems,
-            completionPercentage: data.completionPercentage,
-          },
-          analysis: data.aiAnalysis,
-          savedAt: new Date().toISOString(),
-        },
-        version: 1,
-        status: "complete",
-      });
-      if (error) throw new Error(error.message);
+    mutationFn: async (data: { aiAnalysis: AIAnalysis | null }) => {
+      if (!isAuthenticated) throw new Error("Not authenticated");
+      await persist("complete", data.aiAnalysis);
     },
     onSuccess: () => {
       setIsFinalized(true);
+      setAutosaveFailed(false);
       toast({
         title: "BMC Finalized",
         description: "Your Business Model Canvas has been saved to the database",
@@ -581,15 +649,8 @@ export default function BusinessModelCanvas() {
       return;
     }
 
-    finalizeMutation.mutate({
-      companyName: companyName.trim(),
-      canvasData: filteredCanvasData as CanvasData,
-      completedSections,
-      totalItems,
-      completionPercentage: progressPercentage,
-      aiAnalysis,
-    });
-  }, [companyName, isAuthenticated, canvasData, completedSections, totalItems, progressPercentage, aiAnalysis, finalizeMutation, toast]);
+    finalizeMutation.mutate({ aiAnalysis });
+  }, [companyName, isAuthenticated, aiAnalysis, finalizeMutation, toast]);
 
   const analyzeCanvasMutation = useMutation({
     mutationFn: async () => {
@@ -611,34 +672,12 @@ export default function BusinessModelCanvas() {
       setAiAnalysis(data);
       setAiAnalysisError(null);
       toast({ title: "Analysis complete", description: "AI insights have been generated for your canvas" });
-      // Auto-save full canvas + analysis to database
-      const saveToDb = async () => {
-        try {
-          const { data: { user } } = await supabase.auth.getUser();
-          if (!user) return; // silently skip if not authenticated
-          await supabase.from("artifacts").insert({
-            user_id: user.id,
-            tool_type: "bmc",
-            title: `${companyName || "Untitled"} — Business Model Canvas`,
-            content: {
-              canvas: filteredCanvasData,
-              statistics: {
-                completedSections,
-                totalItems,
-                completionPercentage: progressPercentage,
-              },
-              analysis: data,
-              savedAt: new Date().toISOString(),
-            },
-            version: 1,
-            status: "complete",
-          });
-          setIsFinalized(true);
-        } catch (e) {
-          console.error("Auto-save after analysis failed:", e);
-        }
-      };
-      saveToDb();
+      // Keep the analysis with the canvas. Analysing is not finalising: the status stays as it was.
+      if (isAuthenticated) {
+        persist(isFinalized ? "complete" : "in_progress", data)
+          .then(() => setAutosaveFailed(false))
+          .catch(() => setAutosaveFailed(true));
+      }
     },
     onError: (error) => {
       setAiAnalysisError(error instanceof Error ? error.message : "Analysis failed");
@@ -682,7 +721,7 @@ export default function BusinessModelCanvas() {
       setCompanyNameSet(true);
       setIsEditingCompanyName(false);
       // Persist to profile so it survives sign-out
-      profileService.upsertUserProfile({ business_name: name } as any).catch(() => {});
+      profileService.upsertUserProfile({ businessName: name }).catch(() => {});
     }
   }, [companyNameInput]);
 
@@ -691,6 +730,7 @@ export default function BusinessModelCanvas() {
   }, []);
 
   const handleReset = useCallback(() => {
+    if (!window.confirm("Clear the whole canvas? This also clears your saved copy and cannot be undone.")) return;
     setCompanyName("");
     setCompanyNameInput("");
     setCompanyNameSet(false);
@@ -700,7 +740,7 @@ export default function BusinessModelCanvas() {
     setIsEditMode(true);
     setAiAnalysis(null);
     setAiAnalysisError(null);
-    localStorage.removeItem(STORAGE_KEY);
+    setIsFinalized(false);
     toast({
       title: "Canvas reset",
       description: "All data has been cleared",
@@ -766,19 +806,14 @@ export default function BusinessModelCanvas() {
     });
   }, [toast]);
 
-  const filteredCanvasData = useMemo(() => {
-    const filtered: Record<string, string[]> = {};
-    for (const key of Object.keys(canvasData) as SectionId[]) {
-      filtered[key] = canvasData[key].filter((item) => item.trim().length > 0);
-    }
-    return filtered;
-  }, [canvasData]);
+  const filteredCanvasData = useMemo(() => answeredOnly(canvasData), [canvasData]);
 
   const handleExport = useCallback(() => {
     const exportData = {
       companyName: companyName || "Untitled Business",
       exportDate: new Date().toISOString(),
-      canvas: filteredCanvasData,
+      // Positional, empty answers included, so an import puts each answer back under its prompt.
+      canvas: canvasData,
       statistics: {
         completedSections,
         totalItems,
@@ -800,7 +835,7 @@ export default function BusinessModelCanvas() {
       title: "Export successful",
       description: "Your canvas has been exported as JSON",
     });
-  }, [companyName, filteredCanvasData, completedSections, totalItems, progressPercentage, toast]);
+  }, [companyName, canvasData, completedSections, totalItems, progressPercentage, toast]);
 
   const handleImport = useCallback(() => {
     const input = document.createElement("input");
@@ -813,21 +848,10 @@ export default function BusinessModelCanvas() {
       reader.onload = (ev) => {
         try {
           const data = JSON.parse(ev.target?.result as string);
-          const canvas = data.canvas || data;
-          const validKeys: SectionId[] = [
-            "customerSegments", "valuePropositions", "channels",
-            "customerRelationships", "revenueStreams", "keyResources",
-            "keyActivities", "keyPartnerships", "costStructure",
-          ];
-          const imported: CanvasData = { ...INITIAL_CANVAS_DATA };
-          for (const key of validKeys) {
-            if (Array.isArray(canvas[key])) {
-              imported[key] = canvas[key];
-            }
-          }
-          setCanvasData(imported);
-          if (data.companyName) {
-            setCompanyName(data.companyName);
+          if (!data || typeof data !== "object") throw new Error("not a canvas");
+          setCanvasData(sanitizeCanvas(data.canvas || data));
+          if (typeof data.companyName === "string" && data.companyName.trim()) {
+            setCompanyName(data.companyName.trim().slice(0, 200));
             setCompanyNameSet(true);
           }
           setAiAnalysis(null);
@@ -1173,6 +1197,11 @@ export default function BusinessModelCanvas() {
           </div>
 
           <div className="flex items-center gap-2">
+            {autosaveFailed && (
+              <Badge variant="outline" className="border-amber-300 text-amber-700 dark:text-amber-400 text-xs" data-testid="badge-not-saved">
+                Not saved yet
+              </Badge>
+            )}
             <div className="hidden rounded-lg border p-1 sm:flex">
               <Button
                 variant={currentView === "guided" ? "secondary" : "ghost"}
@@ -1209,7 +1238,7 @@ export default function BusinessModelCanvas() {
               variant="outline"
               size="sm"
               onClick={handleImport}
-              className="gap-1.5 hidden sm:flex"
+              className="gap-1.5 flex"
               data-testid="button-import"
             >
               <Upload className="h-4 w-4" />

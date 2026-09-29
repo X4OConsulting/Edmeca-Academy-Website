@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { artifactsService, profileService } from "@/lib/services";
+import { readBmc } from "@/lib/bmc";
 import {
   ArrowLeft,
   Plus,
@@ -134,7 +135,7 @@ export default function ValuePropTool() {
     staleTime: 0,
   });
 
-  const { data: bmcArtifact } = useQuery({
+  const { data: bmcArtifact, isPending: bmcPending } = useQuery({
     queryKey: ["artifact", "bmc"],
     queryFn: () => artifactsService.getLatestArtifactByType("bmc"),
     enabled: !existing,
@@ -143,23 +144,25 @@ export default function ValuePropTool() {
   useEffect(() => {
     if (hasLoadedRef.current) return; // never overwrite user edits after initial load
     if (existing === undefined) return;
+    // Wait for the canvas too, or the pre-fill is skipped for good.
+    if (existing === null && bmcPending) return;
     if (existing) {
       setData(existing.content as ValuePropData);
       setExistingId(existing.id);
       if (existing.status === "complete") setIsFinalized(true);
     } else if (bmcArtifact) {
-      const c = bmcArtifact.content as any;
+      const bmc = readBmc(bmcArtifact.content);
       setData(prev => ({
         ...prev,
-        companyName: c?.companyName || profileNameRef.current || "",
-        customerSegment: (c?.customerSegments?.[0]) || "",
-        value: { ...prev.value, products: c?.valuePropositions || [] },
+        companyName: bmc.companyName || profileNameRef.current || "",
+        customerSegment: bmc.canvas.customerSegments[0] || "",
+        value: { ...prev.value, products: bmc.canvas.valuePropositions },
       }));
     } else {
       setData(prev => ({ ...prev, companyName: prev.companyName || profileNameRef.current || "" }));
     }
     setTimeout(() => { hasLoadedRef.current = true; }, 0);
-  }, [existing, bmcArtifact]);
+  }, [existing, bmcArtifact, bmcPending]);
 
   // Auto-save draft 1.5s after any data change (silent — no toast)
   useEffect(() => {

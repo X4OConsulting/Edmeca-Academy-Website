@@ -10,6 +10,8 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import BMCTool from '@/pages/portal/BMCTool';
+import { supabase } from '@/lib/supabase';
+import { artifactsService } from '@/lib/services';
 
 // ── Module mocks (hoisted) ────────────────────────────────────────────────────
 vi.mock('wouter', () => ({
@@ -22,6 +24,7 @@ vi.mock('@/lib/supabase', () => ({
     auth: {
       getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
       getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+      onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
     },
     from: vi.fn(() => ({ insert: vi.fn().mockResolvedValue({ error: null }) })),
   },
@@ -133,13 +136,25 @@ describe('BMCTool', () => {
     );
   });
 
-  it('reset button clears localStorage and brings back the company name screen', async () => {
+  it('reset asks first, then brings back the company name screen', async () => {
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
     renderBMC();
     const skipBtn = await screen.findByTestId('button-skip');
     await userEvent.click(skipBtn);
     const resetBtn = await screen.findByTestId('button-reset');
     await userEvent.click(resetBtn);
+    expect(confirm).toHaveBeenCalled();
     expect(await screen.findByTestId('input-company-name')).toBeInTheDocument();
+    confirm.mockRestore();
+  });
+
+  it('keeps the canvas when reset is cancelled', async () => {
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    renderBMC();
+    await userEvent.click(await screen.findByTestId('button-skip'));
+    await userEvent.click(await screen.findByTestId('button-reset'));
+    expect(screen.queryByTestId('input-company-name')).not.toBeInTheDocument();
+    confirm.mockRestore();
   });
 
   it('progress percentage increases after typing into a prompt textarea', async () => {
@@ -165,5 +180,56 @@ describe('BMCTool', () => {
     await userEvent.click(dashBtn);
     expect(await screen.findByTestId('text-dashboard-title')).toBeInTheDocument();
     expect(screen.getByTestId('stat-completion')).toBeInTheDocument();
+  });
+
+  describe('saved canvas', () => {
+    const savedRow = (content: Record<string, unknown>, extra: Record<string, unknown> = {}) => ({
+      id: 'bmc-row-1', status: 'in_progress', title: 'Acme — Business Model Canvas',
+      updated_at: '2026-09-29T10:00:00Z', content, ...extra,
+    });
+    const signedIn = () => vi.mocked(supabase.auth.getSession).mockResolvedValue({ data: { session: { user: { id: 'user-1' } } }, error: null } as never);
+
+    it('opens the canvas saved in the database, not the name prompt', async () => {
+      vi.mocked(artifactsService.getLatestArtifactByType).mockResolvedValueOnce(savedRow({
+        companyName: 'Acme', canvas: { customerSegments: ['Solo designers'] },
+      }) as never);
+      renderBMC();
+      expect(await screen.findByText('Acme')).toBeInTheDocument();
+      expect(screen.queryByTestId('input-company-name')).not.toBeInTheDocument();
+    });
+
+    it('takes the name from the title for rows saved before companyName was stored', async () => {
+      vi.mocked(artifactsService.getLatestArtifactByType).mockResolvedValueOnce(savedRow({
+        canvas: { customerSegments: ['Solo designers'] },
+      }, { title: 'Older Co — Business Model Canvas' }) as never);
+      renderBMC();
+      expect(await screen.findByText('Older Co')).toBeInTheDocument();
+    });
+
+    it('autosaves edits into the same row with the name and the canvas by position', async () => {
+      signedIn();
+      vi.mocked(artifactsService.getLatestArtifactByType).mockResolvedValueOnce(savedRow({
+        companyName: 'Acme', canvas: { customerSegments: ['', 'Second answer'] },
+      }) as never);
+      renderBMC();
+      await screen.findByText('Acme');
+      await userEvent.type(await screen.findByTestId('textarea-prompt-0'), 'First answer');
+      await waitFor(() => expect(artifactsService.saveArtifact).toHaveBeenCalled(), { timeout: 4000 });
+      const [id, payload] = vi.mocked(artifactsService.saveArtifact).mock.calls.at(-1)!;
+      expect(id).toBe('bmc-row-1');
+      expect(payload).toMatchObject({ toolType: 'bmc', status: 'in_progress', title: 'Acme — Business Model Canvas' });
+      const content = payload.content as { companyName: string; canvas: Record<string, string[]> };
+      expect(content.companyName).toBe('Acme');
+      expect(content.canvas.customerSegments).toEqual(['First answer', 'Second answer']);
+    }, 10000);
+
+    it('does not save anything just from opening a saved canvas', async () => {
+      signedIn();
+      vi.mocked(artifactsService.getLatestArtifactByType).mockResolvedValueOnce(savedRow({ companyName: 'Acme', canvas: {} }) as never);
+      renderBMC();
+      await screen.findByText('Acme');
+      await new Promise((resolve) => setTimeout(resolve, 2500));
+      expect(artifactsService.saveArtifact).not.toHaveBeenCalled();
+    }, 10000);
   });
 });

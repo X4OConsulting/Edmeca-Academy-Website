@@ -111,7 +111,9 @@ function Router() {
         </ProtectedRoute>
       </Route>
       <Route path="/portal/tools/bmc">
-        <ErrorBoundary><BMCTool /></ErrorBoundary>
+        <ProtectedRoute>
+          <ErrorBoundary><BMCTool /></ErrorBoundary>
+        </ProtectedRoute>
       </Route>
       <Route path="/portal/tools/analysis">
         <ProtectedRoute>

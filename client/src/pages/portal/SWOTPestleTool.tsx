@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { artifactsService, profileService } from "@/lib/services";
+import { readBmc } from "@/lib/bmc";
 import {
   ArrowLeft,
   Plus,
@@ -250,7 +251,7 @@ export default function SWOTPestleTool() {
   });
 
   // Pre-load company name from BMC if no SWOT exists
-  const { data: bmcArtifact } = useQuery({
+  const { data: bmcArtifact, isPending: bmcPending } = useQuery({
     queryKey: ["artifact", "bmc"],
     queryFn: () => artifactsService.getLatestArtifactByType("bmc"),
     enabled: !existing,
@@ -259,19 +260,19 @@ export default function SWOTPestleTool() {
   useEffect(() => {
     if (hasLoadedRef.current) return; // never overwrite user edits after initial load
     if (existing === undefined) return; // query still loading
+    if (existing === null && bmcPending) return; // wait for the canvas pre-fill
     if (existing) {
       setData(existing.content as AnalysisData);
       setExistingId(existing.id);
       if (existing.status === "complete") setIsFinalized(true);
     } else if (bmcArtifact) {
-      const bmcContent = bmcArtifact.content as any;
-      setData(prev => ({ ...prev, companyName: bmcContent?.companyName || profileNameRef.current || "" }));
+      setData(prev => ({ ...prev, companyName: readBmc(bmcArtifact.content).companyName || profileNameRef.current || "" }));
     } else {
       setData(prev => ({ ...prev, companyName: prev.companyName || profileNameRef.current || "" }));
     }
     // Mark initial load complete so auto-save can fire on subsequent changes
     setTimeout(() => { hasLoadedRef.current = true; }, 0);
-  }, [existing, bmcArtifact]);
+  }, [existing, bmcArtifact, bmcPending]);
 
   // Auto-save draft 1.5s after any data change (silent — no toast)
   useEffect(() => {

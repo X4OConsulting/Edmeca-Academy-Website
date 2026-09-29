@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { artifactsService, profileService } from "@/lib/services";
+import { readBmc } from "@/lib/bmc";
 import {
   ArrowLeft,
   Save,
@@ -146,13 +147,13 @@ export default function PitchBuilderTool() {
     staleTime: 0,
   });
 
-  const { data: bmcArtifact } = useQuery({
+  const { data: bmcArtifact, isPending: bmcPending } = useQuery({
     queryKey: ["artifact", "bmc"],
     queryFn: () => artifactsService.getLatestArtifactByType("bmc"),
     enabled: !existing,
   });
 
-  const { data: valuePropArtifact } = useQuery({
+  const { data: valuePropArtifact, isPending: vpPending } = useQuery({
     queryKey: ["artifact", "value_proposition"],
     queryFn: () => artifactsService.getLatestArtifactByType("value_proposition"),
     enabled: !existing,
@@ -161,29 +162,33 @@ export default function PitchBuilderTool() {
   useEffect(() => {
     if (hasLoadedRef.current) return; // never overwrite user edits after initial load
     if (existing === undefined) return;
+    // Wait for the canvas and value proposition too, or the pre-fill is skipped for good.
+    if (existing === null && (bmcPending || vpPending)) return;
     if (existing) {
       setData(existing.content as PitchData);
       setExistingId(existing.id);
       if (existing.status === "complete") setIsFinalized(true);
     } else if (bmcArtifact) {
-      const c = bmcArtifact.content as any;
-      const vp = valuePropArtifact?.content as any;
+      const { companyName, canvas: c } = readBmc(bmcArtifact.content);
+      const vp = valuePropArtifact?.content as { value?: { products?: string[] } } | undefined;
       setData(prev => ({
         ...prev,
-        companyName: c?.companyName || profileNameRef.current || "",
-        businessModel: c?.revenueStreams?.length
-          ? `Revenue Streams:\n• ${c.revenueStreams.join("\n• ")}\n\nCost Structure:\n• ${(c.costStructure || []).join("\n• ")}`
+        companyName: companyName || profileNameRef.current || "",
+        businessModel: c.revenueStreams.length
+          ? `Revenue Streams:\n• ${c.revenueStreams.join("\n• ")}\n\nCost Structure:\n• ${c.costStructure.join("\n• ")}`
           : "",
         solution: vp?.value?.products?.length
           ? vp.value.products.join("\n")
-          : (c?.valuePropositions?.join("\n") || ""),
-        marketSize: c?.customerSegments?.length
+          : c.valuePropositions.join("\n"),
+        marketSize: c.customerSegments.length
           ? `Target Segments:\n• ${c.customerSegments.join("\n• ")}`
           : "",
       }));
+    } else {
+      setData(prev => ({ ...prev, companyName: prev.companyName || profileNameRef.current || "" }));
     }
     setTimeout(() => { hasLoadedRef.current = true; }, 0);
-  }, [existing, bmcArtifact, valuePropArtifact]);
+  }, [existing, bmcArtifact, valuePropArtifact, bmcPending, vpPending]);
 
   // Auto-save draft 1.5s after any data change (silent — no toast)
   useEffect(() => {
