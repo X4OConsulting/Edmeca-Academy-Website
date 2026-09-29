@@ -122,11 +122,11 @@ export default function Home() {
             </h1>
             
             <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Practical, MBA-grade frameworks delivered through AI-powered tools to support enterprise strategy, innovation, and capability development. From leadership alignment and operational clarity to impact reporting and execution readiness.
+              Practical, business-ready frameworks delivered through AI-powered tools to support enterprise strategy, innovation, and capability development. From leadership alignment and operational clarity to impact reporting and execution readiness.
             </p>
             
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/contact" asChild>
+              <Link href="/diagnostic" asChild>
                 <Button size="lg" className="min-w-40" data-testid="button-hero-cta">
                   Get Started
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -149,6 +149,24 @@ export default function Home() {
                 No credit card required
               </span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-primary text-primary-foreground">
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-12 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Free baseline. Eight minutes.</p>
+            <h2 className="mt-2 font-serif text-3xl font-bold">Where are you on the AI Enablement Map?</h2>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-primary-foreground/70">Capability is what you can do with AI. Readiness is whether it will stick. Most businesses have one without the other. Find out which, and what moves you.</p>
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-3">
+            <Link href="/ai-map" asChild>
+              <Button variant="secondary" size="lg">Place my dot <ArrowRight className="ml-2 h-4 w-4" /></Button>
+            </Link>
+            <Link href="/execution-gap" asChild>
+              <Button variant="ghost" size="lg" className="text-primary-foreground hover:text-primary-foreground">Execution Gap diagnostic</Button>
+            </Link>
           </div>
         </div>
       </section>

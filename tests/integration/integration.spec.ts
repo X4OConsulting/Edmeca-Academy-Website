@@ -425,7 +425,10 @@ test.describe('TC-304 Financial Analysis API E2E', () => {
     await page.goto('/portal/tools/financials');
     await page.waitForLoadState('networkidle');
 
-    // Paste mode is default — target the financial statements textarea specifically
+    // The tool opens on the setup step; the paste textarea is on step 2.
+    await page.getByRole('button', { name: /Next: Upload Data/i }).click();
+
+    // Paste mode is the default input mode on step 2
     const textarea = page.getByPlaceholder(/Paste your bank statement/i);
     await expect(textarea).toBeVisible();
     await textarea.fill('Date, Description, Amount\n2026-01-01, Invoice #001, 15000\n2026-01-03, Office Rent, -8500');
@@ -456,6 +459,9 @@ test.describe('TC-304 Financial Analysis API E2E', () => {
 
     await page.goto('/portal/tools/financials');
     await page.waitForLoadState('networkidle');
+
+    // The tool opens on the setup step; the paste textarea is on step 2.
+    await page.getByRole('button', { name: /Next: Upload Data/i }).click();
 
     const textarea = page.getByPlaceholder(/Paste your bank statement/i);
     await textarea.fill('Date, Description, Amount\n2026-01-01, Invoice #001, 15000');

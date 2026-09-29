@@ -216,6 +216,26 @@
   }
 }
 
+.diagnostic {
+  --diagnostic-green: #6E9A43;
+  --diagnostic-green-soft: #C9DDB3;
+  --diagnostic-green-tint: #EEF4E6;
+  --diagnostic-purple: #53317A;
+  --diagnostic-purple-soft: #D9CFE6;
+  --diagnostic-grey: #5D6266;
+}
+
+.diagnostic-page {
+  --background: 210 20% 98%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+}
+
+.diagnostic-mode header img {
+  filter: none !important;
+}
+
 /**
  * Using the elevate system.
  * Automatic contrast adjustment.

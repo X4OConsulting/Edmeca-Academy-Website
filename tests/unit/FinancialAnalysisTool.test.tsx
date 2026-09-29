@@ -77,6 +77,23 @@ function renderFinancial() {
     </QueryClientProvider>
   );
 }
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * The tool is a 4-step wizard (setup → input → processing → dashboard).
+ * Step 1 holds business context + analysis mode; the paste textarea and the
+ * Analyse button live on step 2, so most tests must advance past setup first.
+ */
+async function goToInputStep() {
+  const next = await screen.findByRole('button', { name: /next: upload data/i });
+  await userEvent.click(next);
+  return screen.findByPlaceholderText(/paste your bank statement/i);
+}
+
+/** Quick mode skips the 600 ms categorisation delay that deep mode inserts. */
+async function selectQuickMode() {
+  await userEvent.click(await screen.findByTestId('button-mode-quick'));
+}
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 describe('FinancialAnalysisTool', () => {
@@ -99,39 +116,62 @@ describe('FinancialAnalysisTool', () => {
     global.fetch = originalFetch;
   });
 
-  it('renders the paste mode textarea by default', async () => {
+  it('opens on the setup step, not the input step', async () => {
     renderFinancial();
-    expect(
-      await screen.findByPlaceholderText(/paste your bank statement/i)
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: /next: upload data/i })).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText(/paste your bank statement/i)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('button-analyse')).not.toBeInTheDocument();
+  });
+
+  it('renders Quick Snapshot and Deep Analysis mode selectors on setup', async () => {
+    renderFinancial();
+    expect(await screen.findByTestId('button-mode-quick')).toBeInTheDocument();
+    expect(screen.getByTestId('button-mode-deep')).toBeInTheDocument();
+  });
+
+  it('advancing past setup reveals the paste mode textarea', async () => {
+    renderFinancial();
+    expect(await goToInputStep()).toBeInTheDocument();
+  });
+
+  it('Back returns from the input step to setup', async () => {
+    renderFinancial();
+    await goToInputStep();
+    await userEvent.click(screen.getByRole('button', { name: /back/i }));
+    expect(await screen.findByTestId('button-mode-quick')).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText(/paste your bank statement/i)).not.toBeInTheDocument();
   });
 
   it('Analyse button is disabled when statements are empty', async () => {
     renderFinancial();
-    const btn = await screen.findByTestId('button-analyse');
-    expect(btn).toBeDisabled();
+    await goToInputStep();
+    expect(screen.getByTestId('button-analyse')).toBeDisabled();
   });
 
   it('Analyse button becomes enabled after typing statements', async () => {
     renderFinancial();
-    const textarea = await screen.findByPlaceholderText(/paste your bank statement/i);
+    const textarea = await goToInputStep();
     await userEvent.type(textarea, 'Revenue 1000');
     expect(screen.getByTestId('button-analyse')).not.toBeDisabled();
   });
 
-  it('can switch to Upload mode and see upload zone', async () => {
+  it('Analyse button label reflects the mode chosen on setup', async () => {
     renderFinancial();
-    await screen.findByPlaceholderText(/paste your bank statement/i);
-    // The "Upload File" button is inside a flex container (not a <Button> component)
-    const uploadToggle = screen.getByText(/Upload File/i);
-    await userEvent.click(uploadToggle);
-    expect(await screen.findByTestId('file-upload-zone')).toBeInTheDocument();
+    await selectQuickMode();
+    await goToInputStep();
+    expect(screen.getByTestId('button-analyse')).toHaveTextContent(/quick snapshot/i);
+
+    await userEvent.click(screen.getByRole('button', { name: /back/i }));
+    await userEvent.click(await screen.findByTestId('button-mode-deep'));
+    await goToInputStep();
+    expect(screen.getByTestId('button-analyse')).toHaveTextContent(/deep analysis/i);
   });
 
-  it('renders Quick Snapshot and Deep Analysis mode selectors', async () => {
+  it('can switch to Upload mode and see upload zone', async () => {
     renderFinancial();
-    expect(await screen.findByTestId('button-mode-quick')).toBeInTheDocument();
-    expect(screen.getByTestId('button-mode-deep')).toBeInTheDocument();
+    await goToInputStep();
+    await userEvent.click(screen.getByRole('button', { name: /upload files/i }));
+    expect(await screen.findByTestId('file-upload-zone')).toBeInTheDocument();
   });
 
   it('clicking Analyse dispatches fetch with Authorization header', async () => {
@@ -145,7 +185,8 @@ describe('FinancialAnalysisTool', () => {
     });
 
     renderFinancial();
-    const textarea = await screen.findByPlaceholderText(/paste your bank statement/i);
+    await selectQuickMode();
+    const textarea = await goToInputStep();
     await userEvent.type(textarea, 'Date, Desc, Amount\n2024-01-01, Client, 10000');
     await userEvent.click(screen.getByTestId('button-analyse'));
 
@@ -153,6 +194,30 @@ describe('FinancialAnalysisTool', () => {
     const [url, opts] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
     expect(url).toContain('/api/analyze-financials');
     expect(opts.headers.Authorization).toBe('Bearer test-token-123');
+  });
+
+  it('sends the setup step context along with the statements', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        report: '## Report',
+        meta: { company: 'EdMeCa', model_categorisation: 'Haiku', model_analysis: 'Haiku' },
+      }),
+    });
+
+    renderFinancial();
+    await selectQuickMode();
+    const textarea = await goToInputStep();
+    await userEvent.type(textarea, 'Revenue 1000');
+    await userEvent.click(screen.getByTestId('button-analyse'));
+
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
+    const [, opts] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    const payload = JSON.parse(opts.body);
+    expect(payload.statements).toContain('Revenue 1000');
+    expect(payload.analysisMode).toBe('quick');
+    expect(payload.inputType).toBe('bank');
   });
 
   it('displays error message in UI when API returns an error', async () => {
@@ -165,13 +230,16 @@ describe('FinancialAnalysisTool', () => {
     });
 
     renderFinancial();
-    const textarea = await screen.findByPlaceholderText(/paste your bank statement/i);
+    await selectQuickMode();
+    const textarea = await goToInputStep();
     await userEvent.type(textarea, 'Some data here');
     await userEvent.click(screen.getByTestId('button-analyse'));
 
+    // A failed analysis drops back to the input step and surfaces the message there.
     expect(
       await screen.findByText(/financial data exceeds maximum allowed size/i)
     ).toBeInTheDocument();
+    expect(screen.getByTestId('button-analyse')).toBeInTheDocument();
   });
 
   it('displays the analysis report markdown after a successful API call', async () => {
@@ -185,10 +253,12 @@ describe('FinancialAnalysisTool', () => {
     });
 
     renderFinancial();
-    const textarea = await screen.findByPlaceholderText(/paste your bank statement/i);
+    await selectQuickMode();
+    const textarea = await goToInputStep();
     await userEvent.type(textarea, 'Date, Amount\n2024-01-01, 5000');
     await userEvent.click(screen.getByTestId('button-analyse'));
 
+    // No `structured` field in the response, so the dashboard falls back to markdown.
     expect(await screen.findByTestId('markdown')).toBeInTheDocument();
   });
 });

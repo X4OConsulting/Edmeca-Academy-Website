@@ -30,7 +30,7 @@ export function Footer() {
               />
             </Link>
             <p className="mt-4 text-muted-foreground max-w-md text-sm leading-relaxed">
-              From Framework to Execution to Evidence. MBA-level business frameworks 
+              From Framework to Execution to Evidence. Business-ready frameworks
               made accessible through hands-on delivery and AI-enabled tooling.
             </p>
             <p className="mt-4 text-sm text-muted-foreground">

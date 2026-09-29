@@ -81,6 +81,19 @@ export default {
           busy: "rgb(239 68 68)",
           offline: "rgb(156 163 175)",
         },
+        edmeca: {
+          green: "#6E9A43",
+          "green-soft": "#C9DDB3",
+          "green-tint": "#EEF4E6",
+          purple: "#53317A",
+          "purple-soft": "#D9CFE6",
+          grey: "#5D6266",
+          // AI Enablement Map quadrant tints
+          starters: "#F3F4F6",
+          pathseekers: "#EEF4E6",
+          transformers: "#F1ECF7",
+          fuelled: "#E9F0E4",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)"],

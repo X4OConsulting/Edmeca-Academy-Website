@@ -21,3 +21,6 @@ test-results/
 
 # Smartsheet local sync files — not version controlled
 smartsheet/
+
+# Local Netlify folder
+.netlify
