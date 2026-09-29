@@ -222,6 +222,8 @@ export default function SWOTPestleTool() {
   const [view, setView] = useState<ViewType>("swot");
   const [data, setData] = useState<AnalysisData>(emptyData);
   const [isFinalized, setIsFinalized] = useState(false);
+  // Autosave runs silently; this surfaces a failed one so work is never lost unnoticed.
+  const [autosaveFailed, setAutosaveFailed] = useState(false);
   const [existingId, setExistingId] = useState<string | null>(null);
 
   // Refs for auto-save (avoids stale closures and skips initial load)
@@ -283,7 +285,8 @@ export default function SWOTPestleTool() {
           status: "in_progress",
         });
         if (!existingIdRef.current) { existingIdRef.current = id; setExistingId(id); }
-      } catch { /* silent — manual Save Draft still available */ }
+        setAutosaveFailed(false);
+      } catch { setAutosaveFailed(true); }
     }, 1500);
     return () => clearTimeout(timer);
   }, [data, isFinalized]);
@@ -323,6 +326,7 @@ export default function SWOTPestleTool() {
       return finalize;
     },
     onSuccess: (finalized) => {
+      setAutosaveFailed(false);
       if (finalized) {
         setIsFinalized(true);
         toast({ title: "Analysis Finalized", description: "Your SWOT & PESTLE has been saved." });
@@ -351,6 +355,7 @@ export default function SWOTPestleTool() {
               <span className="font-medium text-sm">SWOT & PESTLE Analysis</span>
             </div>
             {isFinalized && <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 text-xs">Finalized</Badge>}
+            {autosaveFailed && <Badge variant="outline" className="border-amber-300 text-amber-700 dark:text-amber-400 text-xs" data-testid="badge-not-saved">Not saved — use Save Draft</Badge>}
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="gap-2" onClick={() => saveMutation.mutate(false)} disabled={saveMutation.isPending} data-testid="button-save-draft">

@@ -109,6 +109,8 @@ export default function ValuePropTool() {
   const [view, setView] = useState<ViewType>("customer");
   const [data, setData] = useState<ValuePropData>(emptyData);
   const [isFinalized, setIsFinalized] = useState(false);
+  // Autosave runs silently; this surfaces a failed one so work is never lost unnoticed.
+  const [autosaveFailed, setAutosaveFailed] = useState(false);
   const [existingId, setExistingId] = useState<string | null>(null);
 
   const existingIdRef = useRef<string | null>(null);
@@ -171,7 +173,8 @@ export default function ValuePropTool() {
           status: "in_progress",
         });
         if (!existingIdRef.current) { existingIdRef.current = id; setExistingId(id); }
-      } catch { /* silent */ }
+        setAutosaveFailed(false);
+      } catch { setAutosaveFailed(true); }
     }, 1500);
     return () => clearTimeout(timer);
   }, [data, isFinalized]);
@@ -211,6 +214,7 @@ export default function ValuePropTool() {
       return finalize;
     },
     onSuccess: (finalized) => {
+      setAutosaveFailed(false);
       if (finalized) {
         setIsFinalized(true);
         toast({ title: "Value Proposition Finalized", description: "Saved to your artifacts." });
@@ -240,6 +244,7 @@ export default function ValuePropTool() {
               <span className="font-medium text-sm">Value Proposition</span>
             </div>
             {isFinalized && <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 text-xs">Finalized</Badge>}
+            {autosaveFailed && <Badge variant="outline" className="border-amber-300 text-amber-700 dark:text-amber-400 text-xs" data-testid="badge-not-saved">Not saved — use Save Draft</Badge>}
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="gap-2" onClick={() => saveMutation.mutate(false)} disabled={saveMutation.isPending} data-testid="button-save-draft">

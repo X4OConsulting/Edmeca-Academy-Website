@@ -23,6 +23,37 @@ import type {
 // Internal helpers
 // ---------------------------------------------------------------------------
 
+/**
+ * The app's types (shared/schema.ts) use camelCase; the database columns are
+ * snake_case, and PostgREST does not translate. Spreading a camelCase payload
+ * straight into insert/update sends `toolType` for `tool_type`, which the
+ * database rejects, so every write goes through toColumns().
+ */
+const snake = (key: string) => key.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
+const camel = (key: string) => key.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
+
+export function toColumns(payload: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(payload).filter(([, value]) => value !== undefined).map(([key, value]) => [snake(key), value]),
+  );
+}
+
+/**
+ * Rows come back snake_case. Pages written at different times read either
+ * spelling (`tool_type` and `toolType`), so each row carries both.
+ */
+export function withAliases<T>(row: unknown): T {
+  if (!row || typeof row !== 'object') return row as T;
+  const out: Record<string, unknown> = { ...(row as Record<string, unknown>) };
+  for (const [key, value] of Object.entries(row as Record<string, unknown>)) {
+    const alias = camel(key);
+    if (alias !== key && !(alias in out)) out[alias] = value;
+  }
+  return out as T;
+}
+
+const withAliasesAll = <T,>(rows: unknown): T[] => ((rows as unknown[] | null) ?? []).map((row) => withAliases<T>(row));
+
 async function getCurrentUserId(): Promise<string> {
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) throw new Error('User not authenticated');
@@ -41,7 +72,7 @@ export const artifactsService = {
       .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
-    return data as Artifact[];
+    return withAliasesAll<Artifact>(data);
   },
 
   /** Fetch a single artifact by its ID. */
@@ -52,7 +83,7 @@ export const artifactsService = {
       .eq('id', id)
       .single();
     if (error && error.code !== 'PGRST116') throw error;
-    return (data as Artifact) ?? null;
+    return data ? withAliases<Artifact>(data) : null;
   },
 
   /**
@@ -68,7 +99,7 @@ export const artifactsService = {
       .limit(1)
       .single();
     if (error && error.code !== 'PGRST116') throw error;
-    return (data as Artifact) ?? null;
+    return data ? withAliases<Artifact>(data) : null;
   },
 
   /** Insert a new artifact row and return the saved record. */
@@ -78,11 +109,11 @@ export const artifactsService = {
     const userId = await getCurrentUserId();
     const { data, error } = await supabase
       .from('artifacts')
-      .insert({ ...artifact, user_id: userId })
+      .insert({ ...toColumns(artifact), user_id: userId })
       .select()
       .single();
     if (error) throw error;
-    return data as Artifact;
+    return withAliases<Artifact>(data);
   },
 
   /** Partial-update an artifact by ID. Always stamps updated_at. */
@@ -92,12 +123,12 @@ export const artifactsService = {
   ): Promise<Artifact> {
     const { data, error } = await supabase
       .from('artifacts')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({ ...toColumns(updates), updated_at: new Date().toISOString() })
       .eq('id', id)
       .select()
       .single();
     if (error) throw error;
-    return data as Artifact;
+    return withAliases<Artifact>(data);
   },
 
   /** Delete a single artifact by ID. */
@@ -122,14 +153,14 @@ export const artifactsService = {
     if (existingId) {
       const { error } = await supabase
         .from('artifacts')
-        .update({ ...payload, updated_at: new Date().toISOString() })
+        .update({ ...toColumns(payload), updated_at: new Date().toISOString() })
         .eq('id', existingId);
       if (error) throw error;
       return existingId;
     }
     const { data, error } = await supabase
       .from('artifacts')
-      .insert({ ...payload, user_id: userId })
+      .insert({ ...toColumns(payload), user_id: userId })
       .select('id')
       .single();
     if (error) throw error;
@@ -141,34 +172,39 @@ export const artifactsService = {
 // PROGRESS SERVICE
 // ---------------------------------------------------------------------------
 
+/** A progress entry with its notes column exposed as the evidence the Progress Tracker shows. */
+export type ProgressEntryView = ProgressEntry & { evidence: string | null };
+const withEvidence = (entry: ProgressEntry): ProgressEntryView => ({ ...entry, evidence: entry.notes ?? null });
+
 export const progressService = {
   /** All progress entries for the current user, newest first. */
-  async getProgressEntries(): Promise<ProgressEntry[]> {
+  async getProgressEntries(): Promise<ProgressEntryView[]> {
     const { data, error } = await supabase
       .from('progress_entries')
       .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
-    return data as ProgressEntry[];
+    return withAliasesAll<ProgressEntry>(data).map(withEvidence);
   },
 
   /** Insert a new progress entry. */
   async createProgressEntry(
     entry: { milestone: string; evidence?: string | null; completedAt?: string | null }
-  ): Promise<ProgressEntry> {
+  ): Promise<ProgressEntryView> {
     const userId = await getCurrentUserId();
     const { data, error } = await supabase
       .from('progress_entries')
       .insert({
         user_id: userId,
         milestone: entry.milestone,
-        evidence: entry.evidence ?? null,
+        // The table has no evidence column; the evidence text lives in notes.
+        notes: entry.evidence ?? null,
         completed_at: entry.completedAt ?? null,
       })
       .select()
       .single();
     if (error) throw error;
-    return data as ProgressEntry;
+    return withEvidence(withAliases<ProgressEntry>(data));
   },
 
   /** Toggle the completed_at timestamp on a progress entry. */
@@ -202,7 +238,7 @@ export const profileService = {
       .select('*')
       .single();
     if (error && error.code !== 'PGRST116') throw error;
-    return (data as UserProfile) ?? null;
+    return data ? withAliases<UserProfile>(data) : null;
   },
 
   /** Create the initial profile row for a new user. */
@@ -212,11 +248,11 @@ export const profileService = {
     const userId = await getCurrentUserId();
     const { data, error } = await supabase
       .from('user_profiles')
-      .insert({ ...profile, user_id: userId })
+      .insert({ ...toColumns(profile), user_id: userId })
       .select()
       .single();
     if (error) throw error;
-    return data as UserProfile;
+    return withAliases<UserProfile>(data);
   },
 
   /** Partial-update the current user's profile. */
@@ -225,11 +261,11 @@ export const profileService = {
   ): Promise<UserProfile> {
     const { data, error } = await supabase
       .from('user_profiles')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({ ...toColumns(updates), updated_at: new Date().toISOString() })
       .select()
       .single();
     if (error) throw error;
-    return data as UserProfile;
+    return withAliases<UserProfile>(data);
   },
 
   /** Insert or update the current user's profile (safe idempotent write). */
@@ -239,11 +275,11 @@ export const profileService = {
     const userId = await getCurrentUserId();
     const { data, error } = await supabase
       .from('user_profiles')
-      .upsert({ ...profile, user_id: userId }, { onConflict: 'user_id' })
+      .upsert({ ...toColumns(profile), user_id: userId }, { onConflict: 'user_id' })
       .select()
       .single();
     if (error) throw error;
-    return data as UserProfile;
+    return withAliases<UserProfile>(data);
   },
 };
 
@@ -258,10 +294,10 @@ export const contactService = {
   ): Promise<ContactSubmission> {
     const { data, error } = await supabase
       .from('contact_submissions')
-      .insert(submission)
+      .insert(toColumns(submission))
       .select()
       .single();
     if (error) throw error;
-    return data as ContactSubmission;
+    return withAliases<ContactSubmission>(data);
   },
 };
