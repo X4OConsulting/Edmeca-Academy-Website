@@ -10,7 +10,6 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import BMCTool from '@/pages/portal/BMCTool';
-import { supabase } from '@/lib/supabase';
 import { artifactsService } from '@/lib/services';
 
 // ── Module mocks (hoisted) ────────────────────────────────────────────────────
@@ -19,16 +18,8 @@ vi.mock('wouter', () => ({
   useLocation: () => ['/portal/tools/bmc', vi.fn()],
 }));
 
-vi.mock('@/lib/supabase', () => ({
-  supabase: {
-    auth: {
-      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
-      getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
-      onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
-    },
-    from: vi.fn(() => ({ insert: vi.fn().mockResolvedValue({ error: null }) })),
-  },
-}));
+// Signed out unless a test calls signedIn() (the page saves only for signed-in users).
+const authState = vi.hoisted(() => ({ isAuthenticated: false }));
 
 vi.mock('@/lib/services', () => ({
   profileService: {
@@ -46,7 +37,7 @@ vi.mock('@/hooks/use-toast', () => ({
 }));
 
 vi.mock('@/hooks/use-auth', () => ({
-  useAuth: () => ({ user: { id: 'user-1', email: 'test@edmeca.co.za' }, isLoading: false }),
+  useAuth: () => ({ user: { id: 'user-1', email: 'test@edmeca.co.za' }, isLoading: false, isAuthenticated: authState.isAuthenticated }),
 }));
 
 vi.mock('docx', () => ({
@@ -74,6 +65,7 @@ describe('BMCTool', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+    authState.isAuthenticated = false;
   });
 
   it('renders the company name input prompt on first load', async () => {
@@ -187,7 +179,7 @@ describe('BMCTool', () => {
       id: 'bmc-row-1', status: 'in_progress', title: 'Acme — Business Model Canvas',
       updated_at: '2026-09-29T10:00:00Z', content, ...extra,
     });
-    const signedIn = () => vi.mocked(supabase.auth.getSession).mockResolvedValue({ data: { session: { user: { id: 'user-1' } } }, error: null } as never);
+    const signedIn = () => { authState.isAuthenticated = true; };
 
     it('opens the canvas saved in the database, not the name prompt', async () => {
       vi.mocked(artifactsService.getLatestArtifactByType).mockResolvedValueOnce(savedRow({

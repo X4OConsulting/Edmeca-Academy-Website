@@ -1,23 +1,22 @@
-import type { Handler, HandlerEvent } from "@netlify/functions";
+import { type Handler, type HandlerEvent, inBackground } from "../legacy";
 import {
   type Answer, type Answers, type ItemId, type RespondentMode, type Wave,
   businessSizes, programmeStatuses, roles, sectors,
 } from "../../client/src/data/aiMap";
 import { type AIMapResult, type Movement, isAnswer, itemsForWave, movementBetween, scoreAIMap } from "../../client/src/lib/aiMap";
-import { type BackgroundJob, type Profile, type UnlockJob, deliverBaseline, deliverUnlock, lookup, scriptTarget } from "./lib/aiMapDelivery";
+import { type BackgroundJob, type Profile, type UnlockJob, deliverBaseline, deliverUnlock, lookup } from "../lib/aiMapDelivery";
 
-const origins = ["https://edmeca.co.za", "https://edmecaacademy.netlify.app", "https://staging--edmecaacademy.netlify.app", "https://ai-map--edmecaacademy.netlify.app", "http://localhost:5173", "http://localhost:4173", "http://localhost:8888"];
+const origins = ["https://edmeca.co.za", "http://localhost:5173", "http://localhost:4173", "http://localhost:3999"];
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[4-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const cohortPattern = /^[A-Za-z0-9_-]{1,40}$/;
 const waves: Wave[] = ["baseline", "mid", "post"];
 const modes: RespondentMode[] = ["business", "individual"];
 
-// Netlify stops a synchronous function at 26 s. One Apps Script call takes
-// 2-8 s warm and up to ~27 s cold, so the synchronous path makes at most one
-// call with this budget; report delivery runs in the background function.
+// One Apps Script call takes 2-8 s warm and up to ~27 s cold. The browser is
+// answered after at most one such call (a re-test lookup); the sheet write,
+// report and emails run after the response (inBackground).
 const SCRIPT_TIMEOUT_MS = Number(process.env.AI_MAP_SCRIPT_TIMEOUT_MS) || 22000;
-export const BACKGROUND_PATH = "/.netlify/functions/ai-map-unlock-background";
 
 type Body = {
   action?: "baseline" | "unlock" | "retest";
@@ -63,23 +62,21 @@ function parseProfile(mode: RespondentMode, raw: Profile | undefined): Profile |
 }
 
 /**
- * Hands the validated unlock to the background function, which Netlify
- * acknowledges with 202 before running it. Returns false when the call could
- * not be made (no site URL, no secret, network error), in which case the
- * caller delivers inline as a best effort.
+ * Delivers a validated job after the browser has its answer: the sheet row
+ * for a baseline; the model-written report, sheet row and two emails for an
+ * unlock. (This was the ai-map-unlock-background Netlify function.)
  */
-async function enqueue(job: BackgroundJob): Promise<boolean> {
-  const base = process.env.URL || process.env.DEPLOY_PRIME_URL;
-  const { secret } = scriptTarget();
-  if (!base || !secret) return false;
-  try {
-    const answer = await fetch(`${base}${BACKGROUND_PATH}`, { method: "POST", headers: { "Content-Type": "application/json", "x-ai-map-token": secret }, body: JSON.stringify(job) });
-    return answer.status === 202 || answer.ok;
-  } catch (error) {
-    console.error("AI map background enqueue failed", error instanceof Error ? error.message : "unknown error");
-    return false;
+export async function runJob(job: BackgroundJob): Promise<void> {
+  if (job.kind === "baseline") {
+    await deliverBaseline(job);
+    console.log(`AI map baseline stored for ${job.respondentId} (${job.result.quadrant})`);
+  } else {
+    const outcome = await deliverUnlock(job);
+    console.log(`AI map report delivered to ${job.email} (${outcome.reportSource}, ${outcome.result.quadrant}${outcome.movement ? ", with movement" : ""})`);
   }
 }
+
+const enqueue = (job: BackgroundJob) => inBackground(`AI map ${job.kind} for ${job.respondentId}`, () => runJob(job));
 
 export const handler: Handler = async (event: HandlerEvent) => {
   const origin = event.headers.origin || event.headers.Origin;
@@ -120,9 +117,8 @@ export const handler: Handler = async (event: HandlerEvent) => {
         name: body.name.trim(), email: body.email.trim().toLowerCase(), organisation: (body.organisation || "").trim(), wantsCall: body.wantsCall, userAgent, referrer,
       };
       // The browser gets its answer now; the report is written and emailed in the background.
-      if (await enqueue({ kind: "unlock", ...job })) return response(200, { ok: true, result: scoreAIMap(answers), queued: true }, origin);
-      const outcome = await deliverUnlock(job, { script: SCRIPT_TIMEOUT_MS, model: 8000 });
-      return response(200, { ok: true, ...outcome }, origin);
+      enqueue({ kind: "unlock", ...job });
+      return response(200, { ok: true, result: scoreAIMap(answers), queued: true }, origin);
     }
 
     // A re-test needs the baseline to (a) carry unasked pulse dimensions and (b) report movement.
@@ -131,9 +127,8 @@ export const handler: Handler = async (event: HandlerEvent) => {
     const movement: Movement | null = prior ? movementBetween(prior, result) : null;
     const baseline = { respondentId: body.respondentId, wave, retestOf: body.retestOf || "", cohort: body.cohort || "", mode, answers, profile, context, result, movement, userAgent, referrer };
     // The browser only needs the scores; the sheet write happens in the background so a cold script cannot lose the row.
-    if (await enqueue({ kind: "baseline", ...baseline })) return response(200, { ok: true, result, movement, queued: true }, origin);
-    await deliverBaseline(baseline, SCRIPT_TIMEOUT_MS);
-    return response(200, { ok: true, result, movement }, origin);
+    enqueue({ kind: "baseline", ...baseline });
+    return response(200, { ok: true, result, movement, queued: true }, origin);
   } catch (error) {
     console.error("AI map error", error instanceof Error ? error.message : "unknown error");
     return response(500, { message: "Could not process the baseline" }, origin);

@@ -9,8 +9,8 @@
  * synchronous request. ai-map.ts validates and answers the browser at once;
  * ai-map-unlock-background.ts runs deliverUnlock() with minutes to spare.
  */
-import { type Answers, type RespondentMode, type Wave, dimensionCodes } from "../../../client/src/data/aiMap";
-import { type AIMapResult, type Movement, type PriorPosition, movementBetween, scoreAIMap } from "../../../client/src/lib/aiMap";
+import { type Answers, type RespondentMode, type Wave, dimensionCodes } from "../../client/src/data/aiMap";
+import { type AIMapResult, type Movement, type PriorPosition, movementBetween, scoreAIMap } from "../../client/src/lib/aiMap";
 import { type ReportFacts, SYSTEM_PROMPT, buildTemplateReport, buildUserMessage } from "./aiMapReportPrompt";
 
 export type Profile = { sizeOrRole?: string; sector?: string; programmeStatus?: string };

@@ -1,4 +1,4 @@
-/** Sign-in page: forgot password, resending the confirmation email, and no GitHub button (not enabled in Supabase). */
+/** Sign-in page: forgot password, resending the confirmation email, and no GitHub button (no GitHub provider is configured). */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -10,23 +10,23 @@ vi.mock('wouter', () => ({
 }));
 vi.mock('@/components/marketing/MarketingLayout', () => ({ MarketingLayout: ({ children }: any) => React.createElement('div', null, children) }));
 
-const { signInWithEmail, resetPasswordForEmail, resend } = vi.hoisted(() => ({
+const { signInWithEmail, requestPasswordReset, sendVerificationEmail } = vi.hoisted(() => ({
   signInWithEmail: vi.fn(),
-  resetPasswordForEmail: vi.fn().mockResolvedValue({ error: null }),
-  resend: vi.fn().mockResolvedValue({ error: null }),
+  requestPasswordReset: vi.fn().mockResolvedValue({ error: null }),
+  sendVerificationEmail: vi.fn().mockResolvedValue({ error: null }),
 }));
 vi.mock('@/hooks/use-auth', () => ({
   useAuth: () => ({ signInWithEmail, signUpWithEmail: vi.fn(), signInWithOAuth: vi.fn(), isLoading: false }),
 }));
 
-vi.mock('@/lib/supabase', () => ({ supabase: { auth: { resetPasswordForEmail, resend } } }));
+vi.mock('@/lib/auth-client', () => ({ authClient: { requestPasswordReset, sendVerificationEmail } }));
 
 import Login from '@/pages/Login';
 
 beforeEach(() => {
   vi.clearAllMocks();
-  resetPasswordForEmail.mockResolvedValue({ error: null });
-  resend.mockResolvedValue({ error: null });
+  requestPasswordReset.mockResolvedValue({ error: null });
+  sendVerificationEmail.mockResolvedValue({ error: null });
 });
 
 describe('Login', () => {
@@ -40,14 +40,14 @@ describe('Login', () => {
     render(<Login />);
     await userEvent.click(screen.getByTestId('button-forgot-password'));
     expect(screen.getByText(/enter your email address above/i)).toBeInTheDocument();
-    expect(resetPasswordForEmail).not.toHaveBeenCalled();
+    expect(requestPasswordReset).not.toHaveBeenCalled();
   });
 
   it('sends a reset link that returns to /reset-password on this site', async () => {
     render(<Login />);
     await userEvent.type(screen.getByTestId('input-signin-email'), 'founder@example.com');
     await userEvent.click(screen.getByTestId('button-forgot-password'));
-    expect(resetPasswordForEmail).toHaveBeenCalledWith('founder@example.com', { redirectTo: `${window.location.origin}/reset-password` });
+    expect(requestPasswordReset).toHaveBeenCalledWith({ email: 'founder@example.com', redirectTo: '/reset-password' });
     expect(await screen.findByText(/we've emailed a link/i)).toBeInTheDocument();
   });
 
@@ -58,7 +58,7 @@ describe('Login', () => {
     await userEvent.type(screen.getByTestId('input-signin-password'), 'secret123');
     await userEvent.click(screen.getByTestId('button-signin-submit'));
     await userEvent.click(await screen.findByTestId('button-resend-confirmation'));
-    expect(resend).toHaveBeenCalledWith(expect.objectContaining({ type: 'signup', email: 'founder@example.com' }));
+    expect(sendVerificationEmail).toHaveBeenCalledWith(expect.objectContaining({ email: 'founder@example.com' }));
     expect(await screen.findByText(/sent a new confirmation link/i)).toBeInTheDocument();
   });
 });

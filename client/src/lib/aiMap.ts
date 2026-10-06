@@ -1,7 +1,7 @@
 /**
  * AI Enablement Baseline scoring. Pure functions, no React, no I/O.
  *
- * Imported by the page and by netlify/functions/ai-map.ts, so the position the
+ * Imported by the page and by server/handlers/ai-map.ts, so the position the
  * respondent sees on screen is exactly the position the sheet records.
  *
  * Rules (section 4 of the plan):

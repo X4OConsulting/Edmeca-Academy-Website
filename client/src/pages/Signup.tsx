@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/services";
 import { CheckCircle2, Loader2, ShieldCheck, Users, Lightbulb } from "lucide-react";
 
 const signupFormSchema = z.object({
@@ -51,22 +52,8 @@ export default function Signup() {
 
   const onSubmit = async (data: SignupFormValues) => {
     try {
-      const formData = new FormData();
-      formData.append("form-name", "signup");
-      formData.append("name", data.name);
-      formData.append("email", data.email);
-      formData.append("phone", data.phone || "");
-      formData.append("organisation", data.organisation || "");
-      formData.append("interestType", data.interestType);
-      formData.append("motivation", data.motivation);
-
-      const response = await fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams(formData as any).toString(),
-      });
-
-      if (!response.ok) throw new Error("Submission failed");
+      // Saved to the database and emailed to the team by /api/signup.
+      await api("/api/signup", { method: "POST", body: data });
 
       setSubmitted(true);
       toast({

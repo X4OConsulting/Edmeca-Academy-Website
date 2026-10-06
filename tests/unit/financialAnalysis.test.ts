@@ -1,45 +1,64 @@
 /**
- * Financial Analysis on Netlify: input limits, the checks on Claude's replies,
- * and the job flow between analyze-financials and its background function.
- * Claude, Supabase auth and Netlify Blobs are replaced with in-memory fakes.
+ * Financial Analysis on Vercel: input limits, the checks on Claude's replies,
+ * and the job flow (POST starts a job that runs via waitUntil, GET collects it).
+ * Claude, the session, the Neon tables and waitUntil are in-memory fakes.
  */
 import { describe, expect, it, beforeEach, vi } from 'vitest';
-import type { HandlerEvent } from '@netlify/functions';
 
-// One map per named store; `blobs` is the job store, `stores` holds the rest (rate limits).
-const stores = new Map<string, Map<string, unknown>>();
-const blobs = new Map<string, unknown>();
-stores.set('financial-analysis-jobs', blobs);
-vi.mock('@netlify/blobs', () => ({
-  connectLambda: vi.fn(),
-  getStore: (name: string) => {
-    if (!stores.has(name)) stores.set(name, new Map());
-    const map = stores.get(name)!;
-    return {
-      get: async (key: string) => map.get(key) ?? null,
-      setJSON: async (key: string, value: unknown) => { map.set(key, structuredClone(value)); },
-      delete: async (key: string) => { map.delete(key); },
-    };
+// ── Fake Neon: just the statements the route and the rate limiter run ────────
+type Job = { id: string; user_id: string; status: string; step: string | null; result: unknown; error: string | null; updated_at: string };
+const jobs = new Map<string, Job>();
+const usage: { name: string; user_id: string; at: number }[] = [];
+vi.mock('../../server/db', () => ({
+  query: async (text: string, params: unknown[] = []) => {
+    const sql = text.replace(/\s+/g, ' ').trim();
+    const now = new Date().toISOString();
+    if (sql.startsWith('insert into public.analysis_jobs')) {
+      jobs.set(params[0] as string, { id: params[0] as string, user_id: params[1] as string, status: 'queued', step: null, result: null, error: null, updated_at: now });
+      return [];
+    }
+    if (sql.startsWith('update public.analysis_jobs')) {
+      const job = jobs.get(params[0] as string);
+      if (job) Object.assign(job, { status: params[1], step: (params[2] as string | null) ?? job.step, result: params[3] ? JSON.parse(params[3] as string) : null, error: params[4] ?? null, updated_at: now });
+      return [];
+    }
+    if (sql.startsWith('select status, step, result, error, updated_at from public.analysis_jobs')) {
+      const job = jobs.get(params[0] as string);
+      return job && job.user_id === params[1] ? [{ ...job }] : [];
+    }
+    if (sql.startsWith('delete from public.analysis_jobs where id')) { jobs.delete(params[0] as string); return []; }
+    if (sql.startsWith('delete from public.analysis_jobs where user_id')) return [];
+    const hourAgo = Date.now() - 3600_000;
+    const mine = () => usage.filter((u) => u.name === params[0] && u.user_id === params[1] && u.at > hourAgo);
+    if (sql.startsWith('select count(*)::int as used')) {
+      const rows = mine();
+      return [{ used: rows.length, oldest: rows.length ? new Date(Math.min(...rows.map((r) => r.at))).toISOString() : null }];
+    }
+    if (sql.startsWith('insert into public.ai_usage')) { usage.push({ name: params[0] as string, user_id: params[1] as string, at: Date.now() }); return []; }
+    if (sql.startsWith('delete from public.ai_usage')) return [];
+    throw new Error(`Unexpected SQL in test: ${sql}`);
   },
 }));
 
+// The session cookie "session=token-a" is user-a, "session=token-b" user-b.
 const users: Record<string, string> = { 'token-a': 'user-a', 'token-b': 'user-b' };
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: () => ({
-    auth: {
-      getUser: async (token: string) => (users[token]
-        ? { data: { user: { id: users[token] } }, error: null }
-        : { data: { user: null }, error: { message: 'invalid' } }),
-    },
-  }),
+vi.mock('../../server/auth', () => ({
+  auth: { api: { getSession: async ({ headers }: { headers: Headers }) => {
+    const id = users[(headers.get('cookie') ?? '').replace('session=', '')];
+    return id ? { user: { id, email: `${id}@example.com`, name: id } } : null;
+  } } },
 }));
+
+// waitUntil: keep the background work so tests can wait for it.
+const pending: Promise<unknown>[] = [];
+vi.mock('@vercel/functions', () => ({ waitUntil: (promise: Promise<unknown>) => { pending.push(promise); } }));
+const settle = async () => { await Promise.all(pending.splice(0)); };
 
 const create = vi.fn();
 vi.mock('@anthropic-ai/sdk', () => ({ default: class { messages = { create }; } }));
 
-import { AnalysisError, MAX_INPUT_CHARS, parseInput, parseStructured, runAnalysis } from '../../netlify/functions/lib/financialAnalysis';
-import { handler as start } from '../../netlify/functions/analyze-financials';
-import { handler as background } from '../../netlify/functions/analyze-financials-background';
+import { AnalysisError, MAX_INPUT_CHARS, parseInput, parseStructured, runAnalysis } from '../../server/lib/financialAnalysis';
+import { GET, POST } from '../../api/analyze-financials';
 
 const reply = (text: string, stop_reason = 'end_turn') => ({ stop_reason, content: [{ type: 'text', text }] });
 const STRUCTURED = {
@@ -51,19 +70,22 @@ const STRUCTURED = {
 };
 const input = (extra: Record<string, unknown> = {}) => parseInput({ statements: 'Revenue 1000', companyName: 'Acme', analysisMode: 'deep', ...extra });
 
-const event = (init: Partial<HandlerEvent> & { token?: string }): HandlerEvent => ({
-  httpMethod: 'POST', body: null, queryStringParameters: null, path: '/', rawUrl: '', rawQuery: '',
-  isBase64Encoded: false, multiValueHeaders: {}, multiValueQueryStringParameters: null,
-  ...init,
-  headers: { host: 'staging--edmecaacademy.netlify.app', ...(init.token ? { authorization: `Bearer ${init.token}` } : {}), ...init.headers },
-});
-const call = async (h: typeof start, e: HandlerEvent) => (await h(e, {} as never)) as { statusCode: number; body: string };
+const asUser = (token?: string): Record<string, string> => (token ? { cookie: `session=${token}` } : {});
+const start = async (body: unknown, token?: string) => {
+  const res = await POST(new Request('http://localhost/api/analyze-financials', { method: 'POST', headers: asUser(token), body: JSON.stringify(body) }));
+  return { statusCode: res.status, body: await res.text() };
+};
+const collect = async (jobId: string, token?: string) => {
+  const res = await GET(new Request(`http://localhost/api/analyze-financials?job=${jobId}`, { headers: asUser(token) }));
+  return { statusCode: res.status, body: await res.text() };
+};
+const quick = { statements: 'Revenue 1000', analysisMode: 'quick' };
 
 beforeEach(() => {
-  for (const map of stores.values()) map.clear();
+  jobs.clear();
+  usage.length = 0;
+  pending.length = 0;
   create.mockReset();
-  process.env.VITE_SUPABASE_URL = 'https://example.supabase.co';
-  process.env.VITE_SUPABASE_ANON_KEY = 'anon';
   process.env.ANTHROPIC_API_KEY = 'test-key';
 });
 
@@ -107,71 +129,60 @@ describe('the checks on what Claude returns', () => {
 
 describe('the job flow', () => {
   it('requires a signed-in user', async () => {
-    const res = await call(start, event({ body: JSON.stringify({ statements: 'x' }) }));
-    expect(res.statusCode).toBe(401);
+    expect((await start({ statements: 'x' })).statusCode).toBe(401);
+    expect((await collect('11111111-2222-4333-8444-555555555555')).statusCode).toBe(401);
   });
 
-  it('starts a job on the same deploy and answers 202 with its id', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 202 });
-    vi.stubGlobal('fetch', fetchMock);
-    const res = await call(start, event({ token: 'token-a', body: JSON.stringify({ statements: 'Revenue 1000', analysisMode: 'quick' }) }));
+  it('answers 202 with a job id at once and runs the analysis after the response', async () => {
+    create.mockResolvedValue(reply('## Executive Summary\nFine.'));
+    const res = await start(quick, 'token-a');
     expect(res.statusCode).toBe(202);
     const { jobId } = JSON.parse(res.body);
-    expect(blobs.get(jobId)).toMatchObject({ userId: 'user-a', status: 'queued' });
-    expect(fetchMock.mock.calls[0][0]).toBe('https://staging--edmecaacademy.netlify.app/.netlify/functions/analyze-financials-background');
-    vi.unstubAllGlobals();
+    expect(jobs.get(jobId)).toMatchObject({ user_id: 'user-a' });
+    expect(pending).toHaveLength(1);
+    await settle();
+    expect(jobs.get(jobId)).toMatchObject({ status: 'done' });
   });
 
-  it('says the service is unavailable, and forgets the job, when the background call fails', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('fetch failed')));
-    const res = await call(start, event({ token: 'token-a', body: JSON.stringify({ statements: 'Revenue 1000' }) }));
-    expect(res.statusCode).toBe(502);
-    expect(JSON.parse(res.body).error).toMatch(/unavailable/);
-    expect(blobs.size).toBe(0);
-    vi.unstubAllGlobals();
-  });
-
-  it('runs the job in the background and hands the result to its owner once', async () => {
-    const jobId = '11111111-2222-4333-8444-555555555555';
-    blobs.set(jobId, { userId: 'user-a', status: 'queued', createdAt: 'now' });
+  it('hands the result to its owner once, and to nobody else', async () => {
     create.mockResolvedValue(reply('## Executive Summary\nFine.'));
-    await call(background, event({ token: 'token-a', body: JSON.stringify({ jobId, input: { statements: 'Revenue 1000', analysisMode: 'quick' } }) }));
-
-    const other = await call(start, event({ token: 'token-b', httpMethod: 'GET', queryStringParameters: { job: jobId } }));
-    expect(other.statusCode).toBe(404);
-
-    const mine = await call(start, event({ token: 'token-a', httpMethod: 'GET', queryStringParameters: { job: jobId } }));
+    const { jobId } = JSON.parse((await start(quick, 'token-a')).body);
+    await settle();
+    expect((await collect(jobId, 'token-b')).statusCode).toBe(404);
+    const mine = await collect(jobId, 'token-a');
     expect(JSON.parse(mine.body)).toMatchObject({ status: 'done', result: { report: '## Executive Summary\nFine.' } });
-    expect(blobs.has(jobId)).toBe(false);
+    expect(jobs.has(jobId)).toBe(false);
+    expect((await collect(jobId, 'token-a')).statusCode).toBe(404);
   });
 
   it('records a failed analysis with its reason', async () => {
-    const jobId = '11111111-2222-4333-8444-666666666666';
-    blobs.set(jobId, { userId: 'user-a', status: 'queued', createdAt: 'now' });
     create.mockResolvedValue(reply('partial', 'max_tokens'));
-    await call(background, event({ token: 'token-a', body: JSON.stringify({ jobId, input: { statements: 'Revenue 1000', analysisMode: 'quick' } }) }));
-    expect(blobs.get(jobId)).toMatchObject({ status: 'error', error: expect.stringMatching(/cut off/) });
+    const { jobId } = JSON.parse((await start(quick, 'token-a')).body);
+    await settle();
+    expect(JSON.parse((await collect(jobId, 'token-a')).body)).toMatchObject({ status: 'error', error: expect.stringMatching(/cut off/) });
   });
 
-  it('will not run another user\'s job', async () => {
+  it('reports a job whose instance died, instead of polling forever', async () => {
     const jobId = '11111111-2222-4333-8444-777777777777';
-    blobs.set(jobId, { userId: 'user-a', status: 'queued', createdAt: 'now' });
-    const res = await call(background, event({ token: 'token-b', body: JSON.stringify({ jobId, input: { statements: 'x' } }) }));
-    expect(res.statusCode).toBe(404);
-    expect(create).not.toHaveBeenCalled();
+    jobs.set(jobId, { id: jobId, user_id: 'user-a', status: 'running', step: 'analysing', result: null, error: null, updated_at: new Date(Date.now() - 11 * 60_000).toISOString() });
+    expect(JSON.parse((await collect(jobId, 'token-a')).body)).toMatchObject({ status: 'error', error: expect.stringMatching(/stopped unexpectedly/) });
+  });
+
+  it('refuses bad input before starting a job', async () => {
+    expect((await start({ statements: '   ' }, 'token-a')).statusCode).toBe(400);
+    expect(jobs.size).toBe(0);
   });
 });
 
 describe('hourly limits', () => {
   it('stops a user after 10 financial analyses in an hour, with a message saying when to retry', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, status: 202 }));
-    const body = JSON.stringify({ statements: 'Revenue 1000', analysisMode: 'quick' });
-    for (let i = 0; i < 10; i++) expect((await call(start, event({ token: 'token-a', body }))).statusCode).toBe(202);
-    const blocked = await call(start, event({ token: 'token-a', body }));
+    create.mockResolvedValue(reply('## Executive Summary\nFine.'));
+    for (let i = 0; i < 10; i++) expect((await start(quick, 'token-a')).statusCode).toBe(202);
+    const blocked = await start(quick, 'token-a');
     expect(blocked.statusCode).toBe(429);
     expect(JSON.parse(blocked.body).error).toMatch(/limit of 10 financial analyses an hour.*try again in \d+ minute/);
     // Another user is unaffected.
-    expect((await call(start, event({ token: 'token-b', body }))).statusCode).toBe(202);
-    vi.unstubAllGlobals();
+    expect((await start(quick, 'token-b')).statusCode).toBe(202);
+    await settle();
   });
 });

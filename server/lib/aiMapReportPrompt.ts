@@ -6,9 +6,9 @@
  * model is told never to contradict. buildPrompt() packages the same facts for
  * the model together with the respondent's own context notes.
  */
-import { type RespondentMode, actions, dimensionFor, dimensionCodes, quadrants } from "../../../client/src/data/aiMap";
-import { type AIMapResult, type Movement, balanceLabel } from "../../../client/src/lib/aiMap";
-import { dimensionLine, onTheLineSentence, routeParagraph } from "../../../client/src/lib/aiMapCopy";
+import { type RespondentMode, actions, dimensionFor, dimensionCodes, quadrants } from "../../client/src/data/aiMap";
+import { type AIMapResult, type Movement, balanceLabel } from "../../client/src/lib/aiMap";
+import { dimensionLine, onTheLineSentence, routeParagraph } from "../../client/src/lib/aiMapCopy";
 
 export { dimensionLine, onTheLineSentence, routeParagraph };
 

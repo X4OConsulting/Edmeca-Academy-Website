@@ -30,7 +30,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
         
     - name: Install Dependencies
@@ -54,9 +54,6 @@ jobs:
         echo "build_output<<EOF" >> $GITHUB_OUTPUT
         cat build-output.txt >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
-      env:
-        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       continue-on-error: true
       
     - name: Analyze Code Changes
@@ -76,7 +73,7 @@ jobs:
         echo "lines_removed=$REMOVED" >> $GITHUB_OUTPUT
         
         # Check for critical files
-        CRITICAL_CHANGED=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.sha }} --name-only | grep -E '(package\.json|tsconfig\.json|vite\.config\.ts|\.env|supabase/)' | wc -l)
+        CRITICAL_CHANGED=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.sha }} --name-only | grep -E '(package\.json|tsconfig\.json|vite\.config\.ts|\.env|db/)' | wc -l)
         echo "critical_files=$CRITICAL_CHANGED" >> $GITHUB_OUTPUT
         
         # Determine if there are errors

@@ -88,7 +88,7 @@ export default function Dashboard() {
   const [, navigate] = useLocation();
   const [newToolOpen, setNewToolOpen] = useState(false);
 
-  // Keep all portal queries in sync via Supabase Realtime
+  // Refresh portal data when the tab becomes visible again
   useRealtimeSync();
 
   const handleLogout = async () => {

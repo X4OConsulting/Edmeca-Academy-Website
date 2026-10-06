@@ -1,11 +1,11 @@
 /**
- * Background delivery of an AI Enablement Report: DeepSeek elaboration with
- * template fallback, the single Apps Script call, and the token check on the
- * background function.
+ * Delivery of an AI Enablement Report after the response: DeepSeek
+ * elaboration with template fallback, the single Apps Script call, and runJob,
+ * which ai-map.ts hands to waitUntil.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { type UnlockJob, deliverUnlock } from "../../netlify/functions/lib/aiMapDelivery";
-import { handler as background } from "../../netlify/functions/ai-map-unlock-background";
+import { type UnlockJob, deliverUnlock } from "../../server/lib/aiMapDelivery";
+import { runJob } from "../../server/handlers/ai-map";
 import { type Answers, itemIds } from "@/data/aiMap";
 
 const ANSWERS = Object.fromEntries(itemIds.map((id) => [id, id <= 12 ? 3 : 1])) as unknown as Answers;
@@ -120,20 +120,15 @@ describe("deliverUnlock", () => {
   });
 });
 
-describe("background function", () => {
-  const invoke = (headers: Record<string, string>, body: unknown) =>
-    background({ httpMethod: "POST", headers, body: JSON.stringify(body) } as never, {} as never, (() => {}) as never) as Promise<{ statusCode: number }>;
-
-  it("rejects a call without the shared token", async () => {
-    expect((await invoke({}, JOB)).statusCode).toBe(401);
-    expect((await invoke({ "x-ai-map-token": "wrong" }, JOB)).statusCode).toBe(401);
-    expect(fetchMock).not.toHaveBeenCalled();
+describe("runJob (the work done after the response)", () => {
+  it("delivers an unlock with one Apps Script call", async () => {
+    await runJob({ kind: "unlock", ...JOB });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).action).toBe("unlock");
   });
 
-  it("delivers the job when the token matches and never throws on failure", async () => {
-    expect((await invoke({ "x-ai-map-token": "test-secret" }, JOB)).statusCode).toBe(200);
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body).action).toBe("unlock");
+  it("rejects when the sheet refuses, so inBackground logs the failure", async () => {
     fetchMock.mockResolvedValue(json({ ok: false, error: "unauthorised" }));
-    expect((await invoke({ "x-ai-map-token": "test-secret" }, JOB)).statusCode).toBe(200);
+    await expect(runJob({ kind: "unlock", ...JOB })).rejects.toThrow("unauthorised");
   });
 });
