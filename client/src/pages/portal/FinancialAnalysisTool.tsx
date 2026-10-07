@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { profileService } from "@/lib/services";
-import { supabase } from "@/lib/supabase";
+import { api } from "@/lib/services";
 import { FileUploadZone, type UploadResult } from "@/components/portal/FileUploadZone";
 import {
   ArrowLeft, TrendingUp, ClipboardList, Upload, Loader2, CheckCircle2,
@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { exportToWord, exportToPDF } from "@/lib/exportReport";
 import { cn } from "@/lib/utils";
-import type { StructuredAnalysis } from "../../../../api/analyze-financials";
+import type { StructuredAnalysis } from "../../../../server/lib/financialAnalysis";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface AnalysisResult {
@@ -122,13 +122,7 @@ interface UploadRecord {
 }
 
 async function fetchUploadHistory(): Promise<UploadRecord[]> {
-  const { data, error } = await supabase
-    .from("financial_uploads")
-    .select("id, file_name, file_type, company_name, analysed_at, report_text, model_categorisation, model_analysis")
-    .order("analysed_at", { ascending: false })
-    .limit(10);
-  if (error) throw error;
-  return data ?? [];
+  return api<UploadRecord[]>("/api/financial-uploads");
 }
 
 async function saveUploadRecord(record: {
@@ -139,10 +133,7 @@ async function saveUploadRecord(record: {
   model_categorisation: string | null;
   model_analysis: string | null;
 }) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not signed in");
-  const { error } = await supabase.from("financial_uploads").insert({ user_id: user.id, ...record, file_name: record.file_name.slice(0, 255) });
-  if (error) throw error;
+  await api("/api/financial-uploads", { method: "POST", body: { ...record, file_name: record.file_name.slice(0, 255) } });
 }
 
 /** Same limit as the server (netlify/functions/lib/financialAnalysis.ts), checked before submitting. */
@@ -370,14 +361,10 @@ export default function FinancialAnalysisTool() {
     setProcessingStep(analysisMode === "deep" ? "categorising" : "analysing");
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Please sign in again to run an analysis.");
-      const auth = { Authorization: `Bearer ${session.access_token}` };
-
       // The analysis runs as a background job; this starts it, then checks every few seconds.
       const { jobId } = await readJson<{ jobId: string }>(await fetch("/api/analyze-financials", {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...auth },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           statements: statementText,
           companyName: companyName || "the business",
@@ -397,7 +384,7 @@ export default function FinancialAnalysisTool() {
         if (Date.now() - startedAt > POLL_LIMIT_MS) throw new Error("The analysis is taking longer than expected. Please try again.");
         await new Promise((resolve) => setTimeout(resolve, POLL_MS));
         if (unmountedRef.current) return;
-        const job = await readJson<JobStatus>(await fetch(`/api/analyze-financials?job=${encodeURIComponent(jobId)}`, { headers: auth }));
+        const job = await readJson<JobStatus>(await fetch(`/api/analyze-financials?job=${encodeURIComponent(jobId)}`));
         if (job.step) setProcessingStep(job.step);
         if (job.status === "error") throw new Error(job.error || "Analysis failed.");
         if (job.status === "done") {

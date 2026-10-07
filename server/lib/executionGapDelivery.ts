@@ -2,10 +2,10 @@
  * Delivery side of the Execution Gap diagnostic: scoring, the report, the
  * DeepSeek elaboration and the Apps Script call, shared by execution-gap.ts
  * (validation, synchronous answer to the browser) and
- * execution-gap-unlock-background.ts (report writing and emailing, with
- * minutes rather than Netlify's 26 s synchronous limit).
+ * runJob() in the same file (report writing and emailing, after the
+ * browser has its answer).
  */
-import { archetypes, capabilities, multiplierOptions } from "../../../client/src/data/executionGap";
+import { archetypes, capabilities, multiplierOptions } from "../../client/src/data/executionGap.js";
 
 const stages = ["F", "E", "V"] as const;
 const ids = [1, 2, 3, 4, 5, 6] as const;
@@ -13,7 +13,7 @@ const ids = [1, 2, 3, 4, 5, 6] as const;
 // DeepSeek is OpenAI-compatible, same shape as the Groq call in chat.ts.
 const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
 const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-flash";
-// Same patterns as netlify/functions/chat.ts: respondent free text reaches the prompt.
+// Same patterns as api/chat.ts: respondent free text reaches the prompt.
 const INJECTION = [/ignore\s+(all\s+)?(previous|prior|above)\s+instructions?/gi, /forget\s+(everything|all|prior|previous)/gi, /disregard\s+(all\s+)?instructions?/gi, /you\s+are\s+now\s+[a-z]/gi, /new\s+instructions?:/gi, /system\s+prompt:/gi, /\[INST\]|\[\/INST\]|<\|im_start\|>|<\|im_end\|>/gi];
 const clean = (value: string) => INJECTION.reduce((text, pattern) => text.replace(pattern, "[removed]"), value).slice(0, 200);
 

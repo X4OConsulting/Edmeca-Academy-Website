@@ -35,7 +35,7 @@ jobs:
         grep -E '\.(ts|tsx|js|jsx)$' all-changes.txt > code-files.txt || touch code-files.txt
         grep -E '\.(css|scss)$' all-changes.txt > styles.txt || touch styles.txt
         grep -E '^(package\.json|package-lock\.json)$' all-changes.txt > deps.txt || touch deps.txt
-        grep -E '^(supabase/)' all-changes.txt > database.txt || touch database.txt
+        grep -E '^(db/)' all-changes.txt > database.txt || touch database.txt
         
         # Count each category
         echo "components=$(wc -l < components.txt)" >> $GITHUB_OUTPUT

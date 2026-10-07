@@ -1,44 +1,40 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Anthropic from '@anthropic-ai/sdk';
+import { sessionUser } from '../server/http.js';
+import { overLimit } from '../server/rateLimit.js';
 
 const MAX_CANVAS_CHARS = 15000;
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const respond = (statusCode: number, body: unknown) => Response.json(body, { status: statusCode });
 
-const ALLOWED_ORIGINS = [
-  'https://edmeca.co.za',
-  'https://edmecaacademy.netlify.app',
-  'https://staging--edmecaacademy.netlify.app',
-  'http://localhost:5173',
-  'http://localhost:4173',
-];
-
-function setCors(req: VercelRequest, res: VercelResponse): void {
-  const origin = req.headers.origin ?? '';
-  if (ALLOWED_ORIGINS.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
+export async function POST(request: Request): Promise<Response> {
+  // ── Signed-in users only, within the hourly limit ──────────────────────────
+  const user = await sessionUser(request);
+  if (!user) {
+    return respond(401, { error: 'Please sign in again to analyse your canvas.' });
   }
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Vary', 'Origin');
-}
+  const limited = await overLimit('analyze-bmc', user.id);
+  if (limited) return respond(429, { error: limited });
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  setCors(req, res);
-
-  if (req.method === 'OPTIONS') {
-    return res.status(204).end();
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+  // ── API key check ──────────────────────────────────────────────────────────
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return respond(500, { error: 'AI service not configured' });
   }
 
   // ── Parse request body ─────────────────────────────────────────────────────
-  const { companyName = 'Untitled Business', canvasData } = req.body ?? {};
-  if (!canvasData || typeof canvasData !== 'object') {
-    return res.status(400).json({ error: 'Canvas data is required' });
+  let body: { companyName?: string; canvasData?: Record<string, string[]> };
+  try {
+    body = await request.json();
+  } catch {
+    return respond(400, { error: 'Invalid request body' });
   }
+
+  const { canvasData } = body;
+  if (!canvasData || typeof canvasData !== 'object' || Array.isArray(canvasData)) {
+    return respond(400, { error: 'Canvas data is required' });
+  }
+  // The name goes into the system prompt: plain text, one line, capped.
+  const companyName = String(body.companyName ?? '').replace(/[\x00-\x1F\x7F"]/g, ' ').trim().slice(0, 200) || 'Untitled Business';
 
   // ── Build canvas summary for the prompt ────────────────────────────────────
   const sectionLabels: Record<string, string> = {
@@ -55,14 +51,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const canvasSummary = Object.entries(sectionLabels)
     .map(([key, label]) => {
-      const items = (canvasData[key] || []).filter((s: string) => s && s.trim());
+      const raw = canvasData[key];
+      const items = (Array.isArray(raw) ? raw : []).filter((s): s is string => typeof s === 'string' && s.trim().length > 0);
       if (items.length === 0) return `${label}: [EMPTY]`;
       return `${label}:\n${items.map((item: string, i: number) => `  ${i + 1}. ${item}`).join('\n')}`;
     })
     .join('\n\n');
 
   if (canvasSummary.length > MAX_CANVAS_CHARS) {
-    return res.status(400).json({ error: 'Canvas data too large' });
+    return respond(400, { error: 'Canvas data too large' });
   }
 
   // ── Call Claude Haiku ──────────────────────────────────────────────────────
@@ -94,6 +91,8 @@ Be specific and reference the student's actual content. Do not give generic advi
 Return ONLY valid JSON — no markdown, no code fences, no explanation outside the JSON.`;
 
   try {
+    // The page stops waiting at 30 s (BMCTool); fail before that with a message.
+    const client = new Anthropic({ apiKey, timeout: 20_000, maxRetries: 1 });
     const message = await client.messages.create({
       model: 'claude-haiku-4-5',
       max_tokens: 1500,
@@ -106,11 +105,13 @@ Return ONLY valid JSON — no markdown, no code fences, no explanation outside t
       system: systemPrompt,
     });
 
+    if (message.stop_reason === 'max_tokens') throw new Error('Analysis cut off at max_tokens');
     const responseText = message.content
       .filter((block): block is Anthropic.TextBlock => block.type === 'text')
       .map((block) => block.text)
       .join('');
 
+    // Parse JSON response
     let analysis: {
       strengths: string[];
       areasToImprove: string[];
@@ -121,6 +122,7 @@ Return ONLY valid JSON — no markdown, no code fences, no explanation outside t
     try {
       analysis = JSON.parse(responseText);
     } catch {
+      // Try to extract JSON from the response if wrapped in markdown
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         analysis = JSON.parse(jsonMatch[0]);
@@ -129,6 +131,7 @@ Return ONLY valid JSON — no markdown, no code fences, no explanation outside t
       }
     }
 
+    // Validate shape
     if (
       !Array.isArray(analysis.strengths) ||
       !Array.isArray(analysis.areasToImprove) ||
@@ -138,9 +141,9 @@ Return ONLY valid JSON — no markdown, no code fences, no explanation outside t
       throw new Error('Invalid response shape from AI');
     }
 
-    return res.status(200).json(analysis);
+    return respond(200, analysis);
   } catch (err) {
     console.error('BMC analysis error:', err);
-    return res.status(502).json({ error: 'AI analysis failed. Please try again shortly.' });
+    return respond(502, { error: 'AI analysis failed. Please try again shortly.' });
   }
 }

@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { authClient } from '@/lib/auth-client';
 import { MarketingLayout } from '@/components/marketing/MarketingLayout';
 
 export default function Login() {
@@ -30,21 +30,15 @@ export default function Login() {
       setError('Enter your email address above, then click "Forgot password?" again.');
       return;
     }
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    if (resetError) setError(resetError.message);
+    const { error: resetError } = await authClient.requestPasswordReset({ email, redirectTo: '/reset-password' });
+    if (resetError) setError(resetError.message || 'Could not send the reset email.');
     else setSuccess(`If an account exists for ${email}, we've emailed a link to set a new password.`);
   };
 
   const handleResendConfirmation = async (email: string) => {
     setError(null);
-    const { error: resendError } = await supabase.auth.resend({
-      type: 'signup',
-      email,
-      options: { emailRedirectTo: `${window.location.origin}/portal` },
-    });
-    if (resendError) setError(resendError.message);
+    const { error: resendError } = await authClient.sendVerificationEmail({ email, callbackURL: '/portal' });
+    if (resendError) setError(resendError.message || 'Could not send the confirmation email.');
     else {
       setUnconfirmedEmail(null);
       setSuccess(`We've sent a new confirmation link to ${email}. Check your spam folder if it doesn't arrive.`);
@@ -93,8 +87,8 @@ export default function Login() {
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
       setIsSubmitting(false);
       return;
     }
@@ -267,7 +261,7 @@ export default function Login() {
                         name="password"
                         type="password"
                         required
-                        placeholder="At least 6 characters"
+                        placeholder="At least 8 characters"
                       />
                     </div>
                     <div className="space-y-2">

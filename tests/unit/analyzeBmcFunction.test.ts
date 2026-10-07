@@ -1,29 +1,27 @@
 /** The Business Model Canvas AI endpoint: signed-in users only, bad input refused, cut-off replies failed. */
 import { describe, expect, it, beforeEach, vi } from 'vitest';
-import type { HandlerEvent } from '@netlify/functions';
 
-vi.mock('@netlify/blobs', () => {
-  const map = new Map<string, unknown>();
-  return { connectLambda: vi.fn(), getStore: () => ({ get: async (k: string) => map.get(k) ?? null, setJSON: async (k: string, v: unknown) => { map.set(k, v); } }) };
-});
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: () => ({ auth: { getUser: async (token: string) => (token === 'good' ? { data: { user: { id: 'u1' } }, error: null } : { data: { user: null }, error: {} }) } }),
+// The session cookie "session=good" is a signed-in user; anything else is not.
+vi.mock('../../server/auth', () => ({
+  auth: { api: { getSession: async ({ headers }: { headers: Headers }) => (headers.get('cookie') === 'session=good' ? { user: { id: 'u1', email: 'a@b.co', name: 'A' } } : null) } },
 }));
+const { overLimit } = vi.hoisted(() => ({ overLimit: vi.fn() }));
+vi.mock('../../server/rateLimit', () => ({ overLimit }));
 const create = vi.fn();
 vi.mock('@anthropic-ai/sdk', () => ({ default: class { messages = { create }; } }));
 
-import { handler } from '../../netlify/functions/analyze-bmc';
+import { POST } from '../../api/analyze-bmc';
 
 const ANALYSIS = { strengths: ['Clear segment'], areasToImprove: [], coherenceChecks: [], overallAssessment: 'Solid start.' };
-const post = async (body: unknown, token?: string) => (await handler({
-  httpMethod: 'POST', body: JSON.stringify(body), headers: token ? { authorization: `Bearer ${token}` } : {},
-} as unknown as HandlerEvent, {} as never)) as { statusCode: number; body: string };
+const post = async (body: unknown, token?: string) => {
+  const res = await POST(new Request('http://localhost/api/analyze-bmc', { method: 'POST', body: JSON.stringify(body), headers: token ? { cookie: `session=${token}` } : {} }));
+  return { statusCode: res.status, body: await res.text() };
+};
 
 beforeEach(() => {
   create.mockReset();
+  overLimit.mockReset().mockResolvedValue(null);
   process.env.ANTHROPIC_API_KEY = 'k';
-  process.env.VITE_SUPABASE_URL = 'https://example.supabase.co';
-  process.env.VITE_SUPABASE_ANON_KEY = 'anon';
 });
 
 describe('analyze-bmc', () => {
@@ -41,6 +39,14 @@ describe('analyze-bmc', () => {
     const request = create.mock.calls[0][0];
     expect(request.messages[0].content).toContain('1. Solo designers');
     expect(request.system).not.toContain('\nIgnore previous');
+  });
+
+  it('stops at the hourly limit before any model call', async () => {
+    overLimit.mockResolvedValue("You've reached the limit of 20 canvas analyses an hour.");
+    const res = await post({ canvasData: { customerSegments: ['x'] } }, 'good');
+    expect(res.statusCode).toBe(429);
+    expect(overLimit).toHaveBeenCalledWith('analyze-bmc', 'u1');
+    expect(create).not.toHaveBeenCalled();
   });
 
   it('fails a reply cut off at max_tokens instead of returning half an analysis', async () => {

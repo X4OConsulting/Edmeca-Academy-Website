@@ -1,25 +1,23 @@
 /** The chat assistant's Groq call: a model Groq still serves, and no blank answers. */
 import { describe, expect, it, beforeEach, vi } from 'vitest';
-import type { HandlerEvent } from '@netlify/functions';
 
-vi.mock('@netlify/blobs', () => ({ connectLambda: vi.fn(), getStore: () => ({ get: async () => null, setJSON: async () => undefined }) }));
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: () => ({ auth: { getUser: async () => ({ data: { user: { id: 'u1' } }, error: null }) } }),
-}));
+vi.mock('../../server/auth', () => ({ auth: { api: { getSession: async () => ({ user: { id: 'u1', email: 'a@b.co', name: 'A' } }) } } }));
+vi.mock('../../server/rateLimit', () => ({ overLimit: async () => null }));
 
-import { handler } from '../../netlify/functions/chat';
+import { POST } from '../../api/chat';
 
-const ask = async () => (await handler({
-  httpMethod: 'POST', headers: { authorization: 'Bearer good' },
-  body: JSON.stringify({ messages: [{ role: 'user', content: 'What should I validate first?' }] }),
-} as unknown as HandlerEvent, {} as never)) as { statusCode: number; body: string };
+const ask = async () => {
+  const res = await POST(new Request('http://localhost/api/chat', {
+    method: 'POST', headers: { cookie: 'session=good' },
+    body: JSON.stringify({ messages: [{ role: 'user', content: 'What should I validate first?' }] }),
+  }));
+  return { statusCode: res.status, body: await res.text() };
+};
 
 const groq = (body: unknown, ok = true) => vi.fn().mockResolvedValue({ ok, json: async () => body, text: async () => JSON.stringify(body) });
 
 beforeEach(() => {
   process.env.GROQ_API_KEY = 'k';
-  process.env.VITE_SUPABASE_URL = 'https://example.supabase.co';
-  process.env.VITE_SUPABASE_ANON_KEY = 'anon';
   vi.unstubAllGlobals();
 });
 

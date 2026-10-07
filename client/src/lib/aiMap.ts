@@ -1,7 +1,7 @@
 /**
  * AI Enablement Baseline scoring. Pure functions, no React, no I/O.
  *
- * Imported by the page and by netlify/functions/ai-map.ts, so the position the
+ * Imported by the page and by server/handlers/ai-map.ts, so the position the
  * respondent sees on screen is exactly the position the sheet records.
  *
  * Rules (section 4 of the plan):
@@ -15,7 +15,7 @@
 import {
   type Answer, type Answers, type Axis, type DimensionCode, type ItemId, type Quadrant, type Wave,
   dimensionCodes, dimensionFor, dimensions, itemFor, itemIds, pulseItems,
-} from "@/data/aiMap";
+} from "../data/aiMap.js";
 
 export const ON_THE_LINE_BAND = 6;
 /** Head start given to dimensions on the axis that is below 50 when ranking priorities: half a scale step. */

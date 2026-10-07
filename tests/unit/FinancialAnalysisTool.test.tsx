@@ -16,28 +16,12 @@ vi.mock('wouter', () => ({
   useLocation: () => ['/portal/tools/financials', vi.fn()],
 }));
 
-const { mockSupabase } = vi.hoisted(() => ({
-  mockSupabase: {
-    auth: {
-      getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'u1' } }, error: null }),
-      getSession: vi.fn().mockResolvedValue({
-        data: { session: { access_token: 'test-token-123' } },
-        error: null,
-      }),
-    },
-    from: vi.fn(() => ({
-      insert: vi.fn().mockResolvedValue({ error: null }),
-      select: vi.fn(() => ({
-        order: vi.fn().mockResolvedValue({ data: [], error: null }),
-      })),
-    })),
-  },
-}));
-
-vi.mock('@/lib/supabase', () => ({ supabase: mockSupabase }));
+// api() serves the saved-report history and saves new reports (/api/financial-uploads).
+const { mockApi } = vi.hoisted(() => ({ mockApi: vi.fn().mockResolvedValue([]) }));
 
 vi.mock('@/lib/services', () => ({
   profileService: { getUserProfile: vi.fn().mockResolvedValue({ businessName: 'EdMeCa Test' }) },
+  api: mockApi,
 }));
 
 vi.mock('@/hooks/use-toast', () => ({
@@ -102,14 +86,7 @@ describe('FinancialAnalysisTool', () => {
   beforeEach(() => {
     originalFetch = global.fetch;
     vi.clearAllMocks();
-    mockSupabase.auth.getSession.mockResolvedValue({
-      data: { session: { access_token: 'test-token-123' } },
-      error: null,
-    });
-    mockSupabase.from.mockReturnValue({
-      insert: vi.fn().mockResolvedValue({ error: null }),
-      select: vi.fn(() => ({ order: vi.fn().mockResolvedValue({ data: [], error: null }) })),
-    });
+    mockApi.mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -174,7 +151,7 @@ describe('FinancialAnalysisTool', () => {
     expect(await screen.findByTestId('file-upload-zone')).toBeInTheDocument();
   });
 
-  it('clicking Analyse dispatches fetch with Authorization header', async () => {
+  it('clicking Analyse posts to the API with no bearer token (the session cookie signs it)', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -193,7 +170,7 @@ describe('FinancialAnalysisTool', () => {
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
     const [url, opts] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
     expect(url).toContain('/api/analyze-financials');
-    expect(opts.headers.Authorization).toBe('Bearer test-token-123');
+    expect(opts.headers.Authorization).toBeUndefined();
   });
 
   it('sends the setup step context along with the statements', async () => {
@@ -265,7 +242,7 @@ describe('FinancialAnalysisTool', () => {
     const calls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
     expect(calls[0][1].method).toBe('POST');
     expect(calls[1][0]).toBe('/api/analyze-financials?job=job-1');
-    expect(calls[1][1].headers.Authorization).toBe('Bearer test-token-123');
+    expect(calls[1]).toHaveLength(1); // a plain GET; the cookie goes along on its own
   }, 10000);
 
   it('shows the reason when the job fails', async () => {

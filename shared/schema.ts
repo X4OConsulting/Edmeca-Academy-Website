@@ -59,7 +59,7 @@ export const progressEntries = pgTable("progress_entries", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull(),
   milestone: text("milestone").notNull(),
-  // Matches supabase/migrations: there is no evidence or attachment_url column.
+  // Matches db/supabase-history: there is no evidence or attachment_url column.
   notes: text("notes"),
   completedAt: timestamp("completed_at"),
   createdAt: timestamp("created_at").defaultNow(),

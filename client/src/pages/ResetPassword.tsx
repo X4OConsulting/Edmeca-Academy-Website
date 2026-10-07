@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,45 +7,34 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MarketingLayout } from '@/components/marketing/MarketingLayout';
-import { supabase } from '@/lib/supabase';
+import { authClient } from '@/lib/auth-client';
 
 /**
- * Where the "Forgot password?" email lands. Supabase signs the user in from
- * the link (a recovery session), and this page sets the new password.
+ * Where the "Forgot password?" email lands. The server checks the emailed link
+ * and sends the browser here with ?token=… (or ?error=INVALID_TOKEN when the
+ * link expired or was used); this page sets the new password with that token.
  */
 export default function ResetPassword() {
   const [, navigate] = useLocation();
-  const [status, setStatus] = useState<'checking' | 'ready' | 'expired'>('checking');
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  const status: 'ready' | 'expired' = token && !params.get('error') ? 'ready' : 'expired';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY' || session) setStatus('ready');
-    });
-    // The link's token is exchanged as the page loads; give it a moment before calling it expired.
-    const timer = setTimeout(async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setStatus((current) => (current === 'ready' || session ? 'ready' : 'expired'));
-    }, 1500);
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(timer);
-    };
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     const form = new FormData(e.currentTarget);
     const password = String(form.get('password') ?? '');
-    if (password.length < 6) return setError('Password must be at least 6 characters');
+    if (password.length < 8) return setError('Password must be at least 8 characters');
     if (password !== form.get('confirmPassword')) return setError('Passwords do not match');
     setIsSubmitting(true);
-    const { error: updateError } = await supabase.auth.updateUser({ password });
+    const { error: resetError } = await authClient.resetPassword({ newPassword: password, token: token! });
     setIsSubmitting(false);
-    if (updateError) return setError(updateError.message);
-    navigate('/portal');
+    if (resetError) return setError(resetError.message || 'This reset link has expired. Please request a new one.');
+    // Resetting signs every session out; sign in with the new password.
+    navigate('/login');
   };
 
   return (
@@ -57,7 +46,6 @@ export default function ResetPassword() {
             <CardDescription>Choose a new password for your EDMECA Academy account.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {status === 'checking' && <Loader2 className="mx-auto h-6 w-6 animate-spin" />}
             {status === 'expired' && (
               <Alert variant="destructive">
                 <AlertDescription>

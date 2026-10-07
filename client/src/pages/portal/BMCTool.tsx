@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/hooks/use-auth";
 import { artifactsService, profileService } from "@/lib/services";
 import { type BmcCanvas, EMPTY_CANVAS, answeredOnly, sanitizeCanvas } from "@/lib/bmc";
 import {
@@ -436,17 +436,7 @@ function nameFromTitle(title: unknown): string {
 export default function BusinessModelCanvas() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsAuthenticated(!!session?.user);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session?.user);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
+  const { isAuthenticated } = useAuth();
 
   const [companyName, setCompanyName] = useState("");
   const [companyNameInput, setCompanyNameInput] = useState("");
@@ -654,15 +644,14 @@ export default function BusinessModelCanvas() {
 
   const analyzeCanvasMutation = useMutation({
     mutationFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Please sign in to analyse your canvas.");
+      if (!isAuthenticated) throw new Error("Please sign in to analyse your canvas.");
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 30_000);
       let res: Response;
       try {
         res = await fetch("/api/analyze-bmc", {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             companyName: companyName || "Untitled Business",
             canvasData: filteredCanvasData,

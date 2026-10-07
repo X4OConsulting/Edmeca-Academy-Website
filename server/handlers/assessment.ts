@@ -1,12 +1,11 @@
-import type { Handler, HandlerEvent } from "@netlify/functions";
+import type { Handler, HandlerEvent } from "../legacy.js";
 import Anthropic from "@anthropic-ai/sdk";
 
 const ALLOWED_ORIGINS = [
   "https://edmeca.co.za",
-  "https://edmecaacademy.netlify.app",
-  "https://staging--edmecaacademy.netlify.app",
   "http://localhost:5173",
   "http://localhost:4173",
+  "http://localhost:3999",
 ];
 
 const dimensions = ["foundations", "operations", "sales", "finance", "innovation"] as const;
@@ -78,7 +77,7 @@ function compute(answers: Record<string, unknown>): ComputedResult {
 
 function validateBase(body: AssessmentBody): string | null {
   if (!validUuid(body.respondentId)) return "Invalid respondent ID";
-  if (!body.answers || dimensions.some((dimension) => !Number.isInteger(body.answers?.[dimension]) || Number(body.answers[dimension]) < 1 || Number(body.answers[dimension]) > 5)) return "All five assessment answers are required";
+  if (!body.answers || dimensions.some((dimension) => !Number.isInteger(body.answers?.[dimension]) || Number(body.answers?.[dimension]) < 1 || Number(body.answers?.[dimension]) > 5)) return "All five assessment answers are required";
   if (!body.profile?.sector || body.profile.sector.length > 100 || !body.profile.size || body.profile.size.length > 50) return "Sector and business size are required";
   if (typeof body.context !== "string" || body.context.length > 2000) return "Context is too long";
   return null;

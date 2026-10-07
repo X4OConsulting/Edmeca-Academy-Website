@@ -1,13 +1,18 @@
 /**
- * Execution Gap Netlify function — sheet delivery contract.
+ * Execution Gap function — sheet delivery contract.
  *
- * These cover the mismatches between netlify/functions/execution-gap.ts and the
+ * These cover the mismatches between server/handlers/execution-gap.ts and the
  * Apps Script in docs/EXECUTION_GAP_APPS_SCRIPT.gs. The regression that matters
  * most is the last block: Apps Script answers HTTP 200 even when it failed, so
  * checking only the status code reports lost submissions as successes.
  */
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
-import { handler } from "../../netlify/functions/execution-gap";
+
+// Delivery runs after the response (waitUntil); keep it so post() can wait for it.
+const pending: Promise<unknown>[] = [];
+vi.mock("@vercel/functions", () => ({ waitUntil: (promise: Promise<unknown>) => { pending.push(promise); } }));
+
+import { handler, runJob } from "../../server/handlers/execution-gap";
 import { scoreExecutionGap } from "@/lib/executionGap";
 import type { Cells } from "@/data/executionGap";
 
@@ -17,12 +22,11 @@ const CELLS = {
 };
 const RESPONDENT = "66417aba-bb18-475b-8521-15585ac55234";
 
-function post(body: Record<string, unknown>) {
-  return handler(
-    { httpMethod: "POST", headers: { origin: "https://edmeca.co.za" }, body: JSON.stringify(body) } as never,
-    {} as never,
-    (() => {}) as never,
-  ) as Promise<{ statusCode: number; body: string }>;
+/** Posts, then waits for the delivery that runs after the response. */
+async function post(body: Record<string, unknown>) {
+  const res = await handler({ httpMethod: "POST", headers: { origin: "https://edmeca.co.za" }, body: JSON.stringify(body) }) as { statusCode: number; body: string };
+  await Promise.all(pending.splice(0));
+  return res;
 }
 
 const mapBody = (extra: Record<string, unknown> = {}) => ({
@@ -64,14 +68,14 @@ describe("execution gap function — payload sent to the sheet", () => {
   });
 });
 
-describe("execution gap function — Apps Script failures must surface", () => {
+describe("execution gap function — Apps Script failures must surface (in the delivery logs)", () => {
   const OLD = { ...process.env };
   let fetchMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
+    pending.length = 0;
     process.env.EXECUTION_GAP_SCRIPT_URL = "https://script.google.com/macros/s/test/exec";
     process.env.EXECUTION_GAP_SHARED_SECRET = "test-secret";
-    delete process.env.URL; delete process.env.DEPLOY_PRIME_URL;
     fetchMock = vi.fn();
     global.fetch = fetchMock as never;
   });
@@ -85,12 +89,15 @@ describe("execution gap function — Apps Script failures must surface", () => {
     // The exact shape doPost() returns when the secret is wrong or the
     // "Responses" tab is missing — HTTP 200, failure in the body.
     fetchMock.mockResolvedValue({ ok: true, json: async () => ({ ok: false, error: "unauthorised" }) });
-    expect((await post(mapBody())).statusCode).toBe(500);
+    const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect((await post(mapBody())).statusCode).toBe(200);
+    expect(logged).toHaveBeenCalledWith(expect.stringMatching(/Execution gap map for .* failed:/), expect.anything());
+    await expect(runJob({ kind: "map", ...mapBody() } as never)).rejects.toThrow();
   });
 
   it("fails when Apps Script returns an unparseable body", async () => {
     fetchMock.mockResolvedValue({ ok: true, json: async () => { throw new SyntaxError("not json"); } });
-    expect((await post(mapBody())).statusCode).toBe(500);
+    await expect(runJob({ kind: "map", ...mapBody() } as never)).rejects.toThrow();
   });
 
   it("succeeds only when the body reports ok:true", async () => {
@@ -108,21 +115,20 @@ describe("execution gap function — Apps Script failures must surface", () => {
     expect(res.body).not.toContain("test-secret");
   });
 
-  it("hands the validated unlock to the background function and answers at once when the site URL is known", async () => {
-    process.env.URL = "https://edmeca.co.za";
-    fetchMock.mockResolvedValue({ ok: true, status: 202, json: async () => ({}) });
-    const res = await post(mapBody({ action: "unlock", name: "Test Person", email: "test@example.com", business: "Test Business", wantsCall: false }));
+  it("answers the unlock at once and delivers the report after the response", async () => {
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ ok: true }) });
+    const res = await handler({ httpMethod: "POST", headers: { origin: "https://edmeca.co.za" }, body: JSON.stringify(mapBody({ action: "unlock", name: "Test Person", email: "test@example.com", business: "Test Business", wantsCall: false })) });
     expect(res.statusCode).toBe(200);
-    expect(JSON.parse(res.body).queued).toBe(true);
+    expect(JSON.parse(res.body!).queued).toBe(true);
+    expect(pending).toHaveLength(1);
+    await Promise.all(pending.splice(0));
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe("https://edmeca.co.za/.netlify/functions/execution-gap-unlock-background");
-    expect(init.headers["x-execution-gap-token"]).toBe("test-secret");
-    const job = JSON.parse(init.body);
-    expect(job.email).toBe("test@example.com");
-    expect(job.cells["1"].F).toBe(2);
-    expect(job.secret).toBeUndefined();
-    delete process.env.URL;
+    expect(url).toBe("https://script.google.com/macros/s/test/exec");
+    const sent = JSON.parse(init.body);
+    expect(sent.email).toBe("test@example.com");
+    expect(sent.secret).toBe("test-secret");
+    expect(res.body).not.toContain("test-secret");
   });
 
   it("forwards exactly once on unlock", async () => {
@@ -225,9 +231,9 @@ describe("execution gap function — DeepSeek elaboration", () => {
   });
 
   beforeEach(() => {
+    pending.length = 0;
     process.env.EXECUTION_GAP_SCRIPT_URL = "https://script.google.com/macros/s/test/exec";
     process.env.EXECUTION_GAP_SHARED_SECRET = "test-secret";
-    delete process.env.URL; delete process.env.DEPLOY_PRIME_URL;
     process.env.DEEPSEEK_API_KEY = "test-deepseek-key";
     sheetCall = {}; deepseekCall = null;
   });

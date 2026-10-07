@@ -1,10 +1,11 @@
-import { Handler, HandlerEvent } from '@netlify/functions';
-import { createClient } from '@supabase/supabase-js';
-import { overLimit } from './lib/rateLimit';
+import { sessionUser } from '../server/http.js';
+import { overLimit } from '../server/rateLimit.js';
+
+const respond = (statusCode: number, body: unknown) => Response.json(body, { status: statusCode });
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 // Groq retired llama-3.1-8b-instant (model_not_found from Sep 2026). GROQ_MODEL
-// overrides the default so the next retirement is a Netlify setting, not a deploy.
+// overrides the default so the next retirement is a Vercel setting, not a deploy.
 const MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
 // gpt-oss reasons before answering; low effort keeps that short enough that
 // the answer fits the token cap.
@@ -35,42 +36,24 @@ function sanitizeForAI(text: string): string {
   return sanitized.slice(0, MAX_CONTEXT_CHARS);
 }
 
-export const handler: Handler = async (event: HandlerEvent) => {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method Not Allowed' }) };
-  }
-
+export async function POST(request: Request): Promise<Response> {
   // -------------------------------------------------------------------------
-  // Authentication — verify the caller is a logged-in Supabase user
+  // Authentication — the caller must be signed in (session cookie)
   // -------------------------------------------------------------------------
-  const authHeader = event.headers['authorization'] ?? event.headers['Authorization'];
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-
-  if (!token) {
-    return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorised' }) };
+  const user = await sessionUser(request);
+  if (!user) {
+    return respond(401, { error: 'Invalid or expired session' });
   }
 
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
-  const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return { statusCode: 500, body: JSON.stringify({ error: 'Server configuration error' }) };
-  }
-
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
-  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-  if (authError || !user) {
-    return { statusCode: 401, body: JSON.stringify({ error: 'Invalid or expired session' }) };
-  }
-
-  const limited = await overLimit(event, 'chat', user.id);
-  if (limited) return { statusCode: 429, body: JSON.stringify({ error: limited }) };
+  const limited = await overLimit('chat', user.id);
+  if (limited) return respond(429, { error: limited });
 
   // -------------------------------------------------------------------------
   // Groq API key check
   // -------------------------------------------------------------------------
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    return { statusCode: 500, body: JSON.stringify({ error: 'AI service not configured.' }) };
+    return respond(500, { error: 'AI service not configured.' });
   }
 
   // -------------------------------------------------------------------------
@@ -78,15 +61,15 @@ export const handler: Handler = async (event: HandlerEvent) => {
   // -------------------------------------------------------------------------
   let body: { messages?: any[]; businessContext?: string };
   try {
-    body = JSON.parse(event.body || '{}');
+    body = await request.json();
   } catch {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid request body' }) };
+    return respond(400, { error: 'Invalid request body' });
   }
 
   const { messages = [], businessContext = '' } = body;
 
   if (!Array.isArray(messages) || messages.length === 0) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'No messages provided' }) };
+    return respond(400, { error: 'No messages provided' });
   }
 
   // Enforce size limits — only allow valid roles, cap each message
@@ -122,7 +105,7 @@ Guidelines:
   // -------------------------------------------------------------------------
   // Call Groq
   // -------------------------------------------------------------------------
-  // Answer inside Netlify's 26 s limit rather than letting the platform return an HTML 502.
+  // A slow model gets a clear "took too long" message instead of a hung chat.
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 20_000);
   try {
@@ -148,7 +131,7 @@ Guidelines:
     if (!response.ok) {
       const err = await response.text();
       console.error('Groq error:', err);
-      return { statusCode: 502, body: JSON.stringify({ error: 'AI service unavailable. Please try again shortly.' }) };
+      return respond(502, { error: 'AI service unavailable. Please try again shortly.' });
     }
 
     const data = await response.json() as any;
@@ -156,21 +139,17 @@ Guidelines:
     const reply = choice?.message?.content?.trim();
     if (!reply) {
       console.error(`Groq returned no answer (model ${MODEL}, finish ${choice?.finish_reason ?? '?'})`);
-      return { statusCode: 502, body: JSON.stringify({ error: 'The assistant could not answer that. Please try rephrasing.' }) };
+      return respond(502, { error: 'The assistant could not answer that. Please try rephrasing.' });
     }
 
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reply }),
-    };
+    return respond(200, { reply });
   } catch (err) {
     console.error('Chat function error:', err);
     if (err instanceof Error && err.name === 'AbortError') {
-      return { statusCode: 504, body: JSON.stringify({ error: 'The assistant took too long to answer. Please try again.' }) };
+      return respond(504, { error: 'The assistant took too long to answer. Please try again.' });
     }
-    return { statusCode: 500, body: JSON.stringify({ error: 'Something went wrong. Please try again.' }) };
+    return respond(500, { error: 'Something went wrong. Please try again.' });
   } finally {
     clearTimeout(timer);
   }
-};
+}

@@ -1,15 +1,14 @@
 /**
- * Supabase-based data persistence layer.
+ * Data persistence layer: typed calls to the site's own /api routes.
  *
  * All database interactions go through these typed service objects.
- * Consistent error handling: PostgreSQL errors are rethrown so React Query
- * can catch them and surface them through isError / error states.
+ * Consistent error handling: a failed request throws an Error carrying the
+ * server's message, so React Query surfaces it through isError / error states.
  *
- * RLS is enforced at the database level — every query automatically scopes
- * to the authenticated user via auth.uid() policies.
+ * The server scopes every query to the signed-in user (session cookie), the
+ * job Supabase's row-level security did before the move to Neon.
  */
 
-import { supabase } from '@/lib/supabase';
 import { queryClient } from '@/lib/queryClient';
 import type {
   Artifact,
@@ -26,9 +25,7 @@ import type {
 
 /**
  * The app's types (shared/schema.ts) use camelCase; the database columns are
- * snake_case, and PostgREST does not translate. Spreading a camelCase payload
- * straight into insert/update sends `toolType` for `tool_type`, which the
- * database rejects, so every write goes through toColumns().
+ * snake_case. Writes go out snake_case (the API also accepts camelCase).
  */
 const snake = (key: string) => key.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
 const camel = (key: string) => key.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
@@ -60,11 +57,23 @@ function artifactsChanged() {
   queryClient.invalidateQueries({ queryKey: ['artifacts'] });
 }
 
-async function getCurrentUserId(): Promise<string> {
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) throw new Error('User not authenticated');
-  return user.id;
+/** Calls an /api route and returns its JSON (null for 204); throws with the server's message. */
+export async function api<T>(path: string, init: { method?: string; body?: unknown } = {}): Promise<T> {
+  const response = await fetch(path, {
+    method: init.method ?? 'GET',
+    credentials: 'same-origin',
+    headers: init.body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
+    body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
+  });
+  if (response.status === 204) return null as T;
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error((data && typeof data === 'object' && 'error' in data && String(data.error)) || `Request failed (${response.status})`);
+  }
+  return data as T;
 }
+
+const qs = (params: Record<string, string>) => `?${new URLSearchParams(params)}`;
 
 // ---------------------------------------------------------------------------
 // ARTIFACTS SERVICE
@@ -73,38 +82,21 @@ async function getCurrentUserId(): Promise<string> {
 export const artifactsService = {
   /** Fetch all artifacts for the current user, newest first. */
   async getArtifacts(): Promise<Artifact[]> {
-    const { data, error } = await supabase
-      .from('artifacts')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return withAliasesAll<Artifact>(data);
+    return withAliasesAll<Artifact>(await api('/api/artifacts'));
   },
 
   /** Fetch a single artifact by its ID. */
   async getArtifactById(id: string): Promise<Artifact | null> {
-    const { data, error } = await supabase
-      .from('artifacts')
-      .select('*')
-      .eq('id', id)
-      .single();
-    if (error && error.code !== 'PGRST116') throw error;
+    const data = await api<unknown>(`/api/artifacts${qs({ id })}`);
     return data ? withAliases<Artifact>(data) : null;
   },
 
   /**
    * Fetch the most recently saved artifact of a specific tool type.
-   * Returns null when no artifact of that type exists yet (PGRST116).
+   * Returns null when no artifact of that type exists yet.
    */
   async getLatestArtifactByType(toolType: string): Promise<Artifact | null> {
-    const { data, error } = await supabase
-      .from('artifacts')
-      .select('*')
-      .eq('tool_type', toolType)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-    if (error && error.code !== 'PGRST116') throw error;
+    const data = await api<unknown>(`/api/artifacts${qs({ toolType })}`);
     return data ? withAliases<Artifact>(data) : null;
   },
 
@@ -112,14 +104,7 @@ export const artifactsService = {
   async createArtifact(
     artifact: Omit<InsertArtifact, 'userId'>
   ): Promise<Artifact> {
-    const userId = await getCurrentUserId();
-    const { data, error } = await supabase
-      .from('artifacts')
-      .insert({ ...toColumns(artifact), user_id: userId })
-      .select()
-      .single();
-    if (error) throw error;
-    return withAliases<Artifact>(data);
+    return withAliases<Artifact>(await api('/api/artifacts', { method: 'POST', body: toColumns(artifact) }));
   },
 
   /** Partial-update an artifact by ID. Always stamps updated_at. */
@@ -127,23 +112,17 @@ export const artifactsService = {
     id: string,
     updates: Partial<Omit<InsertArtifact, 'userId'>>
   ): Promise<Artifact> {
-    const { data, error } = await supabase
-      .from('artifacts')
-      .update({ ...toColumns(updates), updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single();
-    if (error) throw error;
-    return withAliases<Artifact>(data);
+    return withAliases<Artifact>(await api(`/api/artifacts${qs({ id })}`, { method: 'PATCH', body: toColumns(updates) }));
+  },
+
+  /** Rename an artifact without touching updated_at, so the activity feed stays truthful. */
+  async retitleArtifact(id: string, title: string): Promise<void> {
+    await api(`/api/artifacts${qs({ id, touch: '0' })}`, { method: 'PATCH', body: { title } });
   },
 
   /** Delete a single artifact by ID. */
   async deleteArtifact(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('artifacts')
-      .delete()
-      .eq('id', id);
-    if (error) throw error;
+    await api(`/api/artifacts${qs({ id })}`, { method: 'DELETE' });
   },
 
   /**
@@ -155,24 +134,14 @@ export const artifactsService = {
     existingId: string | null,
     payload: Omit<InsertArtifact, 'userId'>
   ): Promise<string> {
-    const userId = await getCurrentUserId();
     if (existingId) {
-      const { error } = await supabase
-        .from('artifacts')
-        .update({ ...toColumns(payload), updated_at: new Date().toISOString() })
-        .eq('id', existingId);
-      if (error) throw error;
+      await api(`/api/artifacts${qs({ id: existingId })}`, { method: 'PATCH', body: toColumns(payload) });
       artifactsChanged();
       return existingId;
     }
-    const { data, error } = await supabase
-      .from('artifacts')
-      .insert({ ...toColumns(payload), user_id: userId })
-      .select('id')
-      .single();
-    if (error) throw error;
+    const created = await api<{ id: string }>('/api/artifacts', { method: 'POST', body: toColumns(payload) });
     artifactsChanged();
-    return (data as { id: string }).id;
+    return created.id;
   },
 };
 
@@ -187,50 +156,28 @@ const withEvidence = (entry: ProgressEntry): ProgressEntryView => ({ ...entry, e
 export const progressService = {
   /** All progress entries for the current user, newest first. */
   async getProgressEntries(): Promise<ProgressEntryView[]> {
-    const { data, error } = await supabase
-      .from('progress_entries')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return withAliasesAll<ProgressEntry>(data).map(withEvidence);
+    return withAliasesAll<ProgressEntry>(await api('/api/progress')).map(withEvidence);
   },
 
   /** Insert a new progress entry. */
   async createProgressEntry(
     entry: { milestone: string; evidence?: string | null; completedAt?: string | null }
   ): Promise<ProgressEntryView> {
-    const userId = await getCurrentUserId();
-    const { data, error } = await supabase
-      .from('progress_entries')
-      .insert({
-        user_id: userId,
-        milestone: entry.milestone,
-        // The table has no evidence column; the evidence text lives in notes.
-        notes: entry.evidence ?? null,
-        completed_at: entry.completedAt ?? null,
-      })
-      .select()
-      .single();
-    if (error) throw error;
+    const data = await api('/api/progress', {
+      method: 'POST',
+      body: { milestone: entry.milestone, evidence: entry.evidence ?? null, completedAt: entry.completedAt ?? null },
+    });
     return withEvidence(withAliases<ProgressEntry>(data));
   },
 
   /** Toggle the completed_at timestamp on a progress entry. */
   async toggleComplete(id: string, completed: boolean): Promise<void> {
-    const { error } = await supabase
-      .from('progress_entries')
-      .update({ completed_at: completed ? new Date().toISOString() : null })
-      .eq('id', id);
-    if (error) throw error;
+    await api(`/api/progress${qs({ id })}`, { method: 'PATCH', body: { completed } });
   },
 
   /** Delete a progress entry by ID. */
   async deleteProgressEntry(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('progress_entries')
-      .delete()
-      .eq('id', id);
-    if (error) throw error;
+    await api(`/api/progress${qs({ id })}`, { method: 'DELETE' });
   },
 };
 
@@ -241,11 +188,7 @@ export const progressService = {
 export const profileService = {
   /** Fetch the current user's profile row, or null if not yet created. */
   async getUserProfile(): Promise<UserProfile | null> {
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .single();
-    if (error && error.code !== 'PGRST116') throw error;
+    const data = await api<unknown>('/api/profile');
     return data ? withAliases<UserProfile>(data) : null;
   },
 
@@ -253,41 +196,21 @@ export const profileService = {
   async createUserProfile(
     profile: Omit<InsertUserProfile, 'userId'>
   ): Promise<UserProfile> {
-    const userId = await getCurrentUserId();
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .insert({ ...toColumns(profile), user_id: userId })
-      .select()
-      .single();
-    if (error) throw error;
-    return withAliases<UserProfile>(data);
+    return this.upsertUserProfile(profile);
   },
 
   /** Partial-update the current user's profile. */
   async updateUserProfile(
     updates: Partial<Omit<InsertUserProfile, 'userId'>>
   ): Promise<UserProfile> {
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .update({ ...toColumns(updates), updated_at: new Date().toISOString() })
-      .select()
-      .single();
-    if (error) throw error;
-    return withAliases<UserProfile>(data);
+    return this.upsertUserProfile(updates);
   },
 
   /** Insert or update the current user's profile (safe idempotent write). */
   async upsertUserProfile(
     profile: Partial<Omit<InsertUserProfile, 'userId'>>
   ): Promise<UserProfile> {
-    const userId = await getCurrentUserId();
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .upsert({ ...toColumns(profile), user_id: userId }, { onConflict: 'user_id' })
-      .select()
-      .single();
-    if (error) throw error;
-    return withAliases<UserProfile>(data);
+    return withAliases<UserProfile>(await api('/api/profile', { method: 'PUT', body: toColumns(profile) }));
   },
 };
 
@@ -296,16 +219,10 @@ export const profileService = {
 // ---------------------------------------------------------------------------
 
 export const contactService = {
-  /** Persist a contact form submission (no RLS — anonymous inserts allowed). */
+  /** Persist a contact form submission (anyone may submit; no sign-in needed). */
   async submitContactForm(
     submission: Omit<ContactSubmission, 'id' | 'createdAt'>
   ): Promise<ContactSubmission> {
-    const { data, error } = await supabase
-      .from('contact_submissions')
-      .insert(toColumns(submission))
-      .select()
-      .single();
-    if (error) throw error;
-    return withAliases<ContactSubmission>(data);
+    return withAliases<ContactSubmission>(await api('/api/contact', { method: 'POST', body: submission }));
   },
 };
