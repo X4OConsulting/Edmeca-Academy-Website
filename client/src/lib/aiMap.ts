@@ -15,7 +15,7 @@
 import {
   type Answer, type Answers, type Axis, type DimensionCode, type ItemId, type Quadrant, type Wave,
   dimensionCodes, dimensionFor, dimensions, itemFor, itemIds, pulseItems,
-} from "@/data/aiMap";
+} from "../data/aiMap.js";
 
 export const ON_THE_LINE_BAND = 6;
 /** Head start given to dimensions on the axis that is below 50 when ranking priorities: half a scale step. */

@@ -5,7 +5,7 @@
  * runJob() in the same file (report writing and emailing, after the
  * browser has its answer).
  */
-import { archetypes, capabilities, multiplierOptions } from "../../client/src/data/executionGap";
+import { archetypes, capabilities, multiplierOptions } from "../../client/src/data/executionGap.js";
 
 const stages = ["F", "E", "V"] as const;
 const ids = [1, 2, 3, 4, 5, 6] as const;

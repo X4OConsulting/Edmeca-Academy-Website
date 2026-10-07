@@ -1,10 +1,10 @@
-import { type Handler, type HandlerEvent, inBackground } from "../legacy";
+import { type Handler, type HandlerEvent, inBackground } from "../legacy.js";
 import {
   type Answer, type Answers, type ItemId, type RespondentMode, type Wave,
   businessSizes, programmeStatuses, roles, sectors,
-} from "../../client/src/data/aiMap";
-import { type AIMapResult, type Movement, isAnswer, itemsForWave, movementBetween, scoreAIMap } from "../../client/src/lib/aiMap";
-import { type BackgroundJob, type Profile, type UnlockJob, deliverBaseline, deliverUnlock, lookup } from "../lib/aiMapDelivery";
+} from "../../client/src/data/aiMap.js";
+import { type AIMapResult, type Movement, isAnswer, itemsForWave, movementBetween, scoreAIMap } from "../../client/src/lib/aiMap.js";
+import { type BackgroundJob, type Profile, type UnlockJob, deliverBaseline, deliverUnlock, lookup } from "../lib/aiMapDelivery.js";
 
 const origins = ["https://edmeca.co.za", "http://localhost:5173", "http://localhost:4173", "http://localhost:3999"];
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[4-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

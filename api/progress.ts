@@ -8,8 +8,8 @@
  *
  * The table has no evidence column; the evidence text lives in notes.
  */
-import { query } from "../server/db";
-import { HttpError, json, readBody, requireUser, route, uuidParam } from "../server/http";
+import { query } from "../server/db.js";
+import { HttpError, json, readBody, requireUser, route, uuidParam } from "../server/http.js";
 
 const text = (value: unknown, max: number) => (typeof value === "string" && value.trim() ? value.slice(0, max) : null);
 

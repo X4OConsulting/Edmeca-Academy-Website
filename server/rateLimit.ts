@@ -4,7 +4,7 @@
  * (public.ai_usage). Not atomic: two simultaneous calls can both pass the last
  * slot, which is fine for a cost guard.
  */
-import { query } from "./db";
+import { query } from "./db.js";
 
 export const LIMITS = {
   "analyze-bmc": { perHour: 20, noun: "canvas analyses" },

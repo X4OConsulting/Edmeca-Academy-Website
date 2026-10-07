@@ -2,8 +2,8 @@
  * Shared checks and the team notification for the public marketing forms
  * (contact, signup). These replace Netlify Forms.
  */
-import { HttpError } from "./http";
-import { sendEmail } from "./email";
+import { HttpError } from "./http.js";
+import { sendEmail } from "./email.js";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

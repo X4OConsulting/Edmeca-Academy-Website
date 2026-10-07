@@ -1,8 +1,8 @@
 /**
  * /api/assessment – see server/handlers/assessment.ts (ported from Netlify Functions).
  */
-import { handler } from "../server/handlers/assessment";
-import { toWebHandler } from "../server/legacy";
+import { handler } from "../server/handlers/assessment.js";
+import { toWebHandler } from "../server/legacy.js";
 
 const web = toWebHandler(handler);
 

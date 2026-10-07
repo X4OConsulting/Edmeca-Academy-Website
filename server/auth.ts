@@ -12,8 +12,8 @@
 import { betterAuth } from "better-auth";
 import { verifyPassword } from "better-auth/crypto";
 import bcrypt from "bcryptjs";
-import { db } from "./db";
-import { actionEmail, sendEmail } from "./email";
+import { db } from "./db.js";
+import { actionEmail, sendEmail } from "./email.js";
 
 const google =
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET

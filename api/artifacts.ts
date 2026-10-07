@@ -10,8 +10,8 @@
  *
  * Every statement is scoped to the session's user_id (what RLS did on Supabase).
  */
-import { query } from "../server/db";
-import { HttpError, json, pick, readBody, requireUser, route, setClause, toParam, uuidParam } from "../server/http";
+import { query } from "../server/db.js";
+import { HttpError, json, pick, readBody, requireUser, route, setClause, toParam, uuidParam } from "../server/http.js";
 
 const WRITABLE = ["tool_type", "title", "content", "status", "version"] as const;
 

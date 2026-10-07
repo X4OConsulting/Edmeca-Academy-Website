@@ -1,7 +1,7 @@
 /**
  * Small helpers shared by the /api route handlers (Web Request/Response).
  */
-import { auth } from "./auth";
+import { auth } from "./auth.js";
 
 export class HttpError extends Error {
   constructor(public status: number, message: string) {

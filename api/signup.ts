@@ -2,9 +2,9 @@
  * /api/signup – the public Signup (application) form. Saves the application
  * and emails the team. Replaces Netlify Forms.
  */
-import { query } from "../server/db";
-import { email, field, notifyTeam, oneOf } from "../server/forms";
-import { json, readBody, route } from "../server/http";
+import { query } from "../server/db.js";
+import { email, field, notifyTeam, oneOf } from "../server/forms.js";
+import { json, readBody, route } from "../server/http.js";
 
 const INTERESTS = ["entrepreneur", "programme", "other"] as const;
 

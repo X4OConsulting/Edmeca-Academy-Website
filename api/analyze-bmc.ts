@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { sessionUser } from '../server/http';
-import { overLimit } from '../server/rateLimit';
+import { sessionUser } from '../server/http.js';
+import { overLimit } from '../server/rateLimit.js';
 
 const MAX_CANVAS_CHARS = 15000;
 

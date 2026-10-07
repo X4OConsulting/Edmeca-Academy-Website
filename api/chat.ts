@@ -1,5 +1,5 @@
-import { sessionUser } from '../server/http';
-import { overLimit } from '../server/rateLimit';
+import { sessionUser } from '../server/http.js';
+import { overLimit } from '../server/rateLimit.js';
 
 const respond = (statusCode: number, body: unknown) => Response.json(body, { status: statusCode });
 

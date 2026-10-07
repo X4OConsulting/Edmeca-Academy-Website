@@ -8,8 +8,8 @@
  * are set by admins in the database, never by the user (the gap the unapplied
  * Supabase "portal hardening" SQL was meant to close).
  */
-import { query } from "../server/db";
-import { HttpError, json, pick, readBody, requireUser, route, setClause } from "../server/http";
+import { query } from "../server/db.js";
+import { HttpError, json, pick, readBody, requireUser, route, setClause } from "../server/http.js";
 
 const WRITABLE = ["business_name", "business_description"] as const;
 

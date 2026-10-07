@@ -1,4 +1,4 @@
-import type { Handler, HandlerEvent } from "../legacy";
+import type { Handler, HandlerEvent } from "../legacy.js";
 import Anthropic from "@anthropic-ai/sdk";
 
 const ALLOWED_ORIGINS = [

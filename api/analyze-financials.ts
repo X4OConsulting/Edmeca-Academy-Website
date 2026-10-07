@@ -11,10 +11,10 @@
  */
 import { randomUUID } from "node:crypto";
 import { waitUntil } from "@vercel/functions";
-import { query } from "../server/db";
-import { sessionUser } from "../server/http";
-import { overLimit } from "../server/rateLimit";
-import { AnalysisError, type AnalysisInput, type AnalysisResult, InputError, createClient, parseInput, runAnalysis } from "../server/lib/financialAnalysis";
+import { query } from "../server/db.js";
+import { sessionUser } from "../server/http.js";
+import { overLimit } from "../server/rateLimit.js";
+import { AnalysisError, type AnalysisInput, type AnalysisResult, InputError, createClient, parseInput, runAnalysis } from "../server/lib/financialAnalysis.js";
 
 const JOB_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 // A job that never finished (instance lost) stops being reported as running after this.

@@ -1,5 +1,5 @@
-import { type Handler, type HandlerEvent, inBackground } from "../legacy";
-import { type BackgroundJob, type MapJob, type UnlockJob, compute, deliverMap, deliverUnlock } from "../lib/executionGapDelivery";
+import { type Handler, type HandlerEvent, inBackground } from "../legacy.js";
+import { type BackgroundJob, type MapJob, type UnlockJob, compute, deliverMap, deliverUnlock } from "../lib/executionGapDelivery.js";
 
 const origins = ["https://edmeca.co.za", "http://localhost:5173", "http://localhost:4173", "http://localhost:3999"];
 const stages = ["F", "E", "V"] as const;

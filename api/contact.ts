@@ -2,9 +2,9 @@
  * /api/contact – the public Contact form. Saves the message and emails the team.
  * Replaces Netlify Forms and netlify/functions/contact.ts.
  */
-import { query } from "../server/db";
-import { email, field, notifyTeam, oneOf } from "../server/forms";
-import { json, readBody, route } from "../server/http";
+import { query } from "../server/db.js";
+import { email, field, notifyTeam, oneOf } from "../server/forms.js";
+import { json, readBody, route } from "../server/http.js";
 
 const AUDIENCES = ["entrepreneur", "programme", "other"] as const;
 

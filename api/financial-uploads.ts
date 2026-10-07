@@ -4,8 +4,8 @@
  *   GET          the latest 10
  *   POST {…}     save one report
  */
-import { query } from "../server/db";
-import { HttpError, json, pick, readBody, requireUser, route } from "../server/http";
+import { query } from "../server/db.js";
+import { HttpError, json, pick, readBody, requireUser, route } from "../server/http.js";
 
 const COLUMNS = "id, file_name, file_type, company_name, analysed_at, report_text, model_categorisation, model_analysis";
 const WRITABLE = ["file_name", "file_type", "company_name", "report_text", "model_categorisation", "model_analysis"] as const;
