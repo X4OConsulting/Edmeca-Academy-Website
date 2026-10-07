@@ -29,7 +29,16 @@ export const auth = betterAuth({
     allowedHosts: ["edmeca.co.za", "www.edmeca.co.za", "edmeca-academy-website*.vercel.app", "localhost:*"],
     fallback: process.env.BETTER_AUTH_URL || "https://edmeca.co.za",
   },
-  advanced: { database: { generateId: "uuid" } },
+  advanced: {
+    database: {
+      generateId: "uuid",
+      // The runtime check is an unawaited query started at cold start; Vercel
+      // freezes the function after the response, so it failed and logged an
+      // error on every cold start. The schema is managed by db:migrate and
+      // auth:migrate (which still validates it), so the check is redundant here.
+      validateSchema: false,
+    },
+  },
   emailAndPassword: {
     enabled: true,
     // Supabase required a confirmed email before first sign-in; keep that.
