@@ -49,9 +49,13 @@ jobs:
         
     - name: Generate Description
       id: description
+      env:
+        # Passed as an environment variable, never pasted into the script:
+        # a PR body containing $(...) or backticks would otherwise run as shell.
+        PR_BODY: ${{ github.event.pull_request.body }}
       run: |
         # Check if PR description is empty or minimal
-        CURRENT_DESC="${{ github.event.pull_request.body }}"
+        CURRENT_DESC="$PR_BODY"
         DESC_LENGTH=${#CURRENT_DESC}
         
         if [ $DESC_LENGTH -lt 50 ]; then

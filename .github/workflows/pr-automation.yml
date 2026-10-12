@@ -114,10 +114,13 @@ jobs:
         
     - name: Generate Detailed Analysis
       id: detailed-analysis
+      env:
+        # Never paste the PR title into the script (shell injection).
+        PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         echo "# 🔍 PR Analysis Report" > pr-analysis.md
         echo "" >> pr-analysis.md
-        echo "**PR #${{ github.event.pull_request.number }}**: ${{ github.event.pull_request.title }}" >> pr-analysis.md
+        echo "**PR #${{ github.event.pull_request.number }}**: $PR_TITLE" >> pr-analysis.md
         echo "" >> pr-analysis.md
         
         # Status badges
