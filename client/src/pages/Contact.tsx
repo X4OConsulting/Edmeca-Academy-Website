@@ -49,40 +49,14 @@ export default function Contact() {
 
   const mutation = useMutation({
     mutationFn: async (data: ContactFormValues) => {
-      // 1. Submit to Netlify Forms (handles email notification to team)
-      const formData = new FormData();
-      formData.append('form-name', 'contact');
-      formData.append('name', data.name);
-      formData.append('email', data.email);
-      formData.append('company', data.company || '');
-      formData.append('audienceType', data.audienceType);
-      formData.append('message', data.message);
-
-      const response = await fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(formData as any).toString(),
+      // Saved to the database and emailed to the team by /api/contact.
+      return contactService.submitContactForm({
+        name: data.name,
+        email: data.email,
+        company: data.company || null,
+        audienceType: data.audienceType,
+        message: data.message,
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to submit form');
-      }
-
-      // 2. Also persist to Supabase for reporting and history
-      try {
-        await contactService.submitContactForm({
-          name: data.name,
-          email: data.email,
-          company: data.company || null,
-          audienceType: data.audienceType,
-          message: data.message,
-        });
-      } catch {
-        // Non-fatal: Netlify submission succeeded, Supabase write is best-effort
-        console.warn('Contact form saved to Netlify but Supabase write failed.');
-      }
-
-      return response;
     },
     onSuccess: () => {
       setSubmitted(true);

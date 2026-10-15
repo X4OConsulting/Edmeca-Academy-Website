@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { type BmcSection, readBmc } from "@/lib/bmc";
 import { MessageCircle, X, Send, Loader2, Bot, User, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { artifactsService, profileService } from "@/lib/services";
 import { useAuth } from "@/hooks/use-auth";
-import { supabase } from "@/lib/supabase";
 
 interface Message {
   role: "user" | "assistant";
@@ -52,9 +52,11 @@ function buildBusinessContext(profile: any, artifacts: any[]): string {
           keyPartnerships: "Key Partnerships",
           costStructure: "Cost Structure",
         };
+        const { canvas } = readBmc(content);
         for (const [key, label] of Object.entries(sections)) {
-          if (content[key]?.length) {
-            lines.push(`  ${label}: ${content[key].join(", ")}`);
+          const items = canvas[key as BmcSection];
+          if (items.length) {
+            lines.push(`  ${label}: ${items.join(", ")}`);
           }
         }
         break;
@@ -142,10 +144,8 @@ export function FloatingChat() {
     setLoading(true);
 
     try {
-      // Get current session token to authenticate the request
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token;
-      if (!token) {
+      // The session cookie authenticates the request; without a user it would only get a 401.
+      if (!user) {
         setMessages(prev => [...prev, { role: "assistant", content: "Session expired. Please refresh the page." }]);
         setLoading(false);
         return;
@@ -155,7 +155,6 @@ export function FloatingChat() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({
           messages: newMessages,

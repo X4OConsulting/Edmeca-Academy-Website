@@ -9,6 +9,7 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import ValuePropTool from '@/pages/portal/ValuePropTool';
+import { artifactsService } from '@/lib/services';
 
 // ── Module mocks (hoisted) ────────────────────────────────────────────────────
 vi.mock('wouter', () => ({
@@ -121,5 +122,16 @@ describe('ValuePropTool', () => {
     await userEvent.type(gcInput, 'Saves 5 hours per week');
     await userEvent.keyboard('{Enter}');
     await waitFor(() => expect(screen.getByText('Saves 5 hours per week')).toBeInTheDocument());
+  });
+
+  it('pre-fills the company, segment and products from the saved canvas', async () => {
+    vi.mocked(artifactsService.getLatestArtifactByType).mockImplementation(async (type: string) =>
+      (type === 'bmc'
+        ? { id: 'bmc-1', status: 'complete', content: { companyName: 'Acme', canvas: { customerSegments: ['Solo designers'], valuePropositions: ['Rate benchmarks'] } } }
+        : null) as never);
+    renderValueProp();
+    await waitFor(() => expect(screen.getByTestId('input-company-name')).toHaveValue('Acme'));
+    expect(screen.getByPlaceholderText(/target customer segment/i)).toHaveValue('Solo designers');
+    vi.mocked(artifactsService.getLatestArtifactByType).mockReset().mockResolvedValue(null);
   });
 });

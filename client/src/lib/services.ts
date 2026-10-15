@@ -1,15 +1,15 @@
 /**
- * Supabase-based data persistence layer.
+ * Data persistence layer: typed calls to the site's own /api routes.
  *
  * All database interactions go through these typed service objects.
- * Consistent error handling: PostgreSQL errors are rethrown so React Query
- * can catch them and surface them through isError / error states.
+ * Consistent error handling: a failed request throws an Error carrying the
+ * server's message, so React Query surfaces it through isError / error states.
  *
- * RLS is enforced at the database level — every query automatically scopes
- * to the authenticated user via auth.uid() policies.
+ * The server scopes every query to the signed-in user (session cookie), the
+ * job Supabase's row-level security did before the move to Neon.
  */
 
-import { supabase } from '@/lib/supabase';
+import { queryClient } from '@/lib/queryClient';
 import type {
   Artifact,
   InsertArtifact,
@@ -23,11 +23,57 @@ import type {
 // Internal helpers
 // ---------------------------------------------------------------------------
 
-async function getCurrentUserId(): Promise<string> {
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) throw new Error('User not authenticated');
-  return user.id;
+/**
+ * The app's types (shared/schema.ts) use camelCase; the database columns are
+ * snake_case. Writes go out snake_case (the API also accepts camelCase).
+ */
+const snake = (key: string) => key.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
+const camel = (key: string) => key.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
+
+export function toColumns(payload: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(payload).filter(([, value]) => value !== undefined).map(([key, value]) => [snake(key), value]),
+  );
 }
+
+/**
+ * Rows come back snake_case. Pages written at different times read either
+ * spelling (`tool_type` and `toolType`), so each row carries both.
+ */
+export function withAliases<T>(row: unknown): T {
+  if (!row || typeof row !== 'object') return row as T;
+  const out: Record<string, unknown> = { ...(row as Record<string, unknown>) };
+  for (const [key, value] of Object.entries(row as Record<string, unknown>)) {
+    const alias = camel(key);
+    if (alias !== key && !(alias in out)) out[alias] = value;
+  }
+  return out as T;
+}
+
+const withAliasesAll = <T,>(rows: unknown): T[] => ((rows as unknown[] | null) ?? []).map((row) => withAliases<T>(row));
+
+/** Every tool's save refreshes the Dashboard's list, which otherwise stays stale for 5 minutes. */
+function artifactsChanged() {
+  queryClient.invalidateQueries({ queryKey: ['artifacts'] });
+}
+
+/** Calls an /api route and returns its JSON (null for 204); throws with the server's message. */
+export async function api<T>(path: string, init: { method?: string; body?: unknown } = {}): Promise<T> {
+  const response = await fetch(path, {
+    method: init.method ?? 'GET',
+    credentials: 'same-origin',
+    headers: init.body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
+    body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
+  });
+  if (response.status === 204) return null as T;
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error((data && typeof data === 'object' && 'error' in data && String(data.error)) || `Request failed (${response.status})`);
+  }
+  return data as T;
+}
+
+const qs = (params: Record<string, string>) => `?${new URLSearchParams(params)}`;
 
 // ---------------------------------------------------------------------------
 // ARTIFACTS SERVICE
@@ -36,53 +82,29 @@ async function getCurrentUserId(): Promise<string> {
 export const artifactsService = {
   /** Fetch all artifacts for the current user, newest first. */
   async getArtifacts(): Promise<Artifact[]> {
-    const { data, error } = await supabase
-      .from('artifacts')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return data as Artifact[];
+    return withAliasesAll<Artifact>(await api('/api/artifacts'));
   },
 
   /** Fetch a single artifact by its ID. */
   async getArtifactById(id: string): Promise<Artifact | null> {
-    const { data, error } = await supabase
-      .from('artifacts')
-      .select('*')
-      .eq('id', id)
-      .single();
-    if (error && error.code !== 'PGRST116') throw error;
-    return (data as Artifact) ?? null;
+    const data = await api<unknown>(`/api/artifacts${qs({ id })}`);
+    return data ? withAliases<Artifact>(data) : null;
   },
 
   /**
    * Fetch the most recently saved artifact of a specific tool type.
-   * Returns null when no artifact of that type exists yet (PGRST116).
+   * Returns null when no artifact of that type exists yet.
    */
   async getLatestArtifactByType(toolType: string): Promise<Artifact | null> {
-    const { data, error } = await supabase
-      .from('artifacts')
-      .select('*')
-      .eq('tool_type', toolType)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-    if (error && error.code !== 'PGRST116') throw error;
-    return (data as Artifact) ?? null;
+    const data = await api<unknown>(`/api/artifacts${qs({ toolType })}`);
+    return data ? withAliases<Artifact>(data) : null;
   },
 
   /** Insert a new artifact row and return the saved record. */
   async createArtifact(
     artifact: Omit<InsertArtifact, 'userId'>
   ): Promise<Artifact> {
-    const userId = await getCurrentUserId();
-    const { data, error } = await supabase
-      .from('artifacts')
-      .insert({ ...artifact, user_id: userId })
-      .select()
-      .single();
-    if (error) throw error;
-    return data as Artifact;
+    return withAliases<Artifact>(await api('/api/artifacts', { method: 'POST', body: toColumns(artifact) }));
   },
 
   /** Partial-update an artifact by ID. Always stamps updated_at. */
@@ -90,23 +112,17 @@ export const artifactsService = {
     id: string,
     updates: Partial<Omit<InsertArtifact, 'userId'>>
   ): Promise<Artifact> {
-    const { data, error } = await supabase
-      .from('artifacts')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single();
-    if (error) throw error;
-    return data as Artifact;
+    return withAliases<Artifact>(await api(`/api/artifacts${qs({ id })}`, { method: 'PATCH', body: toColumns(updates) }));
+  },
+
+  /** Rename an artifact without touching updated_at, so the activity feed stays truthful. */
+  async retitleArtifact(id: string, title: string): Promise<void> {
+    await api(`/api/artifacts${qs({ id, touch: '0' })}`, { method: 'PATCH', body: { title } });
   },
 
   /** Delete a single artifact by ID. */
   async deleteArtifact(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('artifacts')
-      .delete()
-      .eq('id', id);
-    if (error) throw error;
+    await api(`/api/artifacts${qs({ id })}`, { method: 'DELETE' });
   },
 
   /**
@@ -118,22 +134,14 @@ export const artifactsService = {
     existingId: string | null,
     payload: Omit<InsertArtifact, 'userId'>
   ): Promise<string> {
-    const userId = await getCurrentUserId();
     if (existingId) {
-      const { error } = await supabase
-        .from('artifacts')
-        .update({ ...payload, updated_at: new Date().toISOString() })
-        .eq('id', existingId);
-      if (error) throw error;
+      await api(`/api/artifacts${qs({ id: existingId })}`, { method: 'PATCH', body: toColumns(payload) });
+      artifactsChanged();
       return existingId;
     }
-    const { data, error } = await supabase
-      .from('artifacts')
-      .insert({ ...payload, user_id: userId })
-      .select('id')
-      .single();
-    if (error) throw error;
-    return (data as { id: string }).id;
+    const created = await api<{ id: string }>('/api/artifacts', { method: 'POST', body: toColumns(payload) });
+    artifactsChanged();
+    return created.id;
   },
 };
 
@@ -141,52 +149,35 @@ export const artifactsService = {
 // PROGRESS SERVICE
 // ---------------------------------------------------------------------------
 
+/** A progress entry with its notes column exposed as the evidence the Progress Tracker shows. */
+export type ProgressEntryView = ProgressEntry & { evidence: string | null };
+const withEvidence = (entry: ProgressEntry): ProgressEntryView => ({ ...entry, evidence: entry.notes ?? null });
+
 export const progressService = {
   /** All progress entries for the current user, newest first. */
-  async getProgressEntries(): Promise<ProgressEntry[]> {
-    const { data, error } = await supabase
-      .from('progress_entries')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return data as ProgressEntry[];
+  async getProgressEntries(): Promise<ProgressEntryView[]> {
+    return withAliasesAll<ProgressEntry>(await api('/api/progress')).map(withEvidence);
   },
 
   /** Insert a new progress entry. */
   async createProgressEntry(
     entry: { milestone: string; evidence?: string | null; completedAt?: string | null }
-  ): Promise<ProgressEntry> {
-    const userId = await getCurrentUserId();
-    const { data, error } = await supabase
-      .from('progress_entries')
-      .insert({
-        user_id: userId,
-        milestone: entry.milestone,
-        evidence: entry.evidence ?? null,
-        completed_at: entry.completedAt ?? null,
-      })
-      .select()
-      .single();
-    if (error) throw error;
-    return data as ProgressEntry;
+  ): Promise<ProgressEntryView> {
+    const data = await api('/api/progress', {
+      method: 'POST',
+      body: { milestone: entry.milestone, evidence: entry.evidence ?? null, completedAt: entry.completedAt ?? null },
+    });
+    return withEvidence(withAliases<ProgressEntry>(data));
   },
 
   /** Toggle the completed_at timestamp on a progress entry. */
   async toggleComplete(id: string, completed: boolean): Promise<void> {
-    const { error } = await supabase
-      .from('progress_entries')
-      .update({ completed_at: completed ? new Date().toISOString() : null })
-      .eq('id', id);
-    if (error) throw error;
+    await api(`/api/progress${qs({ id })}`, { method: 'PATCH', body: { completed } });
   },
 
   /** Delete a progress entry by ID. */
   async deleteProgressEntry(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('progress_entries')
-      .delete()
-      .eq('id', id);
-    if (error) throw error;
+    await api(`/api/progress${qs({ id })}`, { method: 'DELETE' });
   },
 };
 
@@ -197,53 +188,29 @@ export const progressService = {
 export const profileService = {
   /** Fetch the current user's profile row, or null if not yet created. */
   async getUserProfile(): Promise<UserProfile | null> {
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .single();
-    if (error && error.code !== 'PGRST116') throw error;
-    return (data as UserProfile) ?? null;
+    const data = await api<unknown>('/api/profile');
+    return data ? withAliases<UserProfile>(data) : null;
   },
 
   /** Create the initial profile row for a new user. */
   async createUserProfile(
     profile: Omit<InsertUserProfile, 'userId'>
   ): Promise<UserProfile> {
-    const userId = await getCurrentUserId();
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .insert({ ...profile, user_id: userId })
-      .select()
-      .single();
-    if (error) throw error;
-    return data as UserProfile;
+    return this.upsertUserProfile(profile);
   },
 
   /** Partial-update the current user's profile. */
   async updateUserProfile(
     updates: Partial<Omit<InsertUserProfile, 'userId'>>
   ): Promise<UserProfile> {
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .select()
-      .single();
-    if (error) throw error;
-    return data as UserProfile;
+    return this.upsertUserProfile(updates);
   },
 
   /** Insert or update the current user's profile (safe idempotent write). */
   async upsertUserProfile(
     profile: Partial<Omit<InsertUserProfile, 'userId'>>
   ): Promise<UserProfile> {
-    const userId = await getCurrentUserId();
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .upsert({ ...profile, user_id: userId }, { onConflict: 'user_id' })
-      .select()
-      .single();
-    if (error) throw error;
-    return data as UserProfile;
+    return withAliases<UserProfile>(await api('/api/profile', { method: 'PUT', body: toColumns(profile) }));
   },
 };
 
@@ -252,16 +219,10 @@ export const profileService = {
 // ---------------------------------------------------------------------------
 
 export const contactService = {
-  /** Persist a contact form submission (no RLS — anonymous inserts allowed). */
+  /** Persist a contact form submission (anyone may submit; no sign-in needed). */
   async submitContactForm(
     submission: Omit<ContactSubmission, 'id' | 'createdAt'>
   ): Promise<ContactSubmission> {
-    const { data, error } = await supabase
-      .from('contact_submissions')
-      .insert(submission)
-      .select()
-      .single();
-    if (error) throw error;
-    return data as ContactSubmission;
+    return withAliases<ContactSubmission>(await api('/api/contact', { method: 'POST', body: submission }));
   },
 };

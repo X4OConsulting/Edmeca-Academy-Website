@@ -24,7 +24,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
         
     - name: Install Dependencies
@@ -54,7 +54,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
         
     - name: Audit Dependencies
@@ -65,7 +65,7 @@ jobs:
     - name: Check for Secrets
       run: |
         echo "Checking for exposed secrets..."
-        if grep -r "VITE_SUPABASE" client/src/ --exclude-dir=node_modules; then
+        if grep -rnE "sk-ant-[A-Za-z0-9_-]{20}|postgres(ql)?://[^ ]+:[^ ]+@|re_[A-Za-z0-9]{20,}" client/src/ server/ api/; then
           echo "⚠️ Warning: Potential hardcoded secrets found"
           echo "Verify these are only in .env files, not committed code"
         fi
@@ -81,7 +81,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
         
     - name: Validate Package Lock
@@ -99,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [22, 24]
     
     steps:
     - name: Checkout Code
@@ -116,9 +116,6 @@ jobs:
       
     - name: Build Application
       run: npm run build
-      env:
-        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
-        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'placeholder_key' }}
         
     - name: Check Build Output
       run: |
@@ -133,7 +130,7 @@ jobs:
         
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
-      if: matrix.node-version == 18
+      if: matrix.node-version == 22
       with:
         name: build-output
         path: client/dist/
@@ -150,7 +147,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
         
     - name: Install Dependencies

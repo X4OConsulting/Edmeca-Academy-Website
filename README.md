@@ -2,27 +2,27 @@
 
 > Entrepreneurship education platform with AI-powered business tools for South African SMEs.
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/edmecaacademy/deploy-status)](https://app.netlify.com/sites/edmecaacademy/deploys)
-
 ## Live Sites
 
 | Environment | URL | Login |
 |---|---|---|
-| Production | https://edmeca.co.za | Disabled (pending auth validation) |
-| Staging | https://staging--edmecaacademy.netlify.app | Enabled |
-| AI API (Vercel) | https://edmeca-academy-website.vercel.app | - |
+| Production | https://edmeca.co.za | Disabled (pending switchover, see [docs/SWITCHOVER.md](./docs/SWITCHOVER.md)) |
+| Staging | https://edmeca-academy-website-git-staging-raymond-3084s-projects.vercel.app | Enabled (Vercel login required) |
+
+Until switchover, edmeca.co.za is still served by Netlify + Supabase from `main`.
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
 | Frontend | React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui |
-| Auth | Supabase Auth (Email via Resend + Google OAuth) |
-| Database | Supabase (PostgreSQL) + Drizzle ORM |
-| AI API | Anthropic Claude (Haiku + Sonnet) via Vercel Functions |
+| API | Vercel Functions (`api/`, Node, region fra1) |
+| Auth | Better Auth, self-hosted on Neon (email + password, Google) – see `server/auth.ts` |
+| Database | Neon Postgres (Vercel Marketplace), migrations in `db/migrations` |
+| AI | Anthropic Claude, Groq (chat), DeepSeek (diagnostic reports) |
 | Email | Resend (domain: edmeca.co.za) |
-| Hosting | Netlify (frontend) + Vercel (AI API) |
-| CI/CD | GitHub > Netlify auto-deploy (main / staging / development) |
+| Hosting | Vercel, team raymond-3084s-projects, project `edmeca-academy-website` |
+| CI/CD | GitHub Actions checks; Vercel deploys every push (`main` = production) |
 
 ## Portal Tools
 
@@ -43,48 +43,44 @@ cd Edmeca-Academy-Website
 npm install
 ```
 
-Copy `.env.example` to `.env.local` and populate:
+Pull the environment from Vercel (needs access to the project):
 
-```env
-VITE_SUPABASE_URL=
-VITE_SUPABASE_ANON_KEY=
-ANTHROPIC_API_KEY=
-VITE_AI_API_URL=https://edmeca-academy-website.vercel.app
-VITE_ENABLE_LOGIN=true
-SMARTSHEET_API_TOKEN=
-SMARTSHEET_SHEET_ID=1413139749883780
-RESEND_API_KEY=
-SESSION_SECRET=
+```bash
+vercel link          # once: team raymond-3084s-projects, project edmeca-academy-website
+vercel env pull .env.local
 ```
 
 ```bash
-npm run dev        # Dev server at http://localhost:5173
-npm run build      # Production build
-npm run preview    # Preview production build locally
+vercel dev --listen 3999   # site + API at http://localhost:3999 (port 3000 is often taken)
+npm run dev                # site only (Vite) at http://localhost:5173
+npm run build              # production build
+npm test                   # unit tests (Vitest)
+npm run check              # TypeScript
 ```
+
+Server code in `api/` and `server/` runs as Node ES modules on Vercel: relative imports need a `.js` extension and cannot use the `@/` alias (`tests/unit/esmImports.test.ts` enforces this).
 
 ## Branch Strategy
 
-| Branch | Environment | Login | Auto-Deploy |
+| Branch | Environment | Login | Deploys to |
 |---|---|---|---|
-| `main` | Production (edmeca.co.za) | Disabled | Yes |
-| `staging` | Staging | Enabled | Yes |
-| `development` | Dev preview | Enabled | Yes |
+| `main` | Production (edmeca.co.za after switchover) | Disabled until switchover | Vercel production |
+| `staging` | Staging | Enabled | Vercel preview (stable `git-staging` URL) |
+| feature branches | Previews | Enabled | Vercel preview per push |
 
-After any merge to `main`, sync branches:
-
-```bash
-git checkout staging ; git merge main --no-edit ; git push origin staging
-git checkout development ; git merge main --no-edit ; git push origin development
-git checkout main
-```
+Pull requests into `staging` are merged automatically by CI once checks pass. Do not merge `staging` into `main` before switchover.
 
 ## Database
 
-Migrations in [`supabase/migrations/`](./supabase/migrations/).
-Apply via the [Supabase SQL editor](https://supabase.com/dashboard/project/dqvdnyxkkletgkkpicdg/sql).
+Neon Postgres. Schema changes are SQL files in [`db/migrations/`](./db/migrations/), applied with:
 
-Key tables: `profiles`, `financial_uploads`
+```bash
+npm run db:migrate              # apply pending migrations (uses DATABASE_URL_UNPOOLED from .env.local)
+npm run db:migrate -- --status  # list applied / pending
+npm run auth:migrate            # create or update Better Auth tables after changing server/auth.ts
+```
+
+Key tables: `user`, `account`, `session` (Better Auth), `user_profiles`, `artifacts`, `progress_entries`, `financial_uploads`, `contact_submissions`, `signup_applications`. Supabase history is kept in [`db/supabase-history/`](./db/supabase-history/).
 
 ## Project Structure
 
@@ -92,18 +88,16 @@ Key tables: `profiles`, `financial_uploads`
 client/src/
   pages/portal/         # Authenticated portal tools
   pages/                # Marketing pages (Home, About, Contact ...)
-  components/portal/    # Portal-specific components
-  components/marketing/ # Header, Footer, etc.
-  components/ui/        # shadcn/ui primitives
-  lib/                  # exportReport.ts, utils, queryClient
-api/
-  analyze-financials.ts     # Vercel AI serverless function
-netlify/functions/           # Netlify edge functions (contact, chat)
-supabase/migrations/         # Database migration files
+  components/           # UI, marketing and portal components
+  lib/                  # services.ts (API client), auth-client.ts, utils
+api/                    # Vercel Functions: auth, data, AI, diagnostics, forms
+server/                 # Shared server code: auth, db, email, rate limits, handlers
+db/migrations/          # Neon schema (npm run db:migrate)
 scripts/
-  smartsheet-cli.js          # Project tracker CLI (add / complete / status)
-docs/                        # Technical documentation
-deliverables/                # SDLC phase deliverables
+  supabase-import/      # One-off Supabase -> Neon copy (switchover)
+  smartsheet-cli.js     # Project tracker CLI (add / complete / status)
+docs/                   # Technical documentation (SWITCHOVER.md: go-live runbook)
+deliverables/           # SDLC phase deliverables
 ```
 
 ## Smartsheet CLI
@@ -119,6 +113,7 @@ node scripts/smartsheet-cli.js add 3.28 "Title" "Feature Development" "High" "De
 
 ## Documentation
 
+- [Switchover runbook (Supabase/Netlify -> Vercel/Neon)](./docs/SWITCHOVER.md)
 - [Development Guide](./docs/DEVELOPMENT.md)
 - [Deployment Guide](./docs/DEPLOYMENT.md)
 - [Environment Setup](./docs/ENVIRONMENT_SETUP.md)

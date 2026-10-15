@@ -3,8 +3,13 @@
  * client, honeypot, re-test movement, and the sheet delivery contract.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { handler } from "../../netlify/functions/ai-map";
-import { buildTemplateReport, SYSTEM_PROMPT } from "../../netlify/functions/lib/aiMapReportPrompt";
+// Delivery runs after the response (waitUntil); keep it so post() can wait for it.
+const pending: Promise<unknown>[] = [];
+vi.mock("@vercel/functions", () => ({ waitUntil: (promise: Promise<unknown>) => { pending.push(promise); } }));
+
+import { handler } from "../../server/handlers/ai-map";
+import { deliverUnlock } from "../../server/lib/aiMapDelivery";
+import { buildTemplateReport, SYSTEM_PROMPT } from "../../server/lib/aiMapReportPrompt";
 import { scoreAIMap } from "@/lib/aiMap";
 import { type Answers, itemIds, pulseItems } from "@/data/aiMap";
 
@@ -12,8 +17,11 @@ const RESPONDENT = "66417aba-bb18-475b-8521-15585ac55234";
 const BASELINE_ID = "8b1c2d3e-4f50-4a6b-8c7d-9e0f1a2b3c4d";
 const ANSWERS = Object.fromEntries(itemIds.map((id) => [id, id <= 12 ? 3 : 1])) as Record<number, number>;
 
-function post(body: Record<string, unknown>) {
-  return handler({ httpMethod: "POST", headers: { origin: "https://edmeca.co.za" }, body: JSON.stringify(body) } as never, {} as never, (() => {}) as never) as Promise<{ statusCode: number; body: string }>;
+/** Posts, then waits for the delivery that runs after the response. */
+async function post(body: Record<string, unknown>) {
+  const res = await handler({ httpMethod: "POST", headers: { origin: "https://edmeca.co.za" }, body: JSON.stringify(body) }) as { statusCode: number; body: string };
+  await Promise.all(pending.splice(0));
+  return res;
 }
 
 const baselineBody = (extra: Record<string, unknown> = {}) => ({
@@ -28,8 +36,7 @@ const scriptOk = (payload: Record<string, unknown> = { ok: true }) => ({ ok: tru
 beforeEach(() => {
   delete process.env.DEEPSEEK_API_KEY;
   delete process.env.EDMECA_DEEPSEEK_API;
-  delete process.env.URL;
-  delete process.env.DEPLOY_PRIME_URL;
+  pending.length = 0;
   process.env.AI_MAP_SCRIPT_URL = "https://script.google.com/macros/s/test/exec";
   process.env.AI_MAP_SHARED_SECRET = "test-secret";
   fetchMock = vi.fn(async () => scriptOk());
@@ -119,35 +126,33 @@ describe("scoring parity and sheet payload", () => {
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).secret).toBe("shared-secret");
   });
 
-  it("reports an Apps Script failure hidden behind HTTP 200", async () => {
+  it("logs an Apps Script failure hidden behind HTTP 200", async () => {
     fetchMock.mockResolvedValueOnce(scriptOk({ ok: false, error: "unauthorised" }));
-    expect((await post(baselineBody())).statusCode).toBe(500);
+    const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect((await post(baselineBody())).statusCode).toBe(200);
+    expect(logged).toHaveBeenCalledWith(expect.stringMatching(/AI map baseline for .* failed:/), "Sheet delivery failed: unauthorised");
   });
 });
 
 describe("unlock", () => {
-  it("hands the validated job to the background function and answers at once when the site URL is known", async () => {
-    process.env.URL = "https://edmeca.co.za";
-    fetchMock.mockResolvedValueOnce({ ok: true, status: 202, json: async () => ({}) });
-    const res = await post(baselineBody({ action: "unlock", name: " Raymond ", email: "R@Example.com", organisation: "Edmeca", wantsCall: true }));
+  it("answers the unlock at once, with the scores and no secret, and delivers after the response", async () => {
+    const res = await handler({ httpMethod: "POST", headers: { origin: "https://edmeca.co.za" }, body: JSON.stringify(baselineBody({ action: "unlock", name: " Raymond ", email: "R@Example.com", organisation: "Edmeca", wantsCall: true })) });
     expect(res.statusCode).toBe(200);
-    expect(JSON.parse(res.body).queued).toBe(true);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe("https://edmeca.co.za/.netlify/functions/ai-map-unlock-background");
-    expect(init.headers["x-ai-map-token"]).toBe("test-secret");
-    const job = JSON.parse(init.body);
-    expect(job.name).toBe("Raymond");
-    expect(job.email).toBe("r@example.com");
-    expect(job.answers["24"]).toBe(1);
-    expect(job.secret).toBeUndefined();
-    delete process.env.URL;
+    const answer = JSON.parse(res.body!);
+    expect(answer.queued).toBe(true);
+    expect(answer.result.quadrant).toBe("pathseekers");
+    expect(res.body).not.toContain("test-secret");
+    expect(pending).toHaveLength(1);
+    await Promise.all(pending.splice(0));
+    const sent = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(sent.name).toBe("Raymond");
+    expect(sent.email).toBe("r@example.com");
+    expect(sent.answers["24"]).toBe(1);
   });
 
-  it("delivers inline, with one forward carrying the template report, when the background call is unavailable", async () => {
+  it("delivers with one forward carrying the template report when no model key is set", async () => {
     const res = await post(baselineBody({ action: "unlock", name: "Raymond", email: "R@Example.com", organisation: "Edmeca", wantsCall: true }));
     expect(res.statusCode).toBe(200);
-    expect(JSON.parse(res.body).reportSource).toBe("template (no model key)");
     // Exactly one Apps Script call: the script matches the email itself.
     const actions = fetchMock.mock.calls.map((call) => JSON.parse(call[1].body).action);
     expect(actions).toEqual(["unlock"]);
@@ -164,8 +169,9 @@ describe("unlock", () => {
       if (body.action === "unlock") return scriptOk({ ok: true, previous: { respondentId: BASELINE_ID, capability: 50, readiness: 25, quadrant: "fuelled", dimensions: { C1: 50, C2: 50, C3: 50, C4: 50, R1: 25, R2: 25, R3: 25, R4: 25 } } });
       return scriptOk();
     });
-    const res = await post(baselineBody({ action: "unlock", name: "Raymond", email: "r@example.com", wantsCall: false }));
-    const { movement } = JSON.parse(res.body);
+    // Movement feeds the emailed report; the browser already has the scores.
+    const job = { ...baselineBody({ action: "unlock", name: "Raymond", email: "r@example.com", wantsCall: false }), wave: "baseline" as const, retestOf: "", cohort: "", organisation: "", userAgent: "", referrer: "" };
+    const { movement } = await deliverUnlock(job as never);
     expect(movement.capability).toBe(25);
     expect(movement.readiness).toBe(0);
     expect(movement.quadrantChanged).toBe(true);

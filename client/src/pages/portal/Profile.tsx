@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { profileService, artifactsService } from "@/lib/services";
-import { supabase } from "@/lib/supabase";
+import { authClient, unwrap } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,11 @@ export default function Profile() {
   const [fullName, setFullName] = useState(
     user?.user_metadata?.full_name || ""
   );
+  // useAuth starts with no user; fill the name once it arrives, unless the user has typed.
+  const nameTouchedRef = useRef(false);
+  useEffect(() => {
+    if (!nameTouchedRef.current && user?.user_metadata?.full_name) setFullName(user.user_metadata.full_name);
+  }, [user]);
 
   // Business profile form state
   const [businessName, setBusinessName] = useState("");
@@ -98,10 +103,7 @@ export default function Profile() {
   // Update display name mutation
   const updateNameMutation = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.auth.updateUser({
-        data: { full_name: fullName },
-      });
-      if (error) throw new Error(error.message);
+      unwrap(await authClient.updateUser({ name: fullName.trim() }));
     },
     onSuccess: () => {
       toast({ title: "Name updated", description: "Your display name has been saved." });
@@ -131,26 +133,26 @@ export default function Profile() {
         pitch_builder: "Pitch Deck",
       };
 
-      const { data: allArtifacts, error: fetchError } = await supabase
-        .from("artifacts")
-        .select("id, tool_type, title");
-
-      if (fetchError) throw new Error(`Fetch error: ${fetchError.message}`);
-      if (!allArtifacts || allArtifacts.length === 0) {
-        return { updated: 0, total: 0 };
+      const allArtifacts = (await artifactsService.getArtifacts()) as unknown as { id: string; tool_type: string; title: string; updated_at: string | null }[];
+      // Most recently updated first, as the list was ordered on Supabase.
+      allArtifacts.sort((a, b) => Date.parse(b.updated_at ?? "") - Date.parse(a.updated_at ?? "") || 0);
+      // Only each tool's current document; older versions keep their titles.
+      const latest = new Map<string, { id: string; title: string }>();
+      for (const a of allArtifacts) {
+        if (!latest.has(a.tool_type)) latest.set(a.tool_type, a);
       }
+      if (latest.size === 0) return { updated: 0, total: 0 };
 
       let updated = 0;
-      for (const a of allArtifacts) {
-        const newTitle = `${businessName.trim()} \u2014 ${titleMap[(a as any).tool_type] || "Document"}`;
-        const { error: updateError } = await supabase
-          .from("artifacts")
-          .update({ title: newTitle, updated_at: new Date().toISOString() })
-          .eq("id", (a as any).id);
-        if (updateError) throw new Error(`Update error on ${(a as any).id}: ${updateError.message}`);
+      for (const [toolType, a] of Array.from(latest)) {
+        const newTitle = `${businessName.trim()} \u2014 ${titleMap[toolType] || "Document"}`;
+        if (a.title === newTitle) continue;
+        // The title only; updated_at is left alone so the activity feed stays truthful.
+        await artifactsService.retitleArtifact(a.id, newTitle);
         updated++;
       }
-      return { updated, total: allArtifacts.length };
+      queryClient.invalidateQueries({ queryKey: ["artifacts"] });
+      return { updated, total: latest.size };
     },
     onSuccess: (result) => {
       const { updated, total } = result ?? { updated: 0, total: 0 };
@@ -173,8 +175,8 @@ export default function Profile() {
     mutationFn: async () => {
       if (newPassword !== confirmPassword) throw new Error("Passwords do not match.");
       if (newPassword.length < 8) throw new Error("Password must be at least 8 characters.");
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw new Error(error.message);
+      if (!currentPassword) throw new Error("Enter your current password.");
+      unwrap(await authClient.changePassword({ currentPassword, newPassword, revokeOtherSessions: true }));
     },
     onSuccess: () => {
       toast({ title: "Password updated", description: "Your password has been changed successfully." });
@@ -292,14 +294,14 @@ export default function Profile() {
               <Input
                 id="fullName"
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={(e) => { nameTouchedRef.current = true; setFullName(e.target.value); }}
                 placeholder="Your full name"
                 data-testid="input-full-name"
               />
             </div>
             <Button
               onClick={() => updateNameMutation.mutate()}
-              disabled={updateNameMutation.isPending}
+              disabled={updateNameMutation.isPending || !fullName.trim()}
               size="sm"
               data-testid="button-save-name"
             >
@@ -424,6 +426,16 @@ export default function Profile() {
             </p>
             <div className="space-y-3">
               <div className="space-y-1.5">
+                <Label htmlFor="currentPassword">Current password</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  autoComplete="current-password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
                 <Label htmlFor="newPassword">New password</Label>
                 <Input
                   id="newPassword"
@@ -446,7 +458,7 @@ export default function Profile() {
             </div>
             <Button
               onClick={() => changePasswordMutation.mutate()}
-              disabled={changePasswordMutation.isPending || !newPassword || !confirmPassword}
+              disabled={changePasswordMutation.isPending || !currentPassword || !newPassword || !confirmPassword}
               variant="outline"
               size="sm"
             >

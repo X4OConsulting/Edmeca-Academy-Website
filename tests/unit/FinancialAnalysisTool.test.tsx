@@ -16,28 +16,12 @@ vi.mock('wouter', () => ({
   useLocation: () => ['/portal/tools/financials', vi.fn()],
 }));
 
-const { mockSupabase } = vi.hoisted(() => ({
-  mockSupabase: {
-    auth: {
-      getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'u1' } }, error: null }),
-      getSession: vi.fn().mockResolvedValue({
-        data: { session: { access_token: 'test-token-123' } },
-        error: null,
-      }),
-    },
-    from: vi.fn(() => ({
-      insert: vi.fn().mockResolvedValue({ error: null }),
-      select: vi.fn(() => ({
-        order: vi.fn().mockResolvedValue({ data: [], error: null }),
-      })),
-    })),
-  },
-}));
-
-vi.mock('@/lib/supabase', () => ({ supabase: mockSupabase }));
+// api() serves the saved-report history and saves new reports (/api/financial-uploads).
+const { mockApi } = vi.hoisted(() => ({ mockApi: vi.fn().mockResolvedValue([]) }));
 
 vi.mock('@/lib/services', () => ({
   profileService: { getUserProfile: vi.fn().mockResolvedValue({ businessName: 'EdMeCa Test' }) },
+  api: mockApi,
 }));
 
 vi.mock('@/hooks/use-toast', () => ({
@@ -102,14 +86,7 @@ describe('FinancialAnalysisTool', () => {
   beforeEach(() => {
     originalFetch = global.fetch;
     vi.clearAllMocks();
-    mockSupabase.auth.getSession.mockResolvedValue({
-      data: { session: { access_token: 'test-token-123' } },
-      error: null,
-    });
-    mockSupabase.from.mockReturnValue({
-      insert: vi.fn().mockResolvedValue({ error: null }),
-      select: vi.fn(() => ({ order: vi.fn().mockResolvedValue({ data: [], error: null }) })),
-    });
+    mockApi.mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -174,7 +151,7 @@ describe('FinancialAnalysisTool', () => {
     expect(await screen.findByTestId('file-upload-zone')).toBeInTheDocument();
   });
 
-  it('clicking Analyse dispatches fetch with Authorization header', async () => {
+  it('clicking Analyse posts to the API with no bearer token (the session cookie signs it)', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -193,7 +170,7 @@ describe('FinancialAnalysisTool', () => {
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
     const [url, opts] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
     expect(url).toContain('/api/analyze-financials');
-    expect(opts.headers.Authorization).toBe('Bearer test-token-123');
+    expect(opts.headers.Authorization).toBeUndefined();
   });
 
   it('sends the setup step context along with the statements', async () => {
@@ -242,15 +219,17 @@ describe('FinancialAnalysisTool', () => {
     expect(screen.getByTestId('button-analyse')).toBeInTheDocument();
   });
 
-  it('displays the analysis report markdown after a successful API call', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        success: true,
-        report: '## Summary\nRevenue looks healthy.',
-        meta: { company: 'EdMeCa', model_categorisation: 'Haiku', model_analysis: 'Sonnet' },
-      }),
-    });
+  /** POST starts the job; GET ?job= reports it. */
+  const jobFetch = (job: Record<string, unknown>) => vi.fn(async (url: string, opts?: { method?: string }) =>
+    (opts?.method === 'POST'
+      ? { ok: true, status: 202, json: async () => ({ jobId: 'job-1' }) }
+      : { ok: true, status: 200, json: async () => job }) as unknown as Response);
+
+  it('starts a job, then shows the report once the job is done', async () => {
+    global.fetch = jobFetch({
+      status: 'done',
+      result: { success: true, report: '## Summary\nRevenue looks healthy.', meta: { company: 'EdMeCa', model_categorisation: 'Haiku', model_analysis: 'Haiku' } },
+    }) as never;
 
     renderFinancial();
     await selectQuickMode();
@@ -258,7 +237,44 @@ describe('FinancialAnalysisTool', () => {
     await userEvent.type(textarea, 'Date, Amount\n2024-01-01, 5000');
     await userEvent.click(screen.getByTestId('button-analyse'));
 
-    // No `structured` field in the response, so the dashboard falls back to markdown.
-    expect(await screen.findByTestId('markdown')).toBeInTheDocument();
+    // No `structured` field in the result, so the dashboard falls back to markdown.
+    expect(await screen.findByTestId('markdown', {}, { timeout: 6000 })).toBeInTheDocument();
+    const calls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls[0][1].method).toBe('POST');
+    expect(calls[1][0]).toBe('/api/analyze-financials?job=job-1');
+    expect(calls[1]).toHaveLength(1); // a plain GET; the cookie goes along on its own
+  }, 10000);
+
+  it('shows the reason when the job fails', async () => {
+    global.fetch = jobFetch({ status: 'error', error: 'The analysis ran longer than allowed and was cut off.' }) as never;
+    renderFinancial();
+    await selectQuickMode();
+    await userEvent.type(await goToInputStep(), 'Revenue 1000');
+    await userEvent.click(screen.getByTestId('button-analyse'));
+    expect(await screen.findByText(/ran longer than allowed/i, {}, { timeout: 6000 })).toBeInTheDocument();
+    expect(screen.getByTestId('button-analyse')).toBeInTheDocument();
+  }, 10000);
+
+  it('explains a network failure instead of showing "Failed to fetch"', async () => {
+    global.fetch = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'));
+    renderFinancial();
+    await selectQuickMode();
+    await userEvent.type(await goToInputStep(), 'Revenue 1000');
+    await userEvent.click(screen.getByTestId('button-analyse'));
+    expect(await screen.findByText(/could not reach the analysis service/i)).toBeInTheDocument();
+  });
+
+  it('refuses more than the character limit before sending anything', async () => {
+    global.fetch = vi.fn();
+    renderFinancial();
+    await selectQuickMode();
+    const textarea = await goToInputStep();
+    // Pasting is instant; typing 50 000 characters is not.
+    await userEvent.click(textarea);
+    await userEvent.paste('x'.repeat(50_001));
+    expect(screen.getByTestId('text-char-count')).toHaveTextContent(/50\s?001/);
+    await userEvent.click(screen.getByTestId('button-analyse'));
+    expect(await screen.findByText(/the limit is 50/i)).toBeInTheDocument();
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 });

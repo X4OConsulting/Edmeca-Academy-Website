@@ -26,7 +26,6 @@ export default defineConfig({
         manualChunks(id) {
           if (!id.includes('node_modules')) return;
           if (id.includes('pdfjs-dist')) return 'vendor-pdf';
-          if (id.includes('@supabase')) return 'vendor-supabase';
           if (id.includes('recharts')) return 'vendor-charts';
           if (id.includes('framer-motion')) return 'vendor-motion';
           if (id.includes('@radix-ui')) return 'vendor-ui';

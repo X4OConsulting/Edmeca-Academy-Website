@@ -2,8 +2,8 @@
  * Sentences derived from a result that both the report panel and the emailed
  * report use, so the screen and the email say the same thing.
  */
-import { type DimensionCode, type Quadrant, bandFor, bandMeaning, dimensionFor, engagementNote, quadrants } from "@/data/aiMap";
-import { type AIMapResult, type Movement, balanceLabel, neighbouringQuadrants } from "@/lib/aiMap";
+import { type DimensionCode, type Quadrant, bandFor, bandMeaning, dimensionFor, engagementNote, quadrants } from "../data/aiMap.js";
+import { type AIMapResult, type Movement, balanceLabel, neighbouringQuadrants } from "./aiMap.js";
 
 const quadrantName = (quadrant: Quadrant) => quadrants[quadrant].name;
 
