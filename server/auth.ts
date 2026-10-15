@@ -11,9 +11,20 @@
  */
 import { betterAuth } from "better-auth";
 import { verifyPassword } from "better-auth/crypto";
+import { emailOTP } from "better-auth/plugins";
+import { waitUntil } from "@vercel/functions";
 import bcrypt from "bcryptjs";
 import { db } from "./db.js";
-import { actionEmail, sendEmail } from "./email.js";
+import { actionEmail, codeEmail, sendEmail } from "./email.js";
+
+const OTP_MINUTES = 10;
+
+const OTP_EMAIL = {
+  "sign-in": ["Your EDMECA sign-in code", "Sign in to EDMECA Academy", "Enter this code on the sign-in page to continue. If you are new, this also creates your account."],
+  "email-verification": ["Your EDMECA verification code", "Confirm your email", "Enter this code to confirm your email address."],
+  "forget-password": ["Your EDMECA password reset code", "Reset your password", "Enter this code to choose a new password."],
+  "change-email": ["Your EDMECA email change code", "Confirm your new email", "Enter this code to confirm your new email address."],
+} as const;
 
 const google =
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
@@ -65,6 +76,35 @@ export const auth = betterAuth({
     },
   },
   socialProviders: google,
+  plugins: [
+    // Passwordless sign-in: the user enters their email, gets a 6-digit code,
+    // and enters it. An unknown email gets an account (already verified).
+    emailOTP({
+      otpLength: 6,
+      expiresIn: OTP_MINUTES * 60,
+      allowedAttempts: 5,
+      storeOTP: "hashed",
+      async sendVerificationOTP({ email, otp, type }) {
+        const [subject, heading, body] = OTP_EMAIL[type];
+        // Not awaited, so the response time does not reveal whether the email
+        // has an account (the plugin's advice); waitUntil keeps the function
+        // alive on Vercel until the email is sent.
+        waitUntil(sendEmail(email, subject, codeEmail(heading, body, otp, OTP_MINUTES))
+          .catch((error) => console.error(`Sign-in code email (${type}) not sent:`, error instanceof Error ? error.message : error)));
+      },
+    }),
+  ],
+  // Limits are per IP and per endpoint; kept in Neon so they hold across all
+  // function instances (the default memory store is per instance). Sending a
+  // code is the abuse target (it emails any address), hence its own tight rule.
+  rateLimit: {
+    enabled: true,
+    storage: "database",
+    customRules: {
+      "/email-otp/send-verification-otp": { window: 60, max: 3 },
+      "/sign-in/email-otp": { window: 60, max: 10 },
+    },
+  },
   account: {
     // A Google sign-in with the same verified email joins the existing account
     // instead of failing, as Supabase did.

@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import logoImage from "@assets/logo.png";
 
 const isLoginEnabled = import.meta.env.VITE_ENABLE_LOGIN === "true";
@@ -79,8 +78,6 @@ export function Header() {
                 </Link>
               </>
             )}
-
-            <ThemeToggle />
 
             <Sheet>
               <SheetTrigger asChild>

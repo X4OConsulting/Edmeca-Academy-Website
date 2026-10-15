@@ -23,6 +23,17 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
   }
 }
 
+/** The sign-in code email: the code large and easy to copy, no link to click. */
+export function codeEmail(heading: string, body: string, code: string, minutes: number): string {
+  return `<!doctype html><html><body style="font-family:Arial,sans-serif;color:#1f2937;max-width:560px;margin:0 auto;padding:24px">
+<h2 style="color:#0f2a44">${escape(heading)}</h2>
+<p>${escape(body)}</p>
+<p style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#0f2a44;background:#f3f4f6;padding:16px 24px;border-radius:8px;display:inline-block;font-family:'Courier New',monospace">${escape(code)}</p>
+<p style="font-size:13px;color:#6b7280">The code expires in ${minutes} minutes and works once. EDMECA will never ask you for it by phone or chat.</p>
+<p style="font-size:12px;color:#6b7280">If you did not ask for this, you can ignore this email.</p>
+</body></html>`;
+}
+
 /** A plain, client-safe email with one call-to-action link. */
 export function actionEmail(heading: string, body: string, buttonText: string, url: string): string {
   return `<!doctype html><html><body style="font-family:Arial,sans-serif;color:#1f2937;max-width:560px;margin:0 auto;padding:24px">

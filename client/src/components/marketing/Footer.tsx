@@ -90,12 +90,12 @@ export function Footer() {
               </a>
             </p>
             <div className="flex gap-6">
-              <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+              <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-privacy">
                 Privacy Policy
-              </span>
-              <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+              </Link>
+              <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-terms">
                 Terms of Service
-              </span>
+              </Link>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { authClient, AuthError, unwrap } from '@/lib/auth-client';
+import { authClient, unwrap } from '@/lib/auth-client';
 import { queryClient } from '@/lib/queryClient';
 
 interface AuthUser {
@@ -10,23 +10,29 @@ interface AuthUser {
 }
 
 async function signInWithEmail(email: string, password: string) {
-  const result = await authClient.signIn.email({ email, password });
-  if (result.error?.code === 'EMAIL_NOT_VERIFIED') {
-    // Login.tsx offers "resend confirmation" on this code (Supabase's name for it).
-    throw new AuthError('Email not confirmed', 'email_not_confirmed');
-  }
-  return unwrap(result);
+  return unwrap(await authClient.signIn.email({ email, password }));
 }
 
-async function signUpWithEmail(email: string, password: string) {
-  return unwrap(await authClient.signUp.email({
+/** Emails a 6-digit sign-in code. Answers the same whether or not the email has an account. */
+async function requestSignInCode(email: string) {
+  return unwrap(await authClient.emailOtp.sendVerificationOtp({ email, type: 'sign-in' }));
+}
+
+/**
+ * Signs in with the emailed code; an unknown email gets a new account. One email
+ * is one account, so this can never create a duplicate: an email that already
+ * has an account (password, Google or code) signs in to that account.
+ * `existing` tells the page whether to say "welcome back".
+ */
+async function signInWithCode(email: string, otp: string): Promise<{ existing: boolean }> {
+  const data = unwrap(await authClient.signIn.emailOtp({
     email,
-    password,
-    // The form asks for no name; the email's local part stands in until Profile sets one.
+    otp,
+    // Only used when this creates the account; Profile can change it.
     name: email.split('@')[0],
-    // Back to this site (staging or production) once the email is confirmed.
-    callbackURL: '/portal',
   }));
+  const createdAt = Date.parse(String((data as { user?: { createdAt?: string | Date } })?.user?.createdAt ?? ''));
+  return { existing: Number.isFinite(createdAt) && Date.now() - createdAt > 60_000 };
 }
 
 async function signInWithOAuth(provider: 'google') {
@@ -35,7 +41,7 @@ async function signInWithOAuth(provider: 'google') {
 }
 
 export function useAuth() {
-  const { data, isPending } = authClient.useSession();
+  const { data, isPending, refetch } = authClient.useSession();
   const user: AuthUser | null = data?.user
     ? { id: data.user.id, email: data.user.email, user_metadata: { full_name: data.user.name, avatar_url: data.user.image ?? undefined } }
     : null;
@@ -58,14 +64,31 @@ export function useAuth() {
     }
   }, []);
 
+  // Better Auth refreshes the session store by itself only after some routes
+  // (not /sign-in/email-otp), and even then without waiting. Navigating to the
+  // portal before the store knows about the session sent users back to /login,
+  // so each sign-in waits for the refreshed session before resolving.
+  const signInWithCodeAndLoad = useCallback(async (email: string, otp: string) => {
+    const result = await signInWithCode(email, otp);
+    await refetch();
+    return result;
+  }, [refetch]);
+
+  const signInWithEmailAndLoad = useCallback(async (email: string, password: string) => {
+    const result = await signInWithEmail(email, password);
+    await refetch();
+    return result;
+  }, [refetch]);
+
   return {
     user,
     session: data?.session ?? null,
     isLoading: isPending,
     isAuthenticated: !!user,
     logout,
-    signInWithEmail,
-    signUpWithEmail,
+    signInWithEmail: signInWithEmailAndLoad,
+    requestSignInCode,
+    signInWithCode: signInWithCodeAndLoad,
     signInWithOAuth,
     isLoggingOut: false,
   };

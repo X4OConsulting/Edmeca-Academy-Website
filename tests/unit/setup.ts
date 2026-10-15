@@ -11,5 +11,14 @@ Object.defineProperty(URL, 'revokeObjectURL', {
   writable: true,
 });
 
+// jsdom has no ResizeObserver; the input-otp code field uses it.
+if (!("ResizeObserver" in globalThis)) {
+  (globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
 // Suppress noisy React act() warnings in output
 vi.spyOn(console, 'error').mockImplementation(() => {});
