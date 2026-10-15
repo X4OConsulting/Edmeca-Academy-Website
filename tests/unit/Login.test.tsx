@@ -1,6 +1,6 @@
 /** Sign-in page: emailed-code sign-in (default), password sign-in, Google, and the messages users see. */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
@@ -90,7 +90,9 @@ describe('Login – email code (default)', () => {
   it('explains a Google account that was not invited', () => {
     window.history.replaceState(null, '', '/login?error=signup_disabled');
     render(<Login />);
-    expect(screen.getByTestId('alert-error')).toHaveTextContent(/has not been invited/i);
+    const alert = screen.getByTestId('alert-error');
+    expect(alert).toHaveTextContent(/has not been invited/i);
+    expect(within(alert).getByRole('link', { name: /apply for access/i })).toHaveAttribute('href', '/signup');
   });
 
   it('shows the plain-language message for a wrong code', async () => {

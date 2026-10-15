@@ -21,7 +21,7 @@ const BY_CODE: Record<string, string> = {
   // Accounts
   USER_ALREADY_EXISTS: "An account with this email already exists. Sign in instead: an email code works for every account.",
   USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: "An account with this email already exists. Sign in instead: an email code works for every account.",
-  USER_NOT_FOUND: "No account found for this email. EDMECA Academy is invite-only: apply for access first.",
+  USER_NOT_FOUND: "No account found for this email. EDMECA Academy is invite-only. Apply for access first.",
   NOT_INVITED: "EDMECA Academy is invite-only. Apply for access, or ask your programme manager for an invite.",
   INVALID_EMAIL: "That email address does not look right.",
   // Reset links
