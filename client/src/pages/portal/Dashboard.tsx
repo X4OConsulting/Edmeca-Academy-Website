@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { artifactsService } from "@/lib/services";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -126,11 +126,6 @@ export default function Dashboard() {
   const totalTools = KEY_TOOL_TYPES.length;
   const progressPercent = (completedCount / totalTools) * 100;
 
-  const getInitials = (name?: string | null) => {
-    if (!name) return "U";
-    return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
-  };
-
   const getToolTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
       bmc: "Business Model Canvas",
@@ -236,12 +231,12 @@ export default function Dashboard() {
                 </Button>
               </Link>
               <Link href="/portal/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                <Avatar className="h-9 w-9" data-testid="avatar-user">
-                  <AvatarImage src={user?.user_metadata?.avatar_url || undefined} />
-                  <AvatarFallback className="text-sm">
-                    {getInitials(user?.user_metadata?.full_name || user?.email)}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar
+                  src={user?.user_metadata?.avatar_url}
+                  name={user?.user_metadata?.full_name || user?.email}
+                  size="sm"
+                  testId="avatar-user"
+                />
                 <div className="hidden sm:block">
                   <p className="text-sm font-medium" data-testid="text-user-name">
                     {user?.user_metadata?.full_name || "Welcome"}

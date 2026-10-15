@@ -76,6 +76,31 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
 const qs = (params: Record<string, string>) => `?${new URLSearchParams(params)}`;
 
 // ---------------------------------------------------------------------------
+// AVATAR SERVICE
+// ---------------------------------------------------------------------------
+
+export const avatarService = {
+  /** Uploads an already-prepared photo (see prepareAvatar) and returns its URL. */
+  async upload(photo: Blob): Promise<string> {
+    const response = await fetch('/api/avatar', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': photo.type || 'application/octet-stream' },
+      body: photo,
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error((data && typeof data === 'object' && 'error' in data && String(data.error)) || `Upload failed (${response.status})`);
+    }
+    return (data as { image: string }).image;
+  },
+
+  async remove(): Promise<void> {
+    await api('/api/avatar', { method: 'DELETE' });
+  },
+};
+
+// ---------------------------------------------------------------------------
 // ARTIFACTS SERVICE
 // ---------------------------------------------------------------------------
 

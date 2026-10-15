@@ -90,6 +90,8 @@ export function useAuth() {
     requestSignInCode,
     signInWithCode: signInWithCodeAndLoad,
     signInWithOAuth,
+    // Reloads the user after a change made outside the auth client (e.g. a new profile photo).
+    refreshSession: refetch,
     isLoggingOut: false,
   };
 }
