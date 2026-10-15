@@ -34,7 +34,7 @@ beforeEach(() => {
   authState.user = null;
   window.history.replaceState(null, '', '/login');
   requestSignInCode.mockResolvedValue({ success: true });
-  signInWithCode.mockResolvedValue({ existing: true });
+  signInWithCode.mockResolvedValue({});
   requestPasswordReset.mockResolvedValue({ error: null });
 });
 
@@ -55,7 +55,8 @@ describe('Login – email code (default)', () => {
   it('sends a code to the lower-cased email and moves to the code step', async () => {
     await requestCode();
     expect(requestSignInCode).toHaveBeenCalledWith('founder@example.com');
-    expect(await screen.findByText(/we sent a 6-digit code to founder@example.com/i)).toBeInTheDocument();
+    // Same wording whether or not the email was invited.
+    expect(await screen.findByText(/if founder@example.com has been invited, a 6-digit code is on its way/i)).toBeInTheDocument();
     expect(screen.getByTestId('button-verify-code')).toBeInTheDocument();
     expect(screen.getByTestId('button-resend-code')).toBeDisabled();
   });
@@ -66,19 +67,30 @@ describe('Login – email code (default)', () => {
     expect(screen.getByTestId('alert-error')).toHaveTextContent(/valid email/i);
   });
 
-  it('signs in with the code and says "welcome back" for an existing account', async () => {
+  it('signs in with the code and goes to the portal', async () => {
     await requestCode();
     await userEvent.type(await screen.findByTestId('input-code-otp'), '123456');
     await waitFor(() => expect(signInWithCode).toHaveBeenCalledWith('founder@example.com', '123456'));
-    expect(toast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Welcome back' }));
+    expect(toast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Welcome to EDMECA Academy' }));
     expect(navigate).toHaveBeenCalledWith('/portal');
   });
 
-  it('welcomes a new account', async () => {
-    signInWithCode.mockResolvedValue({ existing: false });
-    await requestCode();
-    await userEvent.type(await screen.findByTestId('input-code-otp'), '654321');
-    await waitFor(() => expect(toast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Welcome to EDMECA' })));
+  it('says it is invite-only and links to the application form', () => {
+    render(<Login />);
+    expect(screen.getByTestId('text-invite-only')).toHaveTextContent(/invite-only/i);
+    expect(screen.getByRole('link', { name: /apply for access/i })).toHaveAttribute('href', '/signup');
+  });
+
+  it('fills in the invited email from the invite link', () => {
+    window.history.replaceState(null, '', '/login?email=invitee%40example.com');
+    render(<Login />);
+    expect(screen.getByTestId('input-code-email')).toHaveValue('invitee@example.com');
+  });
+
+  it('explains a Google account that was not invited', () => {
+    window.history.replaceState(null, '', '/login?error=signup_disabled');
+    render(<Login />);
+    expect(screen.getByTestId('alert-error')).toHaveTextContent(/has not been invited/i);
   });
 
   it('shows the plain-language message for a wrong code', async () => {

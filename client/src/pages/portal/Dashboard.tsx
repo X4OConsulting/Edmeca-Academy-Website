@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useRealtimeSync } from "@/hooks/use-realtime";
 import { useQuery } from "@tanstack/react-query";
-import { artifactsService } from "@/lib/services";
+import { artifactsService, profileService } from "@/lib/services";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -22,6 +22,7 @@ import {
   Sparkles,
   LogOut,
   LifeBuoy,
+  ShieldCheck,
   CheckCircle2,
   Circle,
   Activity,
@@ -84,6 +85,9 @@ const tools = [
 
 export default function Dashboard() {
   const { user, logout, isLoading: authLoading } = useAuth();
+  // Admins get a link to access management (the server checks the role too).
+  const { data: profile } = useQuery({ queryKey: ["userProfile"], queryFn: () => profileService.getUserProfile(), enabled: !!user });
+  const isAdmin = (profile as { role?: string } | null | undefined)?.role === "admin";
   const [, navigate] = useLocation();
   const [newToolOpen, setNewToolOpen] = useState(false);
 
@@ -221,6 +225,14 @@ export default function Dashboard() {
             </Link>
 
             <div className="flex items-center gap-4">
+              {isAdmin && (
+                <Link href="/portal/admin">
+                  <Button variant="outline" size="sm" className="gap-2" data-testid="button-admin">
+                    <ShieldCheck className="h-4 w-4" />
+                    <span className="hidden sm:inline">Admin</span>
+                  </Button>
+                </Link>
+              )}
               <Link href="/contact">
                 <Button variant="outline" size="sm" className="gap-2 hidden sm:flex">
                   <LifeBuoy className="h-4 w-4" />
