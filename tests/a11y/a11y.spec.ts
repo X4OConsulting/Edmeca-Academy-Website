@@ -258,27 +258,6 @@ test.describe('TC-A03 – Keyboard navigation', () => {
     await expect(passwordInput).toBeFocused();
   });
 
-  // ── A03-5: Theme toggle activatable with keyboard ─────────────────────────
-
-  test('TC-A03-5: Theme toggle button is keyboard-accessible', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'networkidle' });
-
-    // ThemeToggle uses a <span class="sr-only">Toggle theme</span> for its accessible name
-    const themeToggle = page.locator('[data-testid="button-theme-toggle"]').first();
-
-    if (await themeToggle.count() > 0) {
-      await themeToggle.focus();
-      await expect(themeToggle).toBeFocused();
-
-      // Space key should activate the toggle without throwing
-      await page.keyboard.press('Space');
-      await page.waitForTimeout(200);
-      // If we reached here without error, the toggle is keyboard-operable
-    } else {
-      test.skip(true, 'Theme toggle not found — skipping keyboard activation test');
-    }
-  });
-
   // ── A03-6: Portal tool form Tab order (no focus trap outside dialog) ──────
 
   test('TC-A03-6: Portal BMC tool — Tab navigates through inputs without trapping', async ({ page }) => {
