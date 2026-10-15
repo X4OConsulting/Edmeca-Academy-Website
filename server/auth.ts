@@ -28,7 +28,16 @@ const OTP_EMAIL = {
 
 const google =
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-    ? { google: { clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET } }
+    ? {
+        google: {
+          clientId: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          // Every Google sign-in: choose the account, then confirm what EDMECA
+          // receives (name, email, photo). Google otherwise skips the
+          // confirmation after the first time.
+          prompt: "select_account consent" as const,
+        },
+      }
     : undefined;
 
 export const auth = betterAuth({
