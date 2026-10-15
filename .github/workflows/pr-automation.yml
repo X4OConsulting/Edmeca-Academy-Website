@@ -196,41 +196,14 @@ jobs:
           echo "- Ready for review" >> pr-analysis.md
         fi
         
-    - name: Post PR Comment
+    # Shown on the workflow run's summary page, not as a PR comment: every PR
+    # comment emails the author, and these reports filled inboxes.
+    - name: Publish Analysis Report
       uses: actions/github-script@v7
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const fs = require('fs');
-          const report = fs.readFileSync('pr-analysis.md', 'utf8');
-          
-          // Find existing comment
-          const { data: comments } = await github.rest.issues.listComments({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number,
-          });
-          
-          const botComment = comments.find(comment => 
-            comment.user.type === 'Bot' && 
-            comment.body.includes('🔍 PR Analysis Report')
-          );
-          
-          if (botComment) {
-            await github.rest.issues.updateComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              comment_id: botComment.id,
-              body: report
-            });
-          } else {
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: report
-            });
-          }
+          await core.summary.addRaw(fs.readFileSync('pr-analysis.md', 'utf8')).write();
 
   # Job 3: Auto-Approve if All Checks Pass
   auto-approve:
@@ -253,8 +226,7 @@ jobs:
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: context.issue.number,
-            event: 'APPROVE',
-            body: '✅ **Automated Approval**\n\nAll quality checks passed:\n- TypeScript compilation successful\n- Build completed without errors\n- Code analysis completed\n\nThis PR is ready to merge! 🚀'
+            event: 'APPROVE'
           });
           
     - name: Add Success Label
@@ -269,18 +241,6 @@ jobs:
             labels: ['auto-approved', 'ready-to-merge']
           });
           
-    - name: Post Success Comment
-      uses: actions/github-script@v7
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          await github.rest.issues.createComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number,
-            body: '🎉 **All checks passed!** This PR has been automatically approved and is ready to merge.\n\n**Next Steps:**\n- Review the changes one final time\n- Merge when ready\n- Monitor deployment for any issues'
-          });
-
   # Job 4: Request Changes if Errors Found
   request-changes:
     name: Request Changes
@@ -394,14 +354,7 @@ jobs:
             
             console.log('✅ PR successfully merged to staging!');
             
-            // Post success comment
-            await github.rest.issues.createComment({
-              owner,
-              repo,
-              issue_number: pull_number,
-              body: '🎉 **Auto-Merged to Staging!**\n\nThis PR has been automatically merged after passing all checks.\n\n✅ All quality checks passed\n✅ Automatically approved\n✅ Merged to `staging` branch\n\nThe changes are now live on the staging environment!'
-            });
-            
+            // No success comment: the merge shows on the PR, and every comment emails the author.
           } catch (error) {
             console.error('❌ Failed to merge PR:', error.message);
             

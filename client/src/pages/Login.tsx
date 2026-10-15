@@ -19,6 +19,21 @@ const RESEND_SECONDS = 30;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type Mode = 'code' | 'password';
+
+const APPLY = 'Apply for access';
+
+/** Turns "Apply for access" in a message into a link to the application form. */
+function withApplyLink(text: string) {
+  const at = text.indexOf(APPLY);
+  if (at < 0) return text;
+  return (
+    <>
+      {text.slice(0, at)}
+      <a href="/signup" className="font-semibold underline underline-offset-2">{APPLY}</a>
+      {text.slice(at + APPLY.length)}
+    </>
+  );
+}
 type Step = 'email' | 'verify';
 
 /**
@@ -161,7 +176,7 @@ export default function Login() {
             <CardContent className="space-y-4">
               {error && (
                 <Alert variant="destructive" data-testid="alert-error">
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription>{withApplyLink(error)}</AlertDescription>
                 </Alert>
               )}
               {success && (
