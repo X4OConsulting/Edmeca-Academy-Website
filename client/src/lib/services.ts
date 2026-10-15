@@ -76,6 +76,28 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
 const qs = (params: Record<string, string>) => `?${new URLSearchParams(params)}`;
 
 // ---------------------------------------------------------------------------
+// ADMIN SERVICE (invite-only access; admins only, enforced by the server)
+// ---------------------------------------------------------------------------
+
+export interface AccessApplication {
+  id: string; name: string; email: string; organisation: string | null;
+  interest_type: string; motivation: string; created_at: string;
+}
+export interface AccessMember {
+  id: string; name: string; email: string; role: string; created_at: string;
+  invited_at: string | null; accepted_at: string | null; pending: boolean;
+}
+
+export const adminService = {
+  overview: () => api<{ applications: AccessApplication[]; members: AccessMember[] }>('/api/admin'),
+  invite: (email: string, name: string) => api('/api/admin', { method: 'POST', body: { action: 'invite', email, name } }),
+  approve: (applicationId: string) => api('/api/admin', { method: 'POST', body: { action: 'approve', applicationId } }),
+  decline: (applicationId: string) => api('/api/admin', { method: 'POST', body: { action: 'decline', applicationId } }),
+  resend: (userId: string) => api('/api/admin', { method: 'POST', body: { action: 'resend', userId } }),
+  revoke: (userId: string) => api('/api/admin', { method: 'POST', body: { action: 'revoke', userId } }),
+};
+
+// ---------------------------------------------------------------------------
 // AVATAR SERVICE
 // ---------------------------------------------------------------------------
 

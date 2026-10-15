@@ -38,6 +38,7 @@ const PitchBuilderTool = lazy(() => import("@/pages/portal/PitchBuilderTool"));
 const ProgressTrackerTool = lazy(() => import("@/pages/portal/ProgressTrackerTool"));
 const FinancialAnalysisTool = lazy(() => import("@/pages/portal/FinancialAnalysisTool"));
 const Profile = lazy(() => import("@/pages/portal/Profile"));
+const Admin = lazy(() => import("@/pages/portal/Admin"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 import { FloatingChat } from "@/components/FloatingChat";
 import { ErrorBoundary } from "@/components/portal/ErrorBoundary";
@@ -148,6 +149,11 @@ function Router() {
       <Route path="/portal/profile">
         <ProtectedRoute>
           <ErrorBoundary><Profile /></ErrorBoundary>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/portal/admin">
+        <ProtectedRoute>
+          <ErrorBoundary><Admin /></ErrorBoundary>
         </ProtectedRoute>
       </Route>
 
