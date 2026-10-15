@@ -92,7 +92,7 @@ export default function About() {
             </div>
             <div className="relative">
               <figure className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
-                {/* Unsplash photo by UK Black Tech (free Unsplash License), cropped to a square. */}
+                {/* Unsplash photo by UK Black Tech (https://unsplash.com/photos/3gO_bWev2jQ), free Unsplash License: no credit required. */}
                 <img
                   src="/images/about-our-story.webp"
                   alt="A facilitator leads a business workshop, pointing out next steps to a small team gathered around a table"
@@ -109,14 +109,6 @@ export default function About() {
                   <p className="mt-3 font-serif text-xl font-semibold">Built with Purpose</p>
                   <p className="mt-1 text-sm text-white/85">For entrepreneurs, by entrepreneurs</p>
                 </figcaption>
-                <a
-                  href="https://unsplash.com/@ukblacktech?utm_source=edmeca&utm_medium=referral"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute right-3 top-3 rounded bg-black/35 px-2 py-0.5 text-[10px] text-white/80 hover:text-white"
-                >
-                  Photo: UK Black Tech / Unsplash
-                </a>
               </figure>
             </div>
           </div>
