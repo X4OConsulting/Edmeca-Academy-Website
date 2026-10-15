@@ -20,5 +20,10 @@ if (!("ResizeObserver" in globalThis)) {
   };
 }
 
+// jsdom has no elementFromPoint either; input-otp calls it from a timer.
+if (typeof document !== "undefined" && !document.elementFromPoint) {
+  document.elementFromPoint = () => null;
+}
+
 // Suppress noisy React act() warnings in output
 vi.spyOn(console, 'error').mockImplementation(() => {});

@@ -10,6 +10,7 @@ export const LIMITS = {
   "analyze-bmc": { perHour: 20, noun: "canvas analyses" },
   "analyze-financials": { perHour: 10, noun: "financial analyses" },
   chat: { perHour: 60, noun: "chat messages" },
+  avatar: { perHour: 20, noun: "photo changes" },
 } as const;
 
 export type LimitName = keyof typeof LIMITS;
