@@ -30,7 +30,6 @@ import {
 import type { Artifact } from "@shared/schema";
 import logoImage from "@assets/logo.png";
 import { PageError, PageLoader } from "@/components/portal/PageStates";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 const tools = [
   {
@@ -250,7 +249,6 @@ export default function Dashboard() {
                   <p className="text-xs text-muted-foreground">{user?.email}</p>
                 </div>
               </Link>
-              <ThemeToggle />
               <Button variant="ghost" size="icon" data-testid="button-logout" aria-label="Log out" onClick={handleLogout}>
                 <LogOut className="h-4 w-4" />
               </Button>

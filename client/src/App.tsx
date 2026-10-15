@@ -4,7 +4,6 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeProvider } from "@/components/ThemeProvider";
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 
@@ -22,6 +21,8 @@ const Solutions = lazy(() => import("@/pages/Solutions"));
 const Frameworks = lazy(() => import("@/pages/Frameworks"));
 const Engagement = lazy(() => import("@/pages/Engagement"));
 const Contact = lazy(() => import("@/pages/Contact"));
+const Privacy = lazy(() => import("@/pages/Privacy"));
+const Terms = lazy(() => import("@/pages/Terms"));
 const AIReadiness = lazy(() => import("@/pages/AIReadiness"));
 const ExecutionGap = lazy(() => import("@/pages/ExecutionGap"));
 const AIMap = lazy(() => import("@/pages/AIMap"));
@@ -97,6 +98,8 @@ function Router() {
       <Route path="/frameworks" component={Frameworks} />
       <Route path="/engagement" component={Engagement} />
       <Route path="/contact" component={Contact} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/terms" component={Terms} />
       <Route path="/edmeca-gauge" component={AIReadiness} />
       <Route path="/ai-readiness" component={AIReadiness} />
       <Route path="/diagnostic" component={Diagnostic} />
@@ -158,12 +161,10 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Router />
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }
