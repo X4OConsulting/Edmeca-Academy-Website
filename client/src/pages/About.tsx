@@ -91,13 +91,25 @@ export default function About() {
               </div>
             </div>
             <div className="relative">
-              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                <div className="text-center p-8">
-                  <Heart className="h-16 w-16 mx-auto text-primary dark:text-accent opacity-50" />
-                  <p className="mt-6 font-serif text-xl font-semibold">Built with Purpose</p>
-                  <p className="mt-2 text-sm text-muted-foreground">For entrepreneurs, by entrepreneurs</p>
-                </div>
-              </div>
+              <figure className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
+                {/* Unsplash photo by UK Black Tech (https://unsplash.com/photos/3gO_bWev2jQ), free Unsplash License: no credit required. */}
+                <img
+                  src="/images/about-our-story.webp"
+                  alt="A facilitator leads a business workshop, pointing out next steps to a small team gathered around a table"
+                  width={1200}
+                  height={1200}
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                {/* Darkens the lower part so the caption reads on any part of the photo. */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" aria-hidden="true" />
+                <figcaption className="absolute inset-x-0 bottom-0 p-8 text-white">
+                  <Heart className="h-8 w-8 text-white/90" aria-hidden="true" />
+                  <p className="mt-3 font-serif text-xl font-semibold">Built with Purpose</p>
+                  <p className="mt-1 text-sm text-white/85">For entrepreneurs, by entrepreneurs</p>
+                </figcaption>
+              </figure>
             </div>
           </div>
         </div>
