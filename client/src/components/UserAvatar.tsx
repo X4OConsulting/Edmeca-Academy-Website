@@ -2,10 +2,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 const SIZES = {
-  sm: "h-9 w-9 text-xs ring-2 ring-offset-2",
-  md: "h-11 w-11 text-sm ring-2 ring-offset-2",
-  lg: "h-20 w-20 text-2xl ring-[3px] ring-offset-[3px]",
-  xl: "h-28 w-28 text-4xl ring-4 ring-offset-4",
+  sm: "h-9 w-9 text-xs",
+  md: "h-11 w-11 text-sm",
+  lg: "h-20 w-20 text-2xl",
+  xl: "h-28 w-28 text-4xl",
 } as const;
 
 export function initialsOf(nameOrEmail?: string | null): string {
@@ -18,8 +18,7 @@ export function initialsOf(nameOrEmail?: string | null): string {
 
 /**
  * The signed-in user's photo, or their initials on the brand gradient when
- * there is none (or it fails to load). The accent ring makes it stand out on
- * light and white backgrounds alike.
+ * there is none (or it fails to load).
  */
 export function UserAvatar({ src, name, size = "md", className, testId }: {
   src?: string | null;
@@ -29,7 +28,7 @@ export function UserAvatar({ src, name, size = "md", className, testId }: {
   testId?: string;
 }) {
   return (
-    <Avatar className={cn(SIZES[size], "ring-accent ring-offset-background shadow-md", className)} data-testid={testId}>
+    <Avatar className={cn(SIZES[size], "shadow-md", className)} data-testid={testId}>
       {src ? <AvatarImage src={src} alt={name ? `${name}'s profile photo` : "Profile photo"} className="object-cover" /> : null}
       <AvatarFallback className="bg-gradient-to-br from-primary to-accent font-semibold text-white" delayMs={src ? 600 : undefined}>
         {initialsOf(name)}
