@@ -41,7 +41,7 @@ async function signInWithOAuth(provider: 'google') {
 }
 
 export function useAuth() {
-  const { data, isPending } = authClient.useSession();
+  const { data, isPending, refetch } = authClient.useSession();
   const user: AuthUser | null = data?.user
     ? { id: data.user.id, email: data.user.email, user_metadata: { full_name: data.user.name, avatar_url: data.user.image ?? undefined } }
     : null;
@@ -64,15 +64,31 @@ export function useAuth() {
     }
   }, []);
 
+  // Better Auth refreshes the session store by itself only after some routes
+  // (not /sign-in/email-otp), and even then without waiting. Navigating to the
+  // portal before the store knows about the session sent users back to /login,
+  // so each sign-in waits for the refreshed session before resolving.
+  const signInWithCodeAndLoad = useCallback(async (email: string, otp: string) => {
+    const result = await signInWithCode(email, otp);
+    await refetch();
+    return result;
+  }, [refetch]);
+
+  const signInWithEmailAndLoad = useCallback(async (email: string, password: string) => {
+    const result = await signInWithEmail(email, password);
+    await refetch();
+    return result;
+  }, [refetch]);
+
   return {
     user,
     session: data?.session ?? null,
     isLoading: isPending,
     isAuthenticated: !!user,
     logout,
-    signInWithEmail,
+    signInWithEmail: signInWithEmailAndLoad,
     requestSignInCode,
-    signInWithCode,
+    signInWithCode: signInWithCodeAndLoad,
     signInWithOAuth,
     isLoggingOut: false,
   };
