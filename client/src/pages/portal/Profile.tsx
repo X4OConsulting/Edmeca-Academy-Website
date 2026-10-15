@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { profileService, artifactsService, avatarService } from "@/lib/services";
+import { profileService, artifactsService, avatarService, api } from "@/lib/services";
 import { AvatarImageError, prepareAvatar } from "@/lib/avatar-image";
 import { authClient, unwrap } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -203,16 +203,32 @@ export default function Profile() {
 
   const photoBusy = uploadPhotoMutation.isPending || removePhotoMutation.isPending;
 
-  // Change password mutation
+  // Accounts that sign in with an email code or Google have no password yet:
+  // they set one (no current password) instead of changing it.
+  const { data: signInMethods, isLoading: methodsLoading } = useQuery({
+    queryKey: ["signInMethods", user?.id],
+    queryFn: async () => unwrap(await authClient.listAccounts()) as { providerId: string }[],
+    enabled: !!user,
+  });
+  const hasPassword = !!signInMethods?.some((a) => a.providerId === "credential");
+
   const changePasswordMutation = useMutation({
     mutationFn: async () => {
       if (newPassword !== confirmPassword) throw new Error("Passwords do not match.");
       if (newPassword.length < 8) throw new Error("Password must be at least 8 characters.");
-      if (!currentPassword) throw new Error("Enter your current password.");
-      unwrap(await authClient.changePassword({ currentPassword, newPassword, revokeOtherSessions: true }));
+      if (hasPassword) {
+        if (!currentPassword) throw new Error("Enter your current password.");
+        unwrap(await authClient.changePassword({ currentPassword, newPassword, revokeOtherSessions: true }));
+      } else {
+        await api("/api/password", { method: "POST", body: { newPassword } });
+      }
     },
     onSuccess: () => {
-      toast({ title: "Password updated", description: "Your password has been changed successfully." });
+      toast({
+        title: hasPassword ? "Password updated" : "Password set",
+        description: hasPassword ? "Your password has been changed." : "You can now also sign in with your email and password.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["signInMethods"] });
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -327,10 +343,6 @@ export default function Profile() {
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
               <UserAvatar src={avatarUrl} name={displayName} size="xl" className="self-center sm:self-auto" />
               <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  A clear photo of your face helps facilitators and your cohort recognise you.
-                  JPG, PNG or WebP; we crop it to a square and shrink it for you.
-                </p>
                 <input
                   ref={photoInputRef}
                   type="file"
@@ -522,10 +534,20 @@ export default function Profile() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Change your password. You must be signed in with email/password to use this feature.
-            </p>
+            {methodsLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading...
+              </div>
+            ) : (
+            <>
+            {!hasPassword && (
+              <p className="text-sm text-muted-foreground">
+                You sign in with an email code{signInMethods?.some((a) => a.providerId === "google") ? " or Google" : ""}. Set a password to also sign in with it.
+              </p>
+            )}
             <div className="space-y-3">
+              {hasPassword && (
               <div className="space-y-1.5">
                 <Label htmlFor="currentPassword">Current password</Label>
                 <PasswordInput
@@ -535,6 +557,7 @@ export default function Profile() {
                   onChange={(e) => setCurrentPassword(e.target.value)}
                 />
               </div>
+              )}
               <div className="space-y-1.5">
                 <Label htmlFor="newPassword">New password</Label>
                 <PasswordInput
@@ -558,17 +581,20 @@ export default function Profile() {
             </div>
             <Button
               onClick={() => changePasswordMutation.mutate()}
-              disabled={changePasswordMutation.isPending || !currentPassword || !newPassword || !confirmPassword}
+              disabled={changePasswordMutation.isPending || (hasPassword && !currentPassword) || !newPassword || !confirmPassword}
               variant="outline"
               size="sm"
+              data-testid="button-save-password"
             >
               {changePasswordMutation.isPending ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
                 <Shield className="h-4 w-4 mr-2" />
               )}
-              Update Password
+              {hasPassword ? "Update Password" : "Set Password"}
             </Button>
+            </>
+            )}
           </CardContent>
         </Card>
       </main>
