@@ -14,6 +14,8 @@ const { navigate, toast, requestSignInCode, signInWithCode, signInWithEmail, sig
   requestPasswordReset: vi.fn(),
 }));
 
+const authState = vi.hoisted(() => ({ user: null as null | { id: string } }));
+
 vi.mock('wouter', () => ({
   Link: ({ children, href }: any) => React.createElement('a', { href }, children),
   useLocation: () => ['/login', navigate],
@@ -21,7 +23,7 @@ vi.mock('wouter', () => ({
 vi.mock('@/components/marketing/MarketingLayout', () => ({ MarketingLayout: ({ children }: any) => React.createElement('div', null, children) }));
 vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast }) }));
 vi.mock('@/hooks/use-auth', () => ({
-  useAuth: () => ({ requestSignInCode, signInWithCode, signInWithEmail, signInWithOAuth, isLoading: false }),
+  useAuth: () => ({ user: authState.user, requestSignInCode, signInWithCode, signInWithEmail, signInWithOAuth, isLoading: false }),
 }));
 vi.mock('@/lib/auth-client', () => ({ authClient: { requestPasswordReset } }));
 
@@ -29,6 +31,7 @@ import Login from '@/pages/Login';
 
 beforeEach(() => {
   vi.clearAllMocks();
+  authState.user = null;
   window.history.replaceState(null, '', '/login');
   requestSignInCode.mockResolvedValue({ success: true });
   signInWithCode.mockResolvedValue({ existing: true });
@@ -131,6 +134,14 @@ describe('Login – password', () => {
     await userEvent.type(screen.getByTestId('input-signin-password'), 'wrong-pass');
     await userEvent.click(screen.getByTestId('button-signin-submit'));
     expect(await screen.findByTestId('alert-error')).toHaveTextContent(/google or a code/i);
+  });
+});
+
+describe('Login – already signed in', () => {
+  it('sends a signed-in user straight to the portal', () => {
+    authState.user = { id: 'u1' };
+    render(<Login />);
+    expect(navigate).toHaveBeenCalledWith('/portal');
   });
 });
 

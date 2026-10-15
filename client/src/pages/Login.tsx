@@ -29,7 +29,7 @@ type Step = 'email' | 'verify';
 export default function Login() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { signInWithEmail, requestSignInCode, signInWithCode, signInWithOAuth, isLoading } = useAuth();
+  const { user, signInWithEmail, requestSignInCode, signInWithCode, signInWithOAuth, isLoading } = useAuth();
   const [mode, setMode] = useState<Mode>('code');
   const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
@@ -38,6 +38,11 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [resendIn, setResendIn] = useState(0);
+
+  // Already signed in (another tab, a Google return, a back button): go to the portal.
+  useEffect(() => {
+    if (!isLoading && user) navigate('/portal');
+  }, [isLoading, user, navigate]);
 
   // Google sign-in reports failures back as /login?error=…
   useEffect(() => {
