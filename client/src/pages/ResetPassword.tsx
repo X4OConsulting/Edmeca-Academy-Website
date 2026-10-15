@@ -3,11 +3,13 @@ import { Link, useLocation } from 'wouter';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MarketingLayout } from '@/components/marketing/MarketingLayout';
 import { authClient } from '@/lib/auth-client';
+import { friendlyAuthError } from '@/lib/auth-errors';
 
 /**
  * Where the "Forgot password?" email lands. The server checks the emailed link
@@ -32,7 +34,7 @@ export default function ResetPassword() {
     setIsSubmitting(true);
     const { error: resetError } = await authClient.resetPassword({ newPassword: password, token: token! });
     setIsSubmitting(false);
-    if (resetError) return setError(resetError.message || 'This reset link has expired. Please request a new one.');
+    if (resetError) return setError(friendlyAuthError(resetError, 'This reset link has expired. Please request a new one.'));
     // Resetting signs every session out; sign in with the new password.
     navigate('/login');
   };
@@ -62,11 +64,11 @@ export default function ResetPassword() {
                 )}
                 <div className="space-y-2">
                   <Label htmlFor="new-password">New password</Label>
-                  <Input id="new-password" name="password" type="password" required autoComplete="new-password" data-testid="input-new-password" />
+                  <PasswordInput id="new-password" name="password" required autoComplete="new-password" data-testid="input-new-password" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirm-new-password">Confirm new password</Label>
-                  <Input id="confirm-new-password" name="confirmPassword" type="password" required autoComplete="new-password" />
+                  <PasswordInput id="confirm-new-password" name="confirmPassword" required autoComplete="new-password" />
                 </div>
                 <Button type="submit" className="w-full" disabled={isSubmitting} data-testid="button-set-password">
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
