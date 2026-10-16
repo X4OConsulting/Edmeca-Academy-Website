@@ -13,26 +13,14 @@ async function signInWithEmail(email: string, password: string) {
   return unwrap(await authClient.signIn.email({ email, password }));
 }
 
-/** Emails a 6-digit sign-in code. Answers the same whether or not the email has an account. */
+/** Emails a 6-digit sign-in code to an invited account. Answers the same whether or not the email was invited. */
 async function requestSignInCode(email: string) {
   return unwrap(await authClient.emailOtp.sendVerificationOtp({ email, type: 'sign-in' }));
 }
 
-/**
- * Signs in with the emailed code; an unknown email gets a new account. One email
- * is one account, so this can never create a duplicate: an email that already
- * has an account (password, Google or code) signs in to that account.
- * `existing` tells the page whether to say "welcome back".
- */
-async function signInWithCode(email: string, otp: string): Promise<{ existing: boolean }> {
-  const data = unwrap(await authClient.signIn.emailOtp({
-    email,
-    otp,
-    // Only used when this creates the account; Profile can change it.
-    name: email.split('@')[0],
-  }));
-  const createdAt = Date.parse(String((data as { user?: { createdAt?: string | Date } })?.user?.createdAt ?? ''));
-  return { existing: Number.isFinite(createdAt) && Date.now() - createdAt > 60_000 };
+/** Signs in with the emailed code. Only invited accounts exist, so this never creates one. */
+async function signInWithCode(email: string, otp: string) {
+  return unwrap(await authClient.signIn.emailOtp({ email, otp }));
 }
 
 async function signInWithOAuth(provider: 'google') {
@@ -90,6 +78,8 @@ export function useAuth() {
     requestSignInCode,
     signInWithCode: signInWithCodeAndLoad,
     signInWithOAuth,
+    // Reloads the user after a change made outside the auth client (e.g. a new profile photo).
+    refreshSession: refetch,
     isLoggingOut: false,
   };
 }

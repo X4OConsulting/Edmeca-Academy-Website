@@ -19,12 +19,27 @@ const RESEND_SECONDS = 30;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type Mode = 'code' | 'password';
+
+const APPLY = 'Apply for access';
+
+/** Turns "Apply for access" in a message into a link to the application form. */
+function withApplyLink(text: string) {
+  const at = text.indexOf(APPLY);
+  if (at < 0) return text;
+  return (
+    <>
+      {text.slice(0, at)}
+      <a href="/signup" className="font-semibold underline underline-offset-2">{APPLY}</a>
+      {text.slice(at + APPLY.length)}
+    </>
+  );
+}
 type Step = 'email' | 'verify';
 
 /**
  * Sign-in page. The default is an emailed 6-digit code: it works for every
- * account (password, Google or code) and creates one for a new email, so there
- * is no separate sign-up and no way to make a duplicate account.
+ * account (password, Google or code). EDMECA is invite-only: accounts are
+ * created by an admin's invite, so nothing here creates one.
  */
 export default function Login() {
   const [, navigate] = useLocation();
@@ -32,7 +47,8 @@ export default function Login() {
   const { user, signInWithEmail, requestSignInCode, signInWithCode, signInWithOAuth, isLoading } = useAuth();
   const [mode, setMode] = useState<Mode>('code');
   const [step, setStep] = useState<Step>('email');
-  const [email, setEmail] = useState('');
+  // The invite email links to /login?email=…, so the invited address is filled in.
+  const [email, setEmail] = useState(() => new URLSearchParams(window.location.search).get('email') ?? '');
   const [code, setCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +84,8 @@ export default function Login() {
       setStep('verify');
       setCode('');
       setResendIn(RESEND_SECONDS);
-      setSuccess(`We sent a 6-digit code to ${cleanEmail()}. It can take a minute; check your spam folder too.`);
+      // The same answer whether or not the email was invited, so nobody can probe who has access.
+      setSuccess(`If ${cleanEmail()} has been invited, a 6-digit code is on its way. It can take a minute; check your spam folder too.`);
     } catch (err) {
       setError(err instanceof Error ? err.message : friendlyAuthError(null));
     } finally {
@@ -81,10 +98,8 @@ export default function Login() {
     if (value.length !== 6) return setError('Enter the 6-digit code from the email.');
     setIsSubmitting(true);
     try {
-      const { existing } = await signInWithCode(cleanEmail(), value);
-      toast(existing
-        ? { title: 'Welcome back', description: 'You are signed in to your existing account.' }
-        : { title: 'Welcome to EDMECA', description: 'Your account is ready.' });
+      await signInWithCode(cleanEmail(), value);
+      toast({ title: 'Welcome to EDMECA Academy', description: 'You are signed in.' });
       navigate('/portal');
     } catch (err) {
       setCode('');
@@ -146,7 +161,7 @@ export default function Login() {
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
             <h2 className="text-3xl font-bold tracking-tight">Welcome to EDMECA Academy</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Sign in or create your account to access the portal</p>
+            <p className="mt-2 text-sm text-muted-foreground">Sign in to access the portal</p>
           </div>
 
           <Card>
@@ -154,14 +169,14 @@ export default function Login() {
               <CardTitle>{mode === 'code' ? 'Sign in with an email code' : 'Sign in with your password'}</CardTitle>
               <CardDescription>
                 {mode === 'code'
-                  ? 'New here? The same steps create your account. No password needed.'
+                  ? 'Enter the email you were invited with. No password needed.'
                   : 'For accounts that have a password.'}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {error && (
                 <Alert variant="destructive" data-testid="alert-error">
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription>{withApplyLink(error)}</AlertDescription>
                 </Alert>
               )}
               {success && (
@@ -253,6 +268,10 @@ export default function Login() {
                   onClick={() => switchMode(mode === 'code' ? 'password' : 'code')} data-testid="button-switch-mode">
                   {mode === 'code' ? 'Use a password instead' : 'Sign in with an email code instead'}
                 </button>
+              </p>
+              <p className="text-center text-sm text-muted-foreground" data-testid="text-invite-only">
+                EDMECA Academy is invite-only.{' '}
+                <a href="/signup" className="font-medium text-primary underline-offset-2 hover:underline">Apply for access</a>
               </p>
             </CardContent>
           </Card>

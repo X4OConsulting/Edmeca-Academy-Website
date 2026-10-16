@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { profileService, artifactsService } from "@/lib/services";
+import { profileService, artifactsService, avatarService, api } from "@/lib/services";
+import { AvatarImageError, prepareAvatar } from "@/lib/avatar-image";
 import { authClient, unwrap } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
@@ -25,11 +26,14 @@ import {
   CheckCircle2,
   Clock,
   FileText,
+  Camera,
+  Trash2,
+  Upload,
 } from "lucide-react";
 import logoImage from "@assets/logo.png";
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, refreshSession } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -88,11 +92,6 @@ export default function Profile() {
   }, {} as Record<string, any>) ?? {};
   const toolsStarted = KEY_TOOL_TYPES.filter(t => !!latestByType[t]).length;
   const toolsCompleted = KEY_TOOL_TYPES.filter(t => latestByType[t]?.status === "complete").length;
-
-  const getInitials = (name?: string | null) => {
-    if (!name) return "U";
-    return name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
-  };
 
   const toolTypeLabel: Record<string, string> = {
     bmc: "Business Model Canvas",
@@ -171,16 +170,65 @@ export default function Profile() {
     },
   });
 
-  // Change password mutation
+  // Profile photo: cropped and shrunk in the browser, then uploaded.
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const avatarUrl = user?.user_metadata?.avatar_url;
+  const displayName = user?.user_metadata?.full_name || user?.email;
+  const choosePhoto = () => photoInputRef.current?.click();
+
+  const uploadPhotoMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const photo = await prepareAvatar(file);
+      await avatarService.upload(photo);
+      await refreshSession();
+    },
+    onSuccess: () => toast({ title: "Photo updated", description: "Your new profile photo is saved." }),
+    onError: (err: Error) => {
+      toast({
+        title: err instanceof AvatarImageError ? "Can't use that photo" : "Upload failed",
+        description: err.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const removePhotoMutation = useMutation({
+    mutationFn: async () => {
+      await avatarService.remove();
+      await refreshSession();
+    },
+    onSuccess: () => toast({ title: "Photo removed", description: "Your initials are shown instead." }),
+    onError: (err: Error) => toast({ title: "Error", description: err.message, variant: "destructive" }),
+  });
+
+  const photoBusy = uploadPhotoMutation.isPending || removePhotoMutation.isPending;
+
+  // Accounts that sign in with an email code or Google have no password yet:
+  // they set one (no current password) instead of changing it.
+  const { data: signInMethods, isLoading: methodsLoading } = useQuery({
+    queryKey: ["signInMethods", user?.id],
+    queryFn: async () => unwrap(await authClient.listAccounts()) as { providerId: string }[],
+    enabled: !!user,
+  });
+  const hasPassword = !!signInMethods?.some((a) => a.providerId === "credential");
+
   const changePasswordMutation = useMutation({
     mutationFn: async () => {
       if (newPassword !== confirmPassword) throw new Error("Passwords do not match.");
       if (newPassword.length < 8) throw new Error("Password must be at least 8 characters.");
-      if (!currentPassword) throw new Error("Enter your current password.");
-      unwrap(await authClient.changePassword({ currentPassword, newPassword, revokeOtherSessions: true }));
+      if (hasPassword) {
+        if (!currentPassword) throw new Error("Enter your current password.");
+        unwrap(await authClient.changePassword({ currentPassword, newPassword, revokeOtherSessions: true }));
+      } else {
+        await api("/api/password", { method: "POST", body: { newPassword } });
+      }
     },
     onSuccess: () => {
-      toast({ title: "Password updated", description: "Your password has been changed successfully." });
+      toast({
+        title: hasPassword ? "Password updated" : "Password set",
+        description: hasPassword ? "Your password has been changed." : "You can now also sign in with your email and password.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["signInMethods"] });
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -219,13 +267,20 @@ export default function Profile() {
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Page Title + Avatar */}
-        <div className="flex items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={user?.user_metadata?.avatar_url || undefined} />
-            <AvatarFallback className="text-xl">
-              {getInitials(user?.user_metadata?.full_name || user?.email)}
-            </AvatarFallback>
-          </Avatar>
+        <div className="flex items-center gap-5">
+          <div className="relative shrink-0">
+            <UserAvatar src={avatarUrl} name={displayName} size="lg" testId="avatar-profile" />
+            <button
+              type="button"
+              onClick={choosePhoto}
+              disabled={photoBusy}
+              aria-label="Change profile photo"
+              className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-md transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+              data-testid="button-change-photo"
+            >
+              {photoBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+            </button>
+          </div>
           <div>
             <h1 className="font-serif text-2xl font-bold">
               {user?.user_metadata?.full_name || "Your Profile"}
@@ -275,6 +330,63 @@ export default function Profile() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Profile Photo */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Camera className="h-4 w-4" />
+              Profile Photo
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+              <UserAvatar src={avatarUrl} name={displayName} size="xl" className="self-center sm:self-auto" />
+              <div className="space-y-3">
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  data-testid="input-photo"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = ""; // so choosing the same file again still triggers
+                    if (file) uploadPhotoMutation.mutate(file);
+                  }}
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" onClick={choosePhoto} disabled={photoBusy} data-testid="button-upload-photo">
+                    {uploadPhotoMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4 mr-2" />
+                    )}
+                    {uploadPhotoMutation.isPending ? "Uploading..." : avatarUrl ? "Change Photo" : "Upload Photo"}
+                  </Button>
+                  {avatarUrl && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => removePhotoMutation.mutate()}
+                      disabled={photoBusy}
+                      data-testid="button-remove-photo"
+                    >
+                      {removePhotoMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4 mr-2" />
+                      )}
+                      Remove
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Account Details */}
         <Card>
@@ -422,10 +534,20 @@ export default function Profile() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Change your password. You must be signed in with email/password to use this feature.
-            </p>
+            {methodsLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading...
+              </div>
+            ) : (
+            <>
+            {!hasPassword && (
+              <p className="text-sm text-muted-foreground">
+                You sign in with an email code{signInMethods?.some((a) => a.providerId === "google") ? " or Google" : ""}. Set a password to also sign in with it.
+              </p>
+            )}
             <div className="space-y-3">
+              {hasPassword && (
               <div className="space-y-1.5">
                 <Label htmlFor="currentPassword">Current password</Label>
                 <PasswordInput
@@ -435,6 +557,7 @@ export default function Profile() {
                   onChange={(e) => setCurrentPassword(e.target.value)}
                 />
               </div>
+              )}
               <div className="space-y-1.5">
                 <Label htmlFor="newPassword">New password</Label>
                 <PasswordInput
@@ -458,17 +581,20 @@ export default function Profile() {
             </div>
             <Button
               onClick={() => changePasswordMutation.mutate()}
-              disabled={changePasswordMutation.isPending || !currentPassword || !newPassword || !confirmPassword}
+              disabled={changePasswordMutation.isPending || (hasPassword && !currentPassword) || !newPassword || !confirmPassword}
               variant="outline"
               size="sm"
+              data-testid="button-save-password"
             >
               {changePasswordMutation.isPending ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
                 <Shield className="h-4 w-4 mr-2" />
               )}
-              Update Password
+              {hasPassword ? "Update Password" : "Set Password"}
             </Button>
+            </>
+            )}
           </CardContent>
         </Card>
       </main>

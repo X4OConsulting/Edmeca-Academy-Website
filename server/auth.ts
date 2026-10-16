@@ -8,8 +8,12 @@
  *   its owner (scripts/supabase-import/).
  * - Supabase stored bcrypt hashes; those users can keep signing in with their
  *   existing password. A password set or reset here uses Better Auth's scrypt.
+ * - Invite-only: nobody can create an account by signing in. Every sign-up
+ *   route is switched off, and as a second lock a new user is refused unless
+ *   their email is in public.invites (an admin's invite, server/invites.ts).
  */
 import { betterAuth } from "better-auth";
+import { APIError } from "better-auth/api";
 import { verifyPassword } from "better-auth/crypto";
 import { emailOTP } from "better-auth/plugins";
 import { waitUntil } from "@vercel/functions";
@@ -20,7 +24,7 @@ import { actionEmail, codeEmail, sendEmail } from "./email.js";
 const OTP_MINUTES = 10;
 
 const OTP_EMAIL = {
-  "sign-in": ["Your EDMECA sign-in code", "Sign in to EDMECA Academy", "Enter this code on the sign-in page to continue. If you are new, this also creates your account."],
+  "sign-in": ["Your EDMECA sign-in code", "Sign in to EDMECA Academy", "Enter this code on the sign-in page to continue."],
   "email-verification": ["Your EDMECA verification code", "Confirm your email", "Enter this code to confirm your email address."],
   "forget-password": ["Your EDMECA password reset code", "Reset your password", "Enter this code to choose a new password."],
   "change-email": ["Your EDMECA email change code", "Confirm your new email", "Enter this code to confirm your new email address."],
@@ -28,7 +32,19 @@ const OTP_EMAIL = {
 
 const google =
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-    ? { google: { clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET } }
+    ? {
+        google: {
+          clientId: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          // Every Google sign-in: choose the account, then confirm what EDMECA
+          // receives (name, email, photo). Google otherwise skips the
+          // confirmation after the first time.
+          prompt: "select_account consent" as const,
+          // Invite-only: Google signs in invited accounts, never creates one.
+          disableSignUp: true,
+          disableImplicitSignUp: true,
+        },
+      }
     : undefined;
 
 export const auth = betterAuth({
@@ -52,6 +68,7 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    disableSignUp: true,
     // Supabase required a confirmed email before first sign-in; keep that.
     requireEmailVerification: true,
     revokeSessionsOnPasswordReset: true,
@@ -78,8 +95,10 @@ export const auth = betterAuth({
   socialProviders: google,
   plugins: [
     // Passwordless sign-in: the user enters their email, gets a 6-digit code,
-    // and enters it. An unknown email gets an account (already verified).
+    // and enters it. Only existing (invited) accounts get a code; an unknown
+    // email gets the same "check your email" answer but no email.
     emailOTP({
+      disableSignUp: true,
       otpLength: 6,
       expiresIn: OTP_MINUTES * 60,
       allowedAttempts: 5,
@@ -113,9 +132,24 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
+        // The second lock of invite-only: whatever the route, no invite, no account.
+        async before(user) {
+          const rows = await db().query("select 1 from public.invites where email = $1", [String(user.email).toLowerCase()]);
+          if (rows.rowCount === 0) {
+            throw new APIError("FORBIDDEN", { code: "NOT_INVITED", message: "EDMECA Academy is invite-only. Apply for access, or ask your programme manager for an invite." });
+          }
+        },
         // Every user has a profile row; the browser used to create it on sign-in.
         async after(user) {
           await db().query("insert into public.user_profiles (user_id) values ($1) on conflict (user_id) do nothing", [user.id]);
+        },
+      },
+    },
+    session: {
+      create: {
+        // First sign-in accepts the invite (the Admin page shows who has joined).
+        async after(session) {
+          await db().query("update public.invites set accepted_at = now() where user_id = $1 and accepted_at is null", [session.userId]);
         },
       },
     },

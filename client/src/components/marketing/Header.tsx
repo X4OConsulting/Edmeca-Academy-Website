@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { UserAvatar } from "@/components/UserAvatar";
 import logoImage from "@assets/logo.png";
 
 const isLoginEnabled = import.meta.env.VITE_ENABLE_LOGIN === "true";
@@ -51,8 +52,15 @@ export function Header() {
             {isLoading ? (
               <div className="h-9 w-20 bg-muted animate-pulse rounded-md" />
             ) : user ? (
-              <Link href="/portal">
+              <Link href="/portal" className="flex items-center gap-3">
                 <Button data-testid="button-portal">Portal</Button>
+                <UserAvatar
+                  src={user.user_metadata?.avatar_url}
+                  name={user.user_metadata?.full_name || user.email}
+                  size="sm"
+                  className="hidden sm:flex"
+                  testId="avatar-header"
+                />
               </Link>
             ) : (
               <>

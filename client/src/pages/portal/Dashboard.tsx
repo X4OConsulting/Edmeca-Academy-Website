@@ -3,10 +3,10 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useRealtimeSync } from "@/hooks/use-realtime";
 import { useQuery } from "@tanstack/react-query";
-import { artifactsService } from "@/lib/services";
+import { artifactsService, profileService } from "@/lib/services";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -22,6 +22,7 @@ import {
   Sparkles,
   LogOut,
   LifeBuoy,
+  ShieldCheck,
   CheckCircle2,
   Circle,
   Activity,
@@ -84,6 +85,9 @@ const tools = [
 
 export default function Dashboard() {
   const { user, logout, isLoading: authLoading } = useAuth();
+  // Admins get a link to access management (the server checks the role too).
+  const { data: profile } = useQuery({ queryKey: ["userProfile"], queryFn: () => profileService.getUserProfile(), enabled: !!user });
+  const isAdmin = (profile as { role?: string } | null | undefined)?.role === "admin";
   const [, navigate] = useLocation();
   const [newToolOpen, setNewToolOpen] = useState(false);
 
@@ -125,11 +129,6 @@ export default function Dashboard() {
   const completedCount = KEY_TOOL_TYPES.filter(t => latestByType?.[t]?.status === "complete").length;
   const totalTools = KEY_TOOL_TYPES.length;
   const progressPercent = (completedCount / totalTools) * 100;
-
-  const getInitials = (name?: string | null) => {
-    if (!name) return "U";
-    return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
-  };
 
   const getToolTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
@@ -226,6 +225,14 @@ export default function Dashboard() {
             </Link>
 
             <div className="flex items-center gap-4">
+              {isAdmin && (
+                <Link href="/portal/admin">
+                  <Button variant="outline" size="sm" className="gap-2" data-testid="button-admin">
+                    <ShieldCheck className="h-4 w-4" />
+                    <span className="hidden sm:inline">Admin</span>
+                  </Button>
+                </Link>
+              )}
               <Link href="/contact">
                 <Button variant="outline" size="sm" className="gap-2 hidden sm:flex">
                   <LifeBuoy className="h-4 w-4" />
@@ -236,12 +243,12 @@ export default function Dashboard() {
                 </Button>
               </Link>
               <Link href="/portal/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                <Avatar className="h-9 w-9" data-testid="avatar-user">
-                  <AvatarImage src={user?.user_metadata?.avatar_url || undefined} />
-                  <AvatarFallback className="text-sm">
-                    {getInitials(user?.user_metadata?.full_name || user?.email)}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar
+                  src={user?.user_metadata?.avatar_url}
+                  name={user?.user_metadata?.full_name || user?.email}
+                  size="sm"
+                  testId="avatar-user"
+                />
                 <div className="hidden sm:block">
                   <p className="text-sm font-medium" data-testid="text-user-name">
                     {user?.user_metadata?.full_name || "Welcome"}

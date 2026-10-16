@@ -183,11 +183,3 @@ jobs:
             pull_number: context.issue.number,
             body: description
           });
-          
-          // Add a comment notifying about the auto-generation
-          await github.rest.issues.createComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number,
-            body: '📝 **Auto-Generated Description**\n\nI noticed this PR had a minimal description, so I generated one based on the code changes.\n\nPlease review and update it with specific details about:\n- What problem this solves\n- How to test the changes\n- Any breaking changes or migration steps\n\nYou can edit the PR description above! ✏️'
-          });
