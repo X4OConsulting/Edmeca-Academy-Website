@@ -227,7 +227,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-4">
               {isAdmin && (
                 <Link href="/portal/admin">
-                  <Button variant="outline" size="sm" className="gap-2" data-testid="button-admin">
+                  <Button size="sm" className="gap-2 bg-blue-600 text-white hover:bg-blue-700" data-testid="button-admin">
                     <ShieldCheck className="h-4 w-4" />
                     <span className="hidden sm:inline">Admin</span>
                   </Button>
