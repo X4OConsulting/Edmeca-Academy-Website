@@ -48,7 +48,11 @@ const handler = route({
     await requireAdmin(request);
     const applications = await query(
       `select id, name, email, organisation, interest_type, motivation, created_at
-       from public.signup_applications where status = 'pending' order by created_at desc limit 200`);
+       from public.signup_applications a
+       where status = 'pending'
+         -- Someone who already has access has nothing to approve.
+         and not exists (select 1 from "user" u where u.email = lower(a.email))
+       order by created_at desc limit 200`);
     const members = await query(
       `select u.id, u.name, u.email, u."createdAt" as created_at, coalesce(p.role::text, 'entrepreneur') as role,
               i.invited_at, i.accepted_at, (i.user_id is not null and i.accepted_at is null) as pending
