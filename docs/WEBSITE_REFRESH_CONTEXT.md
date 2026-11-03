@@ -45,7 +45,7 @@ Non-gating, still open (answer any time):
 - [x] Phase 2: brand assets
 - [x] Phase 3: global chrome and naming
 - [x] Stop for Raymond's review of the Phase 3 preview (go-ahead for Phase 4 given 3 November 2026)
-- [ ] Phase 4: home page (copy draft below, awaiting approval)
+- [x] Phase 4: home page (copy approved 3 November 2026)
 - [ ] Phase 5: Solutions and AI Business Studio
 - [ ] Phase 6: Engagement
 - [ ] Phase 7: About
@@ -53,9 +53,11 @@ Non-gating, still open (answer any time):
 - [ ] Phase 9: legal pages
 - [ ] Phase 10: QA and release
 
-## Phase 4 home page copy draft (awaiting Raymond's approval)
+## Phase 4 home page copy (approved by Raymond, 3 November 2026)
 
-Status: draft, not coded. Wording marked [plan] or [strategy] is lifted from the plan's Phase 4 or from `docs/STRATEGY_POSITIONS_2026-10.md` and is not up for rewording unless you want it changed. Wording marked [draft] is mine and needs your yes, edit or no. Questions are at the end.
+Status: approved as drafted and coded in Phase 4. The four questions were settled on the draft's defaults: the [draft] lines stand; ten separate tiles; the sample button is a mailto for now and moves to the contact form in Phase 8; the hero panel carries the D-mark.
+
+Original note: Wording marked [plan] or [strategy] is lifted from the plan's Phase 4 or from `docs/STRATEGY_POSITIONS_2026-10.md` and is not up for rewording unless you want it changed. Wording marked [draft] is mine and needs your yes, edit or no. Questions are at the end.
 
 Removed from the current page: the "AI-Powered Business Tools" badge and headline, "Free to start" and "No credit card required", the Who We Serve cards, the six-tool grid, the three testimonials and the "Trusted by" band, "Join hundreds of entrepreneurs and programmes", and "Register Free".
 
@@ -145,7 +147,7 @@ Removed from the current page: the "AI-Powered Business Tools" badge and headlin
 - Phase 2, which lockup (settled by Raymond, 3 November 2026): the site uses the EdMeCa squared lockup, `brand/assets/edmeca-logo.png` (superscript 2, no Online Academy line). The first Phase 2 commit used `edmeca-logo-full.png`; a follow-up commit swapped it and regenerated the OG image.
 - Phase 2, shared logo file: `attached_assets/logo.png` (the `@assets/logo.png` import) was replaced in place, so the portal and the diagnostic pages also show the new lockup. Their size classes were not changed (out of scope); the trimmed lockup at their `h-12` reads larger than the old padded file did. Worth a look in the portal pass.
 - Phase 2, OG image tagline is set in Helvetica Neue (the brand body face; Inter is only its web substitute), rendered once to a PNG.
-- Phase 3, anchors not yet built: the header and footer link to `/#impact` and to `/solutions#programmes`, `#evidence`, `#pathways` and `#studio`. Those sections arrive in Phases 4 and 5; until then the links land at the top of the page.
+- Phase 3, anchors: `/#impact` now exists (Phase 4). The footer still links to `/solutions#programmes`, `#evidence`, `#pathways` and `#studio`. Those sections arrive in Phases 4 and 5; until then the links land at the top of the page.
 - Phase 3, header layout: six nav links, "AI Business Studio" and "Book a discovery call" do not fit below 1280 px, so the full nav shows from 1024 px, the Studio link from 1280 px, and the hamburger menu (which carries both) below 1280 px. Below 640 px the bar shows the logo and the menu only; the CTA is the last item in the menu.
 - Phase 3, naming beyond the named files: "EDMECA" and "EDMECA Academy" also lived in `client/src/lib/auth-errors.ts` (sign-in error messages shown on Login), `client/src/lib/exportReport.ts` and `FinancialAnalysisTool.tsx` (portal export footer and a placeholder), `FloatingChat.tsx` ("your portal"), and "Edmeca" in the browser titles of the diagnostic pages and two strings in `ExecutionGap.tsx`. These are string changes only, under the naming exception. Not changed (out of scope, for a later pass): "Edmeca" in `client/src/components/aimap/ReportPanel.tsx` ("Edmeca intervention", "Your Edmeca route") and `UnlockForm.tsx`; the emoji in the FinancialAnalysisTool support card; any naming in `server/` email templates; the "EDMECA Academy" headers in the Playwright test files.
 - Phase 3, Login: the heading is now the page `h1`. The "Apply for access" link still points to `/signup`; Phase 8 routes it to `/contact`.
@@ -162,3 +164,4 @@ Removed from the current page: the "AI-Powered Business Tools" badge and headlin
 | 3 Nov 2026 | 3 | see git log | Global chrome and naming. Header: About, What we do, Impact (`/#impact`), Engagement, Diagnostic, Contact; "AI Business Studio" to `/login` (or `/portal` when signed in); primary CTA "Book a discovery call" (green fill, ink-10 text) to `/contact`; "Get Started" removed; 8 px header blur. Footer: logo, short value statement, What we do (four offering groups), Company (About, Impact, Engagement, Contact), Studio (sign in), info@edmeca.co.za, @Edmeca Pty Ltd, Level One B-BBEE contributor, legal line "Edmeca (Pty) Ltd, trading as EdMeCa. All rights reserved.", Privacy, Terms, Powered by X4O. `index.html`: title "EdMeCa | From Framework to Execution to Evidence", description from the value statement, the plan's keywords, OG title and description. Naming: Login ("Sign in to the AI Business Studio" plus the invite line), ResetPassword, Signup, Admin and the strings listed under Open items. Tests updated for the new toast title and the mobile CTA test id. Acceptance grep returns only Privacy and Terms (Phase 9). Screenshots in `docs/refresh-screenshots/phase-3/`. |
 
 | 3 Nov 2026 | 4 (draft) | see git log | Home page copy draft written above for approval. No code changed. |
+| 3 Nov 2026 | 4 | see git log | Home page rebuilt to the approved copy in eight sections: split hero with the D-mark on a sage panel; blue-deep statement band with the long-form value statement; Who we develop (three cards, Youthpreneur tagged in development); Who commissions our programmes (five text tiles and the co-branding line); What we do (four offering group cards, link to `/solutions`); How we work (four steps and the AI Enablement Map card); Evidence at `#impact` (four claims, the measurement line, ten text tiles for Who we have worked with); sage closing CTA with Book a discovery call and a mailto for an impact reporting sample. Testimonials, the tools grid and all free sign-up lines removed. No figures and no case tiles. Em dash grep clean. Screenshots in `docs/refresh-screenshots/phase-4/`. |
