@@ -119,7 +119,7 @@ test.describe('TC-4.5.1  375px viewport — marketing pages', () => {
     { path: '/about',       label: 'About' },
     { path: '/solutions',   label: 'Solutions' },
     { path: '/contact',     label: 'Contact' },
-    { path: '/frameworks',  label: 'Frameworks' },
+    { path: '/studio',      label: 'AI Business Studio' },
     { path: '/engagement',  label: 'Engagement' },
   ];
 
@@ -232,7 +232,7 @@ test.describe('TC-4.5.4  768px tablet viewport audit', () => {
     { path: '/solutions',  label: 'Solutions' },
     { path: '/contact',    label: 'Contact' },
     { path: '/engagement', label: 'Engagement' },
-    { path: '/frameworks', label: 'Frameworks' },
+    { path: '/studio', label: 'AI Business Studio' },
   ];
 
   for (const { path, label } of auditPages) {

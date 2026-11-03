@@ -133,7 +133,7 @@ test.describe('TC-A01 – Axe-core: marketing pages', () => {
     { name: 'Home',        path: '/' },
     { name: 'About',       path: '/about' },
     { name: 'Solutions',   path: '/solutions' },
-    { name: 'Frameworks',  path: '/frameworks' },
+    { name: 'Studio',      path: '/studio' },
     { name: 'Engagement',  path: '/engagement' },
     { name: 'Contact',     path: '/contact' },
   ];

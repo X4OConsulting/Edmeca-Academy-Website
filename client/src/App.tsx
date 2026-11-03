@@ -1,4 +1,4 @@
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, Redirect, useLocation } from "wouter";
 import { useEffect, lazy, Suspense } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -18,7 +18,7 @@ function ScrollToTop() {
 const Home = lazy(() => import("@/pages/Home"));
 const About = lazy(() => import("@/pages/About"));
 const Solutions = lazy(() => import("@/pages/Solutions"));
-const Frameworks = lazy(() => import("@/pages/Frameworks"));
+const Studio = lazy(() => import("@/pages/Studio"));
 const Engagement = lazy(() => import("@/pages/Engagement"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const Privacy = lazy(() => import("@/pages/Privacy"));
@@ -94,9 +94,10 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/about" component={About} />
       <Route path="/solutions" component={Solutions} />
-      <Route path="/solutions/entrepreneurs" component={Solutions} />
-      <Route path="/solutions/programmes" component={Solutions} />
-      <Route path="/frameworks" component={Frameworks} />
+      <Route path="/solutions/entrepreneurs"><Redirect to="/solutions#programmes" replace /></Route>
+      <Route path="/solutions/programmes"><Redirect to="/solutions#programmes" replace /></Route>
+      <Route path="/studio" component={Studio} />
+      <Route path="/frameworks"><Redirect to="/studio" replace /></Route>
       <Route path="/engagement" component={Engagement} />
       <Route path="/contact" component={Contact} />
       <Route path="/privacy" component={Privacy} />
