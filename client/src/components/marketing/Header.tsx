@@ -29,9 +29,9 @@ export function Header() {
             <img 
               src={logoImage} 
               alt="EdMeCa"
-              width="100"
-              height="56"
-              className="h-14 w-auto dark:brightness-0 dark:invert"
+              width="139"
+              height="32"
+              className="h-8 w-auto dark:brightness-0 dark:invert"
             />
           </Link>
 

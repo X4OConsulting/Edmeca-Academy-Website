@@ -35,7 +35,7 @@ Non-gating, still open (answer any time):
 
 - [x] Phase 0: setup (README, this file, baseline checks)
 - [x] Phase 1: tokens and type
-- [ ] Phase 2: brand assets
+- [x] Phase 2: brand assets
 - [ ] Phase 3: global chrome and naming
 - [ ] Stop for Raymond's review of the Phase 3 preview
 - [ ] Phase 4: home page (copy approved here first)
@@ -55,6 +55,9 @@ Non-gating, still open (answer any time):
 - Phase 1, ink-10: the plan table gives `227 13% 14%`, the brand file gives `#2A2B30` (`230 7% 18%`). The brand book wins on visuals, so `--accent-foreground` uses `#2A2B30`. It still passes AA on brand green.
 - Phase 1, shared tokens: `:root` is shared with the portal, so the portal's light theme also moves from navy and orange to the brand palette. The `.dark` block and the `.diagnostic-page` overrides are untouched.
 - Phase 1, Lighthouse CI was not run locally (no `lhci` in the project dependencies); it runs in Phase 10. The diagnostic routes (`/ai-map`, `/ai-readiness`, `/execution-gap`) keep their own colours; only the serif class changed in `AIReadiness.tsx`.
+- Phase 2, which lockup (please confirm): `brand/assets/edmeca-logo.png` still carries the superscript 2, which the plan's audit (Section 2.2) lists as part of the old lockup; `edmeca-logo-full.png` has neither the superscript nor the Online Academy line. The site now uses `edmeca-logo-full.png`. Swap the source file and rerun the resize if the superscript version is the approved one.
+- Phase 2, shared logo file: `attached_assets/logo.png` (the `@assets/logo.png` import) was replaced in place, so the portal and the diagnostic pages also show the new lockup. Their size classes were not changed (out of scope); the trimmed lockup at their `h-12` reads larger than the old padded file did. Worth a look in the portal pass.
+- Phase 2, OG image tagline is set in Helvetica Neue (the brand body face; Inter is only its web substitute), rendered once to a PNG.
 
 ## Change log
 
@@ -62,3 +65,4 @@ Non-gating, still open (answer any time):
 | --- | --- | --- | --- |
 | 3 Nov 2026 | 0 | see git log | Baseline on `strategy-updates`: `npm ci`, `npm run check`, `npm test` (24 files, 297 tests) and `npm run build` pass. README renamed to EdMeCa and given the review-surface note. This file created. Baseline screenshots in `docs/refresh-screenshots/phase-0/`. |
 | 3 Nov 2026 | 1 | see git log | Tokens and type. `:root` mapped to the Section 3 table with hex comments; brand tokens, `--shadow-1` to `--shadow-3`, `--shadow-ring`, motion tokens and the `.eyebrow` / `.eyebrow-on-dark` utilities added; `.dark` untouched. Tailwind: `brand-*` and `ink-*` colours, `rounded-xl` 12 px and `rounded-2xl` 16 px, brand shadows, motion durations and easings; serif aliased to Inter. Button gains `cta` (green fill, ink-10 text) and `outline-brand` variants for Phase 3. `index.html`: Playfair removed, Inter 400 to 800, JetBrains Mono kept, theme-color `#454F7E`. Marketing pages: `font-serif` replaced, gradient washes and blur blobs removed (flat cream hero, sage CTA panels with hairline), navy bands now blue-deep with green eyebrows, Tailwind green, orange and traffic-light colours replaced with brand tokens. Copy unchanged. Network log: only Inter and JetBrains Mono requested. Screenshots in `docs/refresh-screenshots/phase-1/`. |
+| 3 Nov 2026 | 2 | see git log | Brand assets. `logo.png` (public and `attached_assets`) replaced with the lockup without the Online Academy line, trimmed and sized for web; `client/public/brand/` holds the logo, the D-mark, favicon 32 px, apple-touch-icon 180 px (on cream), icon 512 px and the 1200 by 630 OG image (cream, logo, tagline). `favicon.png` is now the D-mark. `index.html` references the new icons and adds `og:image` and Twitter card tags. Header logo 32 px tall in a 64 px bar and footer logo 40 px with 20 px padding, which keeps the 50 percent clear space. BMCTool alt text now "EdMeCa". Screenshots in `docs/refresh-screenshots/phase-2/`. |

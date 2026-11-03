@@ -1449,7 +1449,7 @@ function GuidedView({
             <div className="mx-auto mb-4">
               <img
                 src={edmecaLogo}
-                alt="EdMeCa Online Academy"
+                alt="EdMeCa"
                 className="h-16 object-contain"
                 data-testid="img-welcome-logo"
               />

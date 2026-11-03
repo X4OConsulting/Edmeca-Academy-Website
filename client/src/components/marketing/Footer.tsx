@@ -20,13 +20,13 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
           <div className="md:col-span-2">
-            <Link href="/" data-testid="link-footer-home">
+            <Link href="/" className="inline-block py-5" data-testid="link-footer-home">
               <img
                 src={logoImage}
                 alt="EdMeCa"
-                width="100"
-                height="56"
-                className="h-14 w-auto dark:brightness-0 dark:invert"
+                width="174"
+                height="40"
+                className="h-10 w-auto dark:brightness-0 dark:invert"
               />
             </Link>
             <p className="mt-4 text-muted-foreground max-w-md text-sm leading-relaxed">
