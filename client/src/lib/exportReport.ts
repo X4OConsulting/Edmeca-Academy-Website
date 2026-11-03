@@ -83,7 +83,7 @@ function markdownToDocxElements(markdown: string): Array<Paragraph | Table> {
   };
 
   for (const line of lines) {
-    // Table row — buffer until non-table line
+    // Table row: buffer until non-table line
     if (line.trimStart().startsWith("|")) {
       tableBuffer.push(line);
       continue;
@@ -229,7 +229,7 @@ export function exportToPDF(markdown: string, companyName: string): void {
   // Build the full HTML document as a string.
   // All user-supplied values (companyName, date) are passed through escapeHtml()
   // before injection. htmlBody is produced by markdownToHTML() which runs every
-  // line through inlineToHTML() — escaping &, <, > before wrapping in tags.
+  // line through inlineToHTML(): escaping &, <, > before wrapping in tags.
   // The string is rendered via a Blob URL (see below) rather than the deprecated
   // document-write API, preventing DOM-injection XSS vectors.
   const safeCompany = escapeHtml(companyName || "Business");
@@ -275,7 +275,7 @@ export function exportToPDF(markdown: string, companyName: string): void {
 </body>
 </html>`;
 
-  // Create a Blob URL and navigate a new window to it — the modern, safe alternative
+  // Create a Blob URL and navigate a new window to it: the modern, safe alternative
   // to the deprecated DOM-write API. Blob URLs have a unique origin, preventing
   // cross-origin access from other pages.
   const blob = new Blob([html], { type: "text/html;charset=utf-8" });

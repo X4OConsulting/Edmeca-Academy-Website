@@ -26,7 +26,7 @@ const linkClass = "text-sm text-muted-foreground hover:text-foreground transitio
 function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) {
   return (
     <div>
-      <h3 className="eyebrow mb-4">{title}</h3>
+      <h2 className="eyebrow mb-4">{title}</h2>
       <ul className="space-y-3">
         {links.map((link) => {
           const testId = `link-footer-${link.label.toLowerCase().replace(/\s+/g, "-")}`;

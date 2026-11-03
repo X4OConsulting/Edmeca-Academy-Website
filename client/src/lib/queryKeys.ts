@@ -4,11 +4,11 @@
  * consistent cache invalidation and avoid key typos.
  *
  * Naming convention: coarse → fine
- *   ['artifacts']               — all artifacts (broad invalidation)
- *   ['artifact', toolType]      — single type (e.g. 'bmc')
- *   ['artifact', 'id', id]      — single record by ID
- *   ['progress_entries']        — all progress entries
- *   ['profile']                 — current user profile
+ *   ['artifacts']              : all artifacts (broad invalidation)
+ *   ['artifact', toolType]     : single type (e.g. 'bmc')
+ *   ['artifact', 'id', id]     : single record by ID
+ *   ['progress_entries']       : all progress entries
+ *   ['profile']                : current user profile
  */
 
 export const queryKeys = {

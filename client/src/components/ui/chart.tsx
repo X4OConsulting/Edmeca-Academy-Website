@@ -70,7 +70,7 @@ ChartContainer.displayName = "Chart"
 // Sanitise a CSS identifier or value: strip characters that could break out of a
 // <style> block (< > ") before injecting into the CSS string via textContent.
 // Note: values are set via element.textContent (not innerHTML), so they are never
-// parsed as HTML — this layer is a defence-in-depth guard against CSS injection.
+// parsed as HTML: this layer is a defence-in-depth guard against CSS injection.
 function sanitizeCSSValue(value: string): string {
   return value.replace(/[<>"]/g, "")
 }
@@ -107,7 +107,7 @@ ${colorConfig
 
   React.useEffect(() => {
     if (styleRef.current) {
-      // textContent is plain text — never parsed as HTML, safe from XSS.
+      // textContent is plain text: never parsed as HTML, safe from XSS.
       styleRef.current.textContent = cssText
     }
   }, [cssText])

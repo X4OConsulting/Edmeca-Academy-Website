@@ -1,5 +1,5 @@
 /**
- * useRealtimeSync — keeps the Dashboard current with changes made elsewhere
+ * useRealtimeSync: keeps the Dashboard current with changes made elsewhere
  * (another tab or device). Supabase Realtime pushed every change; Neon has no
  * push channel, so this refreshes the user's artifacts and milestones whenever
  * the page becomes visible again. Saves made in this tab already refresh the
