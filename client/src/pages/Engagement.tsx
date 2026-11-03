@@ -4,12 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { ArrowRight, Briefcase, CheckCircle2, Star, Zap, Crown } from "lucide-react";
 
-// Executive Masterclass added at Raymond's request (3 November 2026); wording from the strategy
+// AI Masterclass for Executives added at Raymond's request (3 November 2026); wording from the strategy
 // file's "AI for Leaders" executive session and Digital Leadership positioning.
 const tiers = [
   {
     icon: Briefcase,
-    name: "Executive Masterclass",
+    name: "AI Masterclass for Executives",
     subtitle: "For leadership teams",
     price: "Custom",
     duration: "Executive session",
