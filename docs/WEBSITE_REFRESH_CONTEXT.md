@@ -44,14 +44,94 @@ Non-gating, still open (answer any time):
 - [x] Phase 1: tokens and type
 - [x] Phase 2: brand assets
 - [x] Phase 3: global chrome and naming
-- [ ] Stop for Raymond's review of the Phase 3 preview
-- [ ] Phase 4: home page (copy approved here first)
+- [x] Stop for Raymond's review of the Phase 3 preview (go-ahead for Phase 4 given 3 November 2026)
+- [ ] Phase 4: home page (copy draft below, awaiting approval)
 - [ ] Phase 5: Solutions and AI Business Studio
 - [ ] Phase 6: Engagement
 - [ ] Phase 7: About
 - [ ] Phase 8: Diagnostic, Contact, Login, Signup
 - [ ] Phase 9: legal pages
 - [ ] Phase 10: QA and release
+
+## Phase 4 home page copy draft (awaiting Raymond's approval)
+
+Status: draft, not coded. Wording marked [plan] or [strategy] is lifted from the plan's Phase 4 or from `docs/STRATEGY_POSITIONS_2026-10.md` and is not up for rewording unless you want it changed. Wording marked [draft] is mine and needs your yes, edit or no. Questions are at the end.
+
+Removed from the current page: the "AI-Powered Business Tools" badge and headline, "Free to start" and "No credit card required", the Who We Serve cards, the six-tool grid, the three testimonials and the "Trusted by" band, "Join hundreds of entrepreneurs and programmes", and "Register Free".
+
+### 1. Hero (cream, split layout with a sage panel holding the D-mark; no photography)
+
+- Eyebrow: From Framework to Execution to Evidence [plan]
+- Headline: We develop people into future tech leaders. [plan]
+- Lead: Proven business frameworks, delivered through AI-enabled, practical digital tools, with evidence of the shift from baseline to outcome. [plan]
+- Primary button: Book a discovery call (to `/contact`) [plan]
+- Secondary button: Take the free baseline (to `/diagnostic`) [plan]
+
+### 2. Statement band (blue-deep, white text, "earning." in green)
+
+- Headline: EdMeCa turns learning into earning. [strategy]
+- Paragraph: Our research-backed, AI-enabled programmes make young people work-ready, help entrepreneurs build businesses that last, and equip leaders to grow capability across their teams. We measure what changes and share it. [strategy]
+
+### 3. Who we develop (three cards, in this order)
+
+- Eyebrow: Who we develop [draft]
+- Heading: Three groups, one playbook. [draft]
+- Card 1, Young people: Made work-ready through Youthpreneur and accredited pathways. [draft, from strategy segments] Tag: Youthpreneur, in development.
+- Card 2, Entrepreneurs and SMEs: Businesses that last, with a usable output from every session. [draft, from strategy segments]
+- Card 3, Leaders in corporates and ecosystems: Digital Leadership means leading, and digital: enough insight to lead where digital, AI and cyber risk shape the business. [draft, condensed from strategy "Digital Leadership"]
+
+### 4. Who commissions our programmes (one row of five text tiles)
+
+- Eyebrow: Who commissions our programmes [plan]
+- Tiles: Corporates and skills development foundations; ESD and supplier development programme owners; Learning institutions and TVET colleges; SETAs and training authorities; Funders and foundations. [plan]
+- Line under the row: Delivered under the EdMeCa brand, co-branded with your programme where that helps. [plan]
+
+### 5. What we do (four group cards, then a link)
+
+- Eyebrow: What we do [draft]
+- Heading: Programmes, evidence, pathways and tools. [draft]
+- Programmes: Digital Leader Module; AI for Leaders and the AI Catalyst Journey; AI and digital module inside an SMME cohort; Youthpreneur (in development). [strategy]
+- Evidence services: Impact Reporting; Research offering. [strategy]
+- Accredited pathways: Accredited skills programmes (QCTO-aligned); Staff capacitation. [strategy]
+- Digital tools: AI Business Studio, offered as post-programme access. [strategy]
+- Link: See the full offering (to `/solutions`) [plan]
+
+### 6. How we work (four numbered steps, then the diagnostic card)
+
+- Eyebrow: How we work [draft]
+- Heading: Onboard, refresh, sprint, measure. [draft]
+- Step 1, AI onboarding first: Participants get comfortable with AI before any framework is introduced. [draft]
+- Step 2, Frameworks and a tools refresh: Proven frameworks, worked through practical digital tools. [draft]
+- Step 3, Sprint to a usable output: Every session ends with something the business can use. [draft, from strategy claim]
+- Step 4, Measure and report: A baseline, a mid-point and a post-programme assessment (PRE, MID, POST). [draft, from strategy]
+- Diagnostic card: Where are you on the AI Enablement Map? Eight minutes, free, no account. [plan] Buttons: Place my dot (to `/ai-map`, as today); Execution Gap diagnostic (to `/execution-gap`, as today).
+
+### 7. Evidence (section id `impact`, the target of the Impact link)
+
+- Eyebrow: Impact [draft]
+- Heading: What the evidence shows [plan]
+- Four claims [strategy]:
+  - A measurable maturity shift per participant.
+  - Tools adopted.
+  - A usable business output from every session.
+  - Funder-ready evidence.
+- Line under the claims: Where a client needs financial growth and job creation reported, we define the measure, the timeframe and the attribution method before the programme starts. [strategy]
+- No figures and no case tiles (TODO for Raymond: figures for the enterprise and supplier development cohort and the entrepreneur bootcamp run with an accelerator).
+- Sub-heading: Who we have worked with [plan]
+- Ten text tiles: Attacq; Green Seeds; Property Point; Growthpoint; EM Lyon; Stellenbosch Business School; Social Enterprise Academy; Nedbank; University of the Western Cape; Serosoft (Academia). [decision 4.3]
+
+### 8. Closing CTA (sage tint panel, flat, hairline)
+
+- Heading: Let's talk about your programme. [plan]
+- Primary button: Book a discovery call (to `/contact`) [plan]
+- Secondary button: Request an impact reporting sample [plan], target to confirm (question 3).
+
+### Questions for Raymond
+
+1. Are the [draft] lines acceptable as written? Edit any you want changed; the rest stays as is.
+2. Who we have worked with: the strategy file pairs some names ("Attacq and Green Seeds", "Property Point and Growthpoint", "EM Lyon and Stellenbosch Business School"), giving seven tiles; decision 4.3 lists ten organisations. The draft uses ten separate tiles. Confirm ten, or seven paired tiles.
+3. "Request an impact reporting sample": a `mailto:info@edmeca.co.za` with the subject "Impact reporting sample" now, or `/contact` with the subject preset (the contact form only gains presets in Phase 8)? Draft: mailto now, switched to the form in Phase 8.
+4. Hero sage panel: the D-mark at large scale on the sage panel, as the brand's cover slide does. Confirm, or leave the panel plain.
 
 ## Open items and deviations
 
@@ -80,3 +160,5 @@ Non-gating, still open (answer any time):
 | 3 Nov 2026 | 2 | see git log | Brand assets. `logo.png` (public and `attached_assets`) replaced with the lockup without the Online Academy line, trimmed and sized for web; `client/public/brand/` holds the logo, the D-mark, favicon 32 px, apple-touch-icon 180 px (on cream), icon 512 px and the 1200 by 630 OG image (cream, logo, tagline). `favicon.png` is now the D-mark. `index.html` references the new icons and adds `og:image` and Twitter card tags. Header logo 32 px tall in a 64 px bar and footer logo 40 px with 20 px padding, which keeps the 50 percent clear space. BMCTool alt text now "EdMeCa". Screenshots in `docs/refresh-screenshots/phase-2/`. |
 | 3 Nov 2026 | 2 (revised) | see git log | Logo and OG image regenerated from the EdMeCa squared lockup (`edmeca-logo.png`) at Raymond's instruction. |
 | 3 Nov 2026 | 3 | see git log | Global chrome and naming. Header: About, What we do, Impact (`/#impact`), Engagement, Diagnostic, Contact; "AI Business Studio" to `/login` (or `/portal` when signed in); primary CTA "Book a discovery call" (green fill, ink-10 text) to `/contact`; "Get Started" removed; 8 px header blur. Footer: logo, short value statement, What we do (four offering groups), Company (About, Impact, Engagement, Contact), Studio (sign in), info@edmeca.co.za, @Edmeca Pty Ltd, Level One B-BBEE contributor, legal line "Edmeca (Pty) Ltd, trading as EdMeCa. All rights reserved.", Privacy, Terms, Powered by X4O. `index.html`: title "EdMeCa | From Framework to Execution to Evidence", description from the value statement, the plan's keywords, OG title and description. Naming: Login ("Sign in to the AI Business Studio" plus the invite line), ResetPassword, Signup, Admin and the strings listed under Open items. Tests updated for the new toast title and the mobile CTA test id. Acceptance grep returns only Privacy and Terms (Phase 9). Screenshots in `docs/refresh-screenshots/phase-3/`. |
+
+| 3 Nov 2026 | 4 (draft) | see git log | Home page copy draft written above for approval. No code changed. |
