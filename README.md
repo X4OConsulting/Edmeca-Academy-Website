@@ -1,6 +1,8 @@
-﻿# EDMECA Digital Academy
+﻿# EdMeCa
 
-> Entrepreneurship education platform with AI-powered business tools for South African SMEs.
+> From Framework to Execution to Evidence. The marketing site for EdMeCa (edmeca.co.za) and the AI Business Studio, the post-programme portal.
+
+EdMeCa is the trading name of Edmeca (Pty) Ltd. Brand rules live in [`brand/README.md`](./brand/README.md); working rules for Claude Code live in [`CLAUDE.md`](./CLAUDE.md).
 
 ## Live Sites
 
@@ -17,14 +19,14 @@ Until switchover, edmeca.co.za is still served by Netlify + Supabase from `main`
 |---|---|
 | Frontend | React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui |
 | API | Vercel Functions (`api/`, Node, region fra1) |
-| Auth | Better Auth, self-hosted on Neon (email + password, Google) – see `server/auth.ts` |
+| Auth | Better Auth, self-hosted on Neon (email + password, Google), see `server/auth.ts` |
 | Database | Neon Postgres (Vercel Marketplace), migrations in `db/migrations` |
 | AI | Anthropic Claude, Groq (chat), DeepSeek (diagnostic reports) |
 | Email | Resend (domain: edmeca.co.za) |
 | Hosting | Vercel, team raymond-3084s-projects, project `edmeca-academy-website` |
 | CI/CD | GitHub Actions checks; Vercel deploys every push (`main` = production) |
 
-## Portal Tools
+## AI Business Studio (portal) tools
 
 | Tool | Description |
 |---|---|
@@ -69,6 +71,8 @@ Server code in `api/` and `server/` runs as Node ES modules on Vercel: relative 
 | feature branches | Previews | Enabled | Vercel preview per push |
 
 Pull requests into `staging` are merged automatically by CI once checks pass. Do not merge `staging` into `main` before switchover.
+
+Review surface: every branch push gets a Vercel preview URL, and previews are where changes are reviewed. The website refresh runs on `strategy-updates` and is reviewed on that branch's preview (`edmeca-academy-website-git-strategy-updates-raymond-3084s-projects.vercel.app`); it merges to `main` only after the preview is approved. Plan and running context: [`docs/WEBSITE_REFRESH_PLAN_2026-10.md`](./docs/WEBSITE_REFRESH_PLAN_2026-10.md), [`docs/WEBSITE_REFRESH_CONTEXT.md`](./docs/WEBSITE_REFRESH_CONTEXT.md).
 
 ## Database
 
@@ -119,8 +123,9 @@ node scripts/smartsheet-cli.js add 3.28 "Title" "Feature Development" "High" "De
 - [Environment Setup](./docs/ENVIRONMENT_SETUP.md)
 - [Git Workflow](./docs/WORKFLOW.md)
 - [Smartsheet Integration](./docs/SMARTSHEET_INTEGRATION.md)
+- [Website refresh plan](./docs/WEBSITE_REFRESH_PLAN_2026-10.md) and [running context](./docs/WEBSITE_REFRESH_CONTEXT.md)
 
 ## Organisation
 
-**EDMECA Digital Academy** - powered by [X4O Consulting](https://x4o.co.za)
+**EdMeCa** (Edmeca (Pty) Ltd, trading as EdMeCa), built by [X4O Consulting](https://x4o.co.za)
 Contact: khusselmann@x4o.co.za
