@@ -3,7 +3,14 @@
 Running context for the EdMeCa website refresh. Read with `CLAUDE.md`, `docs/WEBSITE_REFRESH_PLAN_2026-10.md` (the plan), `docs/STRATEGY_POSITIONS_2026-10.md` (copy source of truth) and `brand/README.md` (brand source of truth). Updated at the end of every session.
 
 - Branch: `strategy-updates` (from `main`). Never merged to `main` without Raymond's approval of the preview.
-- Branch preview (always the latest push): https://edmeca-academy-website-git-strategy-updates-raymond-3084s-projects.vercel.app
+- Branch preview (always the latest push): https://edmeca-academy-website-git-strate-aef9d5-raymond-3084s-projects.vercel.app
+- Per-commit previews (Vercel project `edmeca-academy-website`):
+  - Phase 0: https://edmeca-academy-website-5tcuw97vf-raymond-3084s-projects.vercel.app
+  - Phase 1: https://edmeca-academy-website-nync3jaur-raymond-3084s-projects.vercel.app
+  - Phase 2: https://edmeca-academy-website-e2tlnw9c4-raymond-3084s-projects.vercel.app
+  - Phase 2 (revised, squared lockup): https://edmeca-academy-website-ocyn4459u-raymond-3084s-projects.vercel.app
+  - Phase 3: https://edmeca-academy-website-nosvj5g69-raymond-3084s-projects.vercel.app
+- Phase 3 contact sheet of all fourteen screenshots: `docs/refresh-screenshots/phase-3/contact-sheet.jpg`.
 - Seven marketing routes used for screenshots and Lighthouse CI: `/`, `/about`, `/solutions`, `/contact`, `/frameworks`, `/engagement`, `/login`.
 - Screenshots: `docs/refresh-screenshots/phase-N/`, one full-page JPEG per route at 1366 px and 390 px, taken from `npm run build` plus `vite preview` of the phase commit.
 

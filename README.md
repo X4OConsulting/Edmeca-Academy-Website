@@ -72,7 +72,7 @@ Server code in `api/` and `server/` runs as Node ES modules on Vercel: relative 
 
 Pull requests into `staging` are merged automatically by CI once checks pass. Do not merge `staging` into `main` before switchover.
 
-Review surface: every branch push gets a Vercel preview URL, and previews are where changes are reviewed. The website refresh runs on `strategy-updates` and is reviewed on that branch's preview (`edmeca-academy-website-git-strategy-updates-raymond-3084s-projects.vercel.app`); it merges to `main` only after the preview is approved. Plan and running context: [`docs/WEBSITE_REFRESH_PLAN_2026-10.md`](./docs/WEBSITE_REFRESH_PLAN_2026-10.md), [`docs/WEBSITE_REFRESH_CONTEXT.md`](./docs/WEBSITE_REFRESH_CONTEXT.md).
+Review surface: every branch push gets a Vercel preview URL, and previews are where changes are reviewed. The website refresh runs on `strategy-updates` and is reviewed on that branch's preview (`edmeca-academy-website-git-strate-aef9d5-raymond-3084s-projects.vercel.app`); it merges to `main` only after the preview is approved. Plan and running context: [`docs/WEBSITE_REFRESH_PLAN_2026-10.md`](./docs/WEBSITE_REFRESH_PLAN_2026-10.md), [`docs/WEBSITE_REFRESH_CONTEXT.md`](./docs/WEBSITE_REFRESH_CONTEXT.md).
 
 ## Database
 
