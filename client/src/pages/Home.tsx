@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -108,6 +109,11 @@ function SectionHeading({ eyebrow, title, id }: { eyebrow: string; title: string
 }
 
 export default function Home() {
+  // Arriving from another page at /#impact: the browser jumps before this page renders, so scroll once mounted.
+  useEffect(() => {
+    if (window.location.hash) document.getElementById(window.location.hash.slice(1))?.scrollIntoView();
+  }, []);
+
   return (
     <MarketingLayout>
       {/* 1. Hero */}
