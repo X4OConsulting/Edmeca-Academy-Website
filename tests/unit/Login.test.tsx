@@ -67,11 +67,11 @@ describe('Login – email code (default)', () => {
     expect(screen.getByTestId('alert-error')).toHaveTextContent(/valid email/i);
   });
 
-  it('signs in with the code and goes to the portal', async () => {
+  it('signs in with the code and goes to the AI Business Studio', async () => {
     await requestCode();
     await userEvent.type(await screen.findByTestId('input-code-otp'), '123456');
     await waitFor(() => expect(signInWithCode).toHaveBeenCalledWith('founder@example.com', '123456'));
-    expect(toast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Welcome to EDMECA Academy' }));
+    expect(toast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Welcome to the AI Business Studio' }));
     expect(navigate).toHaveBeenCalledWith('/portal');
   });
 
@@ -96,7 +96,7 @@ describe('Login – email code (default)', () => {
   });
 
   it('shows the plain-language message for a wrong code', async () => {
-    signInWithCode.mockRejectedValue(new Error('That code is not right. Check the latest email from EDMECA and try again.'));
+    signInWithCode.mockRejectedValue(new Error('That code is not right. Check the latest email from EdMeCa and try again.'));
     await requestCode();
     await userEvent.type(await screen.findByTestId('input-code-otp'), '000000');
     expect(await screen.findByTestId('alert-error')).toHaveTextContent(/that code is not right/i);

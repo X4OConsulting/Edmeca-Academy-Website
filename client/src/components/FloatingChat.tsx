@@ -119,7 +119,7 @@ export function FloatingChat() {
         // Greet based on data
         const businessName = (profile as any)?.business_name;
         const greeting = businessName
-          ? `Hi! I'm EdMeCa AI. I can see you're working on **${businessName}**. Ask me anything about your business model, strategy, or any tool in your portal.`
+          ? `Hi! I'm EdMeCa AI. I can see you're working on **${businessName}**. Ask me anything about your business model, strategy, or any tool in the AI Business Studio.`
           : `Hi! I'm EdMeCa AI, your business advisor. I can see your business data and help you improve your strategy. What would you like to know?`;
         setMessages([{ role: "assistant", content: greeting }]);
       } catch {

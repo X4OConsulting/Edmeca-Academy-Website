@@ -91,7 +91,7 @@ function Landing({ onStart }: { onStart: () => void }) {
           <div className="mt-12"><StageStrip /></div>
           <div className="mt-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center"><Button onClick={onStart} size="lg" className="h-12 bg-accent px-7 text-primary hover:bg-accent/90">Start the snapshot <ArrowRight className="ml-2 h-4 w-4" /></Button><span className="text-sm text-white/55">Free. No account needed. Report to your inbox.</span></div>
         </div></div>
-        <p className="text-sm text-white/45">Built on Edmeca's Strategy to Evidence framework</p>
+        <p className="text-sm text-white/45">Built on EdMeCa's Strategy to Evidence framework</p>
       </div>
     </main>
   );
@@ -149,7 +149,7 @@ export default function AIReadiness() {
   const [result, setResult] = useState<ReadinessResult | null>(null);
   const respondentId = useMemo(getRespondentId, []);
 
-  useEffect(() => { document.title = "From Strategy to Evidence Assessment | Edmeca"; }, []);
+  useEffect(() => { document.title = "From Strategy to Evidence Assessment | EdMeCa"; }, []);
 
   const start = () => setStep(1);
   const selectAnswer = (value: number) => { if (typeof step !== "number" || step < 1 || step > 5) return; const nextAnswers = { ...answers, [questions[step - 1].dimension]: value }; setAnswers(nextAnswers); window.setTimeout(() => setStep((step + 1) as Step), 250); };

@@ -80,7 +80,7 @@ export default function Signup() {
               Apply for Access
             </h1>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-              EdMeCa Academy is currently invite-only. Submit your application
+              The AI Business Studio is currently invite-only. Submit your application
               below and our team will review it. If approved, we'll send your
               login details directly to your email.
             </p>
@@ -272,7 +272,7 @@ export default function Signup() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>
-                              Why do you want access to EdMeCa Academy? *
+                              Why do you want access to the AI Business Studio? *
                             </FormLabel>
                             <FormControl>
                               <Textarea
@@ -321,7 +321,7 @@ export default function Signup() {
                   <div>
                     <h3 className="font-semibold">Invite-Only Access</h3>
                     <p className="text-sm text-muted-foreground mt-1">
-                      EdMeCa Academy is currently invite-only to ensure every
+                      The AI Business Studio is currently invite-only to ensure every
                       member gets the support they need. We review each
                       application personally.
                     </p>
@@ -359,7 +359,7 @@ export default function Signup() {
                     <p className="text-sm text-muted-foreground mt-1">
                       Once approved, you'll receive an email with your login
                       credentials. You'll have immediate access to the full
-                      EdMeCa portal — BMC tool, pitch builder, financial
+                      AI Business Studio: BMC tool, pitch builder, financial
                       analysis, and more.
                     </p>
                   </div>

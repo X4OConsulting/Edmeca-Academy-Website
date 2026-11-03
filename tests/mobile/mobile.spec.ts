@@ -216,7 +216,7 @@ test.describe('TC-4.5.3  Header nav — viewport-appropriate controls visible', 
     await page.waitForLoadState('networkidle');
 
     await page.getByTestId('button-menu').click();
-    await expect(page.getByTestId('button-get-started-mobile')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('button-discovery-call-mobile')).toBeVisible({ timeout: 5000 });
   });
 });
 

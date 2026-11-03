@@ -190,7 +190,7 @@ export async function exportToWord(markdown: string, companyName: string): Promi
             spacing: { after: 120 },
           }),
           new Paragraph({
-            children: [new TextRun({ text: `Generated: ${date} · Powered by EdMeCa Academy`, size: 20, color: "999999" })],
+            children: [new TextRun({ text: `Generated: ${date} · Powered by EdMeCa`, size: 20, color: "999999" })],
             alignment: AlignmentType.CENTER,
             spacing: { after: 400 },
           }),
@@ -207,7 +207,7 @@ export async function exportToWord(markdown: string, companyName: string): Promi
           new Paragraph({ text: "", spacing: { before: 480 } }),
           new Paragraph({
             border: { top: { style: BorderStyle.SINGLE, size: 4, color: "dddddd", space: 1 } },
-            children: [new TextRun({ text: `EdMeCa Academy  ·  Financial Analysis Tool  ·  ${date}`, size: 18, color: "bbbbbb" })],
+            children: [new TextRun({ text: `EdMeCa AI Business Studio  ·  Financial Analysis Tool  ·  ${date}`, size: 18, color: "bbbbbb" })],
             alignment: AlignmentType.CENTER,
           }),
         ],
@@ -270,7 +270,7 @@ export function exportToPDF(markdown: string, companyName: string): void {
     <div class="cover-date">Generated: ${escapeHtml(date)}</div>
   </div>
   ${htmlBody}
-  <div class="footer">EdMeCa Academy &nbsp;\u00b7&nbsp; Financial Analysis Tool &nbsp;\u00b7&nbsp; ${escapeHtml(date)}</div>
+  <div class="footer">EdMeCa AI Business Studio &nbsp;\u00b7&nbsp; Financial Analysis Tool &nbsp;\u00b7&nbsp; ${escapeHtml(date)}</div>
   <script>window.onload = function () { window.print(); };<\/script>
 </body>
 </html>`;

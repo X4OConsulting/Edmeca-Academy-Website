@@ -38,7 +38,7 @@ type Step = 'email' | 'verify';
 
 /**
  * Sign-in page. The default is an emailed 6-digit code: it works for every
- * account (password, Google or code). EDMECA is invite-only: accounts are
+ * account (password, Google or code). EdMeCa is invite-only: accounts are
  * created by an admin's invite, so nothing here creates one.
  */
 export default function Login() {
@@ -55,7 +55,7 @@ export default function Login() {
   const [success, setSuccess] = useState<string | null>(null);
   const [resendIn, setResendIn] = useState(0);
 
-  // Already signed in (another tab, a Google return, a back button): go to the portal.
+  // Already signed in (another tab, a Google return, a back button): go to the AI Business Studio.
   useEffect(() => {
     if (!isLoading && user) navigate('/portal');
   }, [isLoading, user, navigate]);
@@ -99,7 +99,7 @@ export default function Login() {
     setIsSubmitting(true);
     try {
       await signInWithCode(cleanEmail(), value);
-      toast({ title: 'Welcome to EDMECA Academy', description: 'You are signed in.' });
+      toast({ title: 'Welcome to the AI Business Studio', description: 'You are signed in.' });
       navigate('/portal');
     } catch (err) {
       setCode('');
@@ -160,8 +160,8 @@ export default function Login() {
       <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight">Welcome to EDMECA Academy</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Sign in to access the portal</p>
+            <h1 className="text-3xl font-bold tracking-tight">Sign in to the AI Business Studio</h1>
+            <p className="mt-2 text-sm text-muted-foreground">The AI Business Studio is available to programme participants and partners. Ask your programme lead or contact us for access.</p>
           </div>
 
           <Card>
@@ -270,7 +270,7 @@ export default function Login() {
                 </button>
               </p>
               <p className="text-center text-sm text-muted-foreground" data-testid="text-invite-only">
-                EDMECA Academy is invite-only.{' '}
+                The AI Business Studio is invite-only.{' '}
                 <a href="/signup" className="font-medium text-primary underline-offset-2 hover:underline">Apply for access</a>
               </p>
             </CardContent>

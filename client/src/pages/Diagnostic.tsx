@@ -10,7 +10,7 @@ import { MarketingLayout } from "@/components/marketing/MarketingLayout";
  */
 export default function Diagnostic() {
   useEffect(() => {
-    document.title = "Diagnostic | Edmeca";
+    document.title = "Diagnostic | EdMeCa";
     document.documentElement.classList.add("diagnostic-mode");
     return () => document.documentElement.classList.remove("diagnostic-mode");
   }, []);
