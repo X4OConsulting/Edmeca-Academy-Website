@@ -48,7 +48,7 @@ Non-gating, still open (answer any time):
 - [x] Phase 4: home page (copy approved 3 November 2026)
 - [x] Phase 5: Solutions and AI Business Studio
 - [x] Phase 6: Engagement
-- [ ] Phase 7: About
+- [x] Phase 7: About
 - [ ] Phase 8: Diagnostic, Contact, Login, Signup
 - [ ] Phase 9: legal pages
 - [ ] Phase 10: QA and release
@@ -138,7 +138,7 @@ Removed from the current page: the "AI-Powered Business Tools" badge and headlin
 ## Decisions after Phase 4 (Raymond, 3 November 2026)
 
 - Who we have worked with: add First Mutual Insurance (eleven text tiles; the grid is four columns on desktop). Also added to `docs/STRATEGY_POSITIONS_2026-10.md` section 6.
-- About page: remove the team section until the team members can be added. The "The Team" section with its three "Coming Soon" tiles is gone. This puts the Phase 7 co-founder role cards (decision 4.4) on hold: Phase 7 does not add a team or co-founder section until Raymond says the team can be shown.
+- About page: remove the team section until the team members can be added. The "The Team" section with its three "Coming Soon" tiles is gone. This puts the Phase 7 co-founder role cards (decision 4.4) on hold: Phase 7 does not add a team or co-founder section until Raymond says the team can be shown. Update (3 November 2026): Raymond asked for the co-founder summaries in Phase 7, so the three role cards are back, by role only, with the D-mark and the approved narratives. Named team members still wait until Raymond supplies them.
 - Engagement Options: include an executive masterclass. Added now to the current page as the first card, "AI Masterclass for Executives" (the brand book name, confirmed by Raymond on 3 November 2026), worded from the strategy file's "AI for Leaders" executive session and the Digital Leadership positioning. Phase 6 keeps it when it rewrites the page (with no price, per decision 4.6).
 
 
@@ -178,3 +178,4 @@ Removed from the current page: the "AI-Powered Business Tools" badge and headlin
 | 3 Nov 2026 | 4 (follow-up) | see git log | Masterclass card renamed "AI Masterclass for Executives". |
 | 3 Nov 2026 | 5 | see git log | Solutions rebuilt as the offering stack: proposition intro, group jump links, the Digital Leadership paragraph once (blue-deep band), then the nine offerings in four groups at `#programmes`, `#evidence`, `#pathways` and `#studio`, each card with eyebrow, title, one sentence, For line and a contact link with the offering preset; Youthpreneur tagged In development. `Frameworks.tsx` renamed `Studio.tsx` and rewritten as the AI Business Studio page at `/studio` (Studio description, the six portal tools as post-programme access, access panel). Redirects: `/frameworks` to `/studio`; `/solutions/entrepreneurs` and `/solutions/programmes` to `/solutions#programmes`. New `useScrollToHash` hook shared by Home and Solutions. `.lighthouserc.json` and the Playwright suites now use `/studio`. No em dashes or banned terms on either page. Screenshots in `docs/refresh-screenshots/phase-5/`. |
 | 3 Nov 2026 | 6 | see git log | Engagement rebuilt: hero; Where to start with Impact Reporting on its own (the entry product) and the AI Masterclass for Executives; the three design-system tiers (Focused Session, Mid-Tier, Full Journey as the inverted blue-deep card) with Book a discovery call; FAQ with the rate-card answer; closing CTA. Removed: Most Popular, Custom prices, durations, Unlimited platform usage, Email and Priority support, White-label options, free consultation. No em dashes. Screenshots in `docs/refresh-screenshots/phase-6/`. |
+| 3 Nov 2026 | 7 | see git log | About rebuilt: hero "Making business-level thinking work for the people who need it." with the proposition; Our story (frameworks for entrepreneurs and programme owners, grew through ESD and accelerator cohorts, own brand, QCTO alignment, accredited pathways; no university); story photo replaced by the sage D-mark panel (no brand-compliant photograph supplied); Our approach as the January lesson in four steps; short-form value statement band with the three beneficiary lines; Our Values with the three confirmed values word for word; Our co-founders as three role cards (role in brand blue uppercase, D-mark, approved narrative; no names, portraits or personal emails); credentials line; closing CTA. No em dashes, no "platform", no university. Screenshots in `docs/refresh-screenshots/phase-7/`. |
