@@ -266,9 +266,9 @@ export const profileService = {
 // ---------------------------------------------------------------------------
 
 export const contactService = {
-  /** Persist a contact form submission (anyone may submit; no sign-in needed). */
+  /** Persist a contact form submission (anyone may submit; no sign-in needed). The offering is emailed, not stored. */
   async submitContactForm(
-    submission: Omit<ContactSubmission, 'id' | 'createdAt'>
+    submission: Omit<ContactSubmission, 'id' | 'createdAt'> & { offering?: string | null }
   ): Promise<ContactSubmission> {
     return withAliases<ContactSubmission>(await api('/api/contact', { method: 'POST', body: submission }));
   },

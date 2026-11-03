@@ -29,7 +29,6 @@ const AIMap = lazy(() => import("@/pages/AIMap"));
 const Diagnostic = lazy(() => import("@/pages/Diagnostic"));
 const Login = lazy(() => import("@/pages/Login"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
-const Signup = lazy(() => import("@/pages/Signup"));
 const Dashboard = lazy(() => import("@/pages/portal/Dashboard"));
 const BMCTool = lazy(() => import("@/pages/portal/BMCTool"));
 const SWOTPestleTool = lazy(() => import("@/pages/portal/SWOTPestleTool"));
@@ -107,7 +106,8 @@ function Router() {
       <Route path="/diagnostic" component={Diagnostic} />
       <Route path="/execution-gap" component={ExecutionGap} />
       <Route path="/ai-map" component={AIMap} />
-      <Route path="/signup" component={Signup} />
+      {/* The public application form is retired (decision 4.2); applications come through Contact. */}
+      <Route path="/signup"><Redirect to="/contact?offering=ai-business-studio&subject=Apply%20for%20access" replace /></Route>
       <Route path="/login" component={Login} />
       <Route path="/reset-password" component={ResetPassword} />
 

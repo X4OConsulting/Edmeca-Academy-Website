@@ -97,7 +97,8 @@ const workedWith = [
   "First Mutual Insurance",
 ];
 
-const impactSampleHref = "mailto:info@edmeca.co.za?subject=Impact%20reporting%20sample";
+// The contact form with the offering and subject preset (Phase 8).
+const impactSampleHref = "/contact?offering=impact-reporting&subject=Impact%20reporting%20sample";
 
 function SectionHeading({ eyebrow, title, id }: { eyebrow: string; title: string; id?: string }) {
   return (
@@ -294,7 +295,7 @@ export default function Home() {
               </Button>
             </Link>
             <Button variant="outline-brand" size="lg" asChild data-testid="button-impact-sample">
-              <a href={impactSampleHref}>Request an impact reporting sample</a>
+              <Link href={impactSampleHref}>Request an impact reporting sample</Link>
             </Button>
           </div>
         </div>

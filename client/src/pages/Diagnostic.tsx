@@ -24,6 +24,7 @@ export default function Diagnostic() {
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-edmeca-purple">Free diagnostics. No account.</p>
           <h1 className="mt-5 max-w-3xl text-4xl font-bold leading-tight text-edmeca-purple sm:text-5xl">Who are you answering as?</h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-edmeca-grey">Two short instruments, two different questions. Pick the one that fits and we will take you straight there.</p>
+          <p className="mt-4 max-w-2xl leading-relaxed text-edmeca-grey" data-testid="text-diagnostic-baseline">Both instruments are the baseline we use inside the Digital Leader Module and in Impact Reporting. Take one now, retake it after an intervention, and see the dot move.</p>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             <Link href="/ai-map?for=individual" className={tile}>

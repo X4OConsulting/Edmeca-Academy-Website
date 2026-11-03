@@ -78,7 +78,7 @@ describe('Login – email code (default)', () => {
   it('says it is invite-only and links to the application form', () => {
     render(<Login />);
     expect(screen.getByTestId('text-invite-only')).toHaveTextContent(/invite-only/i);
-    expect(screen.getByRole('link', { name: /apply for access/i })).toHaveAttribute('href', '/signup');
+    expect(screen.getByRole('link', { name: /apply for access/i })).toHaveAttribute('href', '/contact?offering=ai-business-studio&subject=Studio%20access');
   });
 
   it('fills in the invited email from the invite link', () => {
@@ -92,7 +92,7 @@ describe('Login – email code (default)', () => {
     render(<Login />);
     const alert = screen.getByTestId('alert-error');
     expect(alert).toHaveTextContent(/has not been invited/i);
-    expect(within(alert).getByRole('link', { name: /apply for access/i })).toHaveAttribute('href', '/signup');
+    expect(within(alert).getByRole('link', { name: /apply for access/i })).toHaveAttribute('href', '/contact?offering=ai-business-studio&subject=Studio%20access');
   });
 
   it('shows the plain-language message for a wrong code', async () => {

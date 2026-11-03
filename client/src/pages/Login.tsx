@@ -21,15 +21,16 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 type Mode = 'code' | 'password';
 
 const APPLY = 'Apply for access';
+const STUDIO_ACCESS_HREF = '/contact?offering=ai-business-studio&subject=Studio%20access';
 
-/** Turns "Apply for access" in a message into a link to the application form. */
+/** Turns "Apply for access" in a message into a link to the contact form (the public signup form is retired). */
 function withApplyLink(text: string) {
   const at = text.indexOf(APPLY);
   if (at < 0) return text;
   return (
     <>
       {text.slice(0, at)}
-      <a href="/signup" className="font-semibold underline underline-offset-2">{APPLY}</a>
+      <a href={STUDIO_ACCESS_HREF} className="font-semibold underline underline-offset-2">{APPLY}</a>
       {text.slice(at + APPLY.length)}
     </>
   );
@@ -271,7 +272,7 @@ export default function Login() {
               </p>
               <p className="text-center text-sm text-muted-foreground" data-testid="text-invite-only">
                 The AI Business Studio is invite-only.{' '}
-                <a href="/signup" className="font-medium text-primary underline-offset-2 hover:underline">Apply for access</a>
+                <a href={STUDIO_ACCESS_HREF} className="font-medium text-primary underline-offset-2 hover:underline">Apply for access</a>
               </p>
             </CardContent>
           </Card>
