@@ -159,4 +159,4 @@ Engagement tiers (from the January briefing, recorded in the design system):
 - South Africa based, working with partners across Africa and Europe.
 - Email: info@edmeca.co.za. Social: @Edmeca Pty Ltd.
 - Co-founders are presented by role only (Business Development, Marketing and Branding; Research and Content; Operations and Technology), with the narratives in the plan's Phase 7. No names, portraits with names or personal email addresses on the site.
-- Who we have worked with (text tiles until logos are cleared): Attacq and Green Seeds, Property Point and Growthpoint, EM Lyon and Stellenbosch Business School, Social Enterprise Academy, Nedbank, University of the Western Cape, Serosoft (Academia).
+- Who we have worked with (text tiles until logos are cleared): Attacq and Green Seeds, Property Point and Growthpoint, EM Lyon and Stellenbosch Business School, Social Enterprise Academy, Nedbank, University of the Western Cape, Serosoft (Academia), First Mutual Insurance (added by Raymond, 3 November 2026).

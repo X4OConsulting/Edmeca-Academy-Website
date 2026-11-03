@@ -14,7 +14,7 @@ const aiFeatures = [
   },
   {
     title: "Accept, Edit, or Reject",
-    description: "You maintain full control—AI assists, you decide what makes it into your final output.",
+    description: "You maintain full control: AI assists, you decide what makes it into your final output.",
   },
   {
     title: "Industry Intelligence",
@@ -61,7 +61,7 @@ export default function Frameworks() {
               Intelligent Assistance, Your Control
             </h2>
             <p className="mt-4 text-muted-foreground leading-relaxed">
-              Our AI doesn't replace your thinking—it amplifies it. Get instant, contextual 
+              Our AI doesn't replace your thinking; it amplifies it. Get instant, contextual 
               suggestions while maintaining complete control over your final outputs.
             </p>
             

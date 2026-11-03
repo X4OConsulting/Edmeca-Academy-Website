@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
-import { ArrowRight, Target, Lightbulb, Users, Award, Zap, Heart } from "lucide-react";
+import { ArrowRight, Target, Lightbulb, Users, Zap, Heart } from "lucide-react";
 
 const values = [
   {
@@ -18,7 +18,7 @@ const values = [
   {
     icon: Users,
     title: "Human-Centered",
-    description: "Technology amplifies human capability—our AI assists, you decide.",
+    description: "Technology amplifies human capability: our AI assists, you decide.",
   },
   {
     icon: Zap,
@@ -31,7 +31,7 @@ const approach = [
   {
     step: "1",
     title: "Framework Foundation",
-    description: "We start with proven business frameworks—Design Thinking, Business Model Canvas, SWOT, PESTLE, and more. These aren't just theory; they're battle-tested tools used by the world's best consulting firms.",
+    description: "We start with proven business frameworks: Design Thinking, Business Model Canvas, SWOT, PESTLE, and more. These aren't just theory; they're battle-tested tools used by the world's best consulting firms.",
   },
   {
     step: "2",
@@ -83,7 +83,7 @@ export default function About() {
                   figuring out what established frameworks could teach them in days.
                 </p>
                 <p>
-                  So we built EdMeCa—a platform that combines the rigor of management consulting 
+                  So we built EdMeCa, a platform that combines the rigor of management consulting 
                   frameworks with the accessibility of modern technology and AI. From Framework 
                   to Execution to Evidence.
                 </p>
@@ -166,31 +166,6 @@ export default function About() {
               </Card>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Team Placeholder */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">The Team</h2>
-          <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-            A diverse team of consultants, technologists, and entrepreneurs committed to 
-            democratizing business excellence.
-          </p>
-        </div>
-        
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="hover-elevate overflow-visible">
-              <CardContent className="p-6 text-center">
-                <div className="w-24 h-24 mx-auto rounded-full bg-secondary flex items-center justify-center">
-                  <Award className="h-10 w-10 text-muted-foreground/50" />
-                </div>
-                <h3 className="mt-4 font-semibold">Team Member</h3>
-                <p className="text-sm text-muted-foreground">Coming Soon</p>
-              </CardContent>
-            </Card>
-          ))}
         </div>
       </section>
 

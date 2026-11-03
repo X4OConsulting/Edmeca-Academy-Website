@@ -93,6 +93,7 @@ const workedWith = [
   "Nedbank",
   "University of the Western Cape",
   "Serosoft (Academia)",
+  "First Mutual Insurance",
 ];
 
 const impactSampleHref = "mailto:info@edmeca.co.za?subject=Impact%20reporting%20sample";
@@ -269,7 +270,7 @@ export default function Home() {
         </p>
 
         <h3 className="mt-16 text-2xl font-bold tracking-tight">Who we have worked with</h3>
-        <ul className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <ul className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {workedWith.map((name) => (
             <li key={name} className="flex min-h-20 items-center justify-center rounded-lg border bg-card p-4 text-center text-sm font-semibold text-primary">
               {name}

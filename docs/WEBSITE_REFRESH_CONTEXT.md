@@ -55,7 +55,7 @@ Non-gating, still open (answer any time):
 
 ## Phase 4 home page copy (approved by Raymond, 3 November 2026)
 
-Status: approved as drafted and coded in Phase 4. The four questions were settled on the draft's defaults: the [draft] lines stand; ten separate tiles; the sample button is a mailto for now and moves to the contact form in Phase 8; the hero panel carries the D-mark.
+Status: approved as drafted and coded in Phase 4. Later addition (Raymond, 3 November 2026): First Mutual Insurance added to Who we have worked with, making eleven text tiles. The four questions were settled on the draft's defaults: the [draft] lines stand; ten separate tiles; the sample button is a mailto for now and moves to the contact form in Phase 8; the hero panel carries the D-mark.
 
 Original note: Wording marked [plan] or [strategy] is lifted from the plan's Phase 4 or from `docs/STRATEGY_POSITIONS_2026-10.md` and is not up for rewording unless you want it changed. Wording marked [draft] is mine and needs your yes, edit or no. Questions are at the end.
 
@@ -135,7 +135,13 @@ Removed from the current page: the "AI-Powered Business Tools" badge and headlin
 3. "Request an impact reporting sample": a `mailto:info@edmeca.co.za` with the subject "Impact reporting sample" now, or `/contact` with the subject preset (the contact form only gains presets in Phase 8)? Draft: mailto now, switched to the form in Phase 8.
 4. Hero sage panel: the D-mark at large scale on the sage panel, as the brand's cover slide does. Confirm, or leave the panel plain.
 
-## Open items and deviations
+## Decisions after Phase 4 (Raymond, 3 November 2026)
+
+- Who we have worked with: add First Mutual Insurance (eleven text tiles; the grid is four columns on desktop). Also added to `docs/STRATEGY_POSITIONS_2026-10.md` section 6.
+- About page: remove the team section until the team members can be added. The "The Team" section with its three "Coming Soon" tiles is gone. This puts the Phase 7 co-founder role cards (decision 4.4) on hold: Phase 7 does not add a team or co-founder section until Raymond says the team can be shown.
+- Engagement Options: include an executive masterclass. Added now to the current page as the first card, "Executive Masterclass", worded from the strategy file's "AI for Leaders" executive session and the Digital Leadership positioning. Phase 6 keeps it when it rewrites the page (with no price, per decision 4.6). Open: the brand README calls this programme "AI Masterclass for Executives"; confirm which name to use.
+
+
 
 - Evidence figures (TODO, Raymond): the two programme-type case tiles (an enterprise and supplier development cohort; an entrepreneur bootcamp run with an accelerator) are not built until the figures are supplied. Nothing goes on the page meanwhile.
 - README branch table (Phase 0, needs a decision): the plan says origin has only `main`, but on 3 November 2026 origin still has `staging`, `development` and many feature branches, and recent releases went through `staging` (PRs 22 to 27). The README was therefore not rewritten to say "only `main`"; it keeps the `staging` row and adds that Vercel previews are the review surface, with the `strategy-updates` preview named. Raymond to confirm whether `staging` should be dropped from the README.
@@ -153,6 +159,8 @@ Removed from the current page: the "AI-Powered Business Tools" badge and headlin
 - Phase 3, Login: the heading is now the page `h1`. The "Apply for access" link still points to `/signup`; Phase 8 routes it to `/contact`.
 - "Powered by X4O" kept as a small credit until the non-gating answer says otherwise. LinkedIn URL not yet linked; the handle shows as text.
 
+- Em dash checks before 3 November 2026 were invalid: `grep` on this machine is ugrep, which does not match the plan's `LC_ALL=C grep -P` byte pattern, so it reported nothing even where em dashes existed. Checks now use Python (`'\u2014' in text`). Re-run result: marketing pages had seven (About 3, Frameworks 2, Engagement 1, Signup 1) plus one in `ExecutionGap.tsx`; all fixed by punctuation only. Home, the shared chrome, `index.html`, the README and this file have none. Still present, out of scope: portal pages (142 in `pages/portal/`), `FloatingChat.tsx`, `ui/chart.tsx`, `use-realtime.ts`, `exportReport.ts`, `queryKeys.ts` (mostly comments), and `tests/mobile/mobile.spec.ts`. No section symbols anywhere in `client/`. No commit message on the branch has an em dash.
+
 ## Change log
 
 | Date | Phase | Commit | Change |
@@ -165,3 +173,4 @@ Removed from the current page: the "AI-Powered Business Tools" badge and headlin
 
 | 3 Nov 2026 | 4 (draft) | see git log | Home page copy draft written above for approval. No code changed. |
 | 3 Nov 2026 | 4 | see git log | Home page rebuilt to the approved copy in eight sections: split hero with the D-mark on a sage panel; blue-deep statement band with the long-form value statement; Who we develop (three cards, Youthpreneur tagged in development); Who commissions our programmes (five text tiles and the co-branding line); What we do (four offering group cards, link to `/solutions`); How we work (four steps and the AI Enablement Map card); Evidence at `#impact` (four claims, the measurement line, ten text tiles for Who we have worked with); sage closing CTA with Book a discovery call and a mailto for an impact reporting sample. Testimonials, the tools grid and all free sign-up lines removed. No figures and no case tiles. Em dash grep clean. Screenshots in `docs/refresh-screenshots/phase-4/`. |
+| 3 Nov 2026 | 4 (follow-up) | see git log | First Mutual Insurance added to the wall; About team section removed; Executive Masterclass card added to Engagement Options; em dashes removed from the marketing pages and `ExecutionGap.tsx`; em dash check method corrected. |

@@ -29,7 +29,7 @@ const signupFormSchema = z.object({
   interestType: z.enum(["entrepreneur", "programme", "other"]),
   motivation: z
     .string()
-    .min(20, "Please tell us a little more — at least 20 characters"),
+    .min(20, "Please tell us a little more, at least 20 characters"),
 });
 
 type SignupFormValues = z.infer<typeof signupFormSchema>;

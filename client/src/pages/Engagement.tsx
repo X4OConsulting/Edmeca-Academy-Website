@@ -2,9 +2,27 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
-import { ArrowRight, CheckCircle2, Star, Zap, Crown } from "lucide-react";
+import { ArrowRight, Briefcase, CheckCircle2, Star, Zap, Crown } from "lucide-react";
 
+// Executive Masterclass added at Raymond's request (3 November 2026); wording from the strategy
+// file's "AI for Leaders" executive session and Digital Leadership positioning.
 const tiers = [
+  {
+    icon: Briefcase,
+    name: "Executive Masterclass",
+    subtitle: "For leadership teams",
+    price: "Custom",
+    duration: "Executive session",
+    description: "An executive session on Digital Leadership: enough insight to lead where digital, AI and cyber risk shape the business.",
+    features: [
+      "Digital Leadership for executives and management teams",
+      "AI, digital and cyber risk in the business",
+      "Leads into the AI Catalyst Journey, a six-session programme for teams",
+    ],
+    ideal: "Corporates and skills development foundations, buying for their executives and management teams.",
+    cta: "Book a discovery call",
+    popular: false,
+  },
   {
     icon: Zap,
     name: "Focused Session",
@@ -92,7 +110,7 @@ export default function Engagement() {
               Engagement Options
             </h1>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-              Choose the level of support that matches your needs—from focused sessions 
+              Choose the level of support that matches your needs, from focused sessions 
               to comprehensive entrepreneurial partnerships.
             </p>
           </div>
@@ -101,7 +119,7 @@ export default function Engagement() {
 
       {/* Pricing Tiers */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8">
           {tiers.map((tier) => (
             <Card 
               key={tier.name} 
