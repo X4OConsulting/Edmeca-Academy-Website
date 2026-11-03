@@ -47,7 +47,7 @@ Non-gating, still open (answer any time):
 - [x] Stop for Raymond's review of the Phase 3 preview (go-ahead for Phase 4 given 3 November 2026)
 - [x] Phase 4: home page (copy approved 3 November 2026)
 - [x] Phase 5: Solutions and AI Business Studio
-- [ ] Phase 6: Engagement
+- [x] Phase 6: Engagement
 - [ ] Phase 7: About
 - [ ] Phase 8: Diagnostic, Contact, Login, Signup
 - [ ] Phase 9: legal pages
@@ -177,3 +177,4 @@ Removed from the current page: the "AI-Powered Business Tools" badge and headlin
 | 3 Nov 2026 | 4 (fix) | see git log | Impact link fixed for arrivals from other pages: Home scrolls to the URL hash once it has rendered (before this, `/#impact` opened at the top of the page). Phase 5 needs the same for the `/solutions#...` anchors. |
 | 3 Nov 2026 | 4 (follow-up) | see git log | Masterclass card renamed "AI Masterclass for Executives". |
 | 3 Nov 2026 | 5 | see git log | Solutions rebuilt as the offering stack: proposition intro, group jump links, the Digital Leadership paragraph once (blue-deep band), then the nine offerings in four groups at `#programmes`, `#evidence`, `#pathways` and `#studio`, each card with eyebrow, title, one sentence, For line and a contact link with the offering preset; Youthpreneur tagged In development. `Frameworks.tsx` renamed `Studio.tsx` and rewritten as the AI Business Studio page at `/studio` (Studio description, the six portal tools as post-programme access, access panel). Redirects: `/frameworks` to `/studio`; `/solutions/entrepreneurs` and `/solutions/programmes` to `/solutions#programmes`. New `useScrollToHash` hook shared by Home and Solutions. `.lighthouserc.json` and the Playwright suites now use `/studio`. No em dashes or banned terms on either page. Screenshots in `docs/refresh-screenshots/phase-5/`. |
+| 3 Nov 2026 | 6 | see git log | Engagement rebuilt: hero; Where to start with Impact Reporting on its own (the entry product) and the AI Masterclass for Executives; the three design-system tiers (Focused Session, Mid-Tier, Full Journey as the inverted blue-deep card) with Book a discovery call; FAQ with the rate-card answer; closing CTA. Removed: Most Popular, Custom prices, durations, Unlimited platform usage, Email and Priority support, White-label options, free consultation. No em dashes. Screenshots in `docs/refresh-screenshots/phase-6/`. |

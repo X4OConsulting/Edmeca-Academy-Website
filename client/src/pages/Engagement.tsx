@@ -1,100 +1,90 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
-import { ArrowRight, Briefcase, CheckCircle2, Star, Zap, Crown } from "lucide-react";
+import { ArrowRight, BarChart3, Briefcase, CheckCircle2, Crown, Star, Zap } from "lucide-react";
 
-// AI Masterclass for Executives added at Raymond's request (3 November 2026); wording from the strategy
-// file's "AI for Leaders" executive session and Digital Leadership positioning.
-const tiers = [
+// Tier names and descriptions from the design system (brand/README.md, "Three engagement tiers").
+// No prices, badges or support promises (decision 4.6); pricing is set in a proposal.
+
+const entryPoints = [
   {
-    icon: Briefcase,
-    name: "AI Masterclass for Executives",
-    subtitle: "For leadership teams",
-    price: "Custom",
-    duration: "Executive session",
-    description: "An executive session on Digital Leadership: enough insight to lead where digital, AI and cyber risk shape the business.",
-    features: [
-      "Digital Leadership for executives and management teams",
-      "AI, digital and cyber risk in the business",
-      "Leads into the AI Catalyst Journey, a six-session programme for teams",
-    ],
-    ideal: "Corporates and skills development foundations, buying for their executives and management teams.",
-    cta: "Book a discovery call",
-    popular: false,
+    icon: BarChart3,
+    eyebrow: "Entry point",
+    title: "Impact Reporting on its own",
+    description:
+      "Baseline, mid and post assessments, with a consolidated report within 10 business days, formatted for funder reporting.",
+    forLine: "ESD programme owners, funders and learning institutions",
+    cta: "Ask about Impact Reporting",
+    href: "/contact?offering=impact-reporting",
   },
+  {
+    // Added at Raymond's request (3 November 2026); name from the brand book.
+    icon: Briefcase,
+    eyebrow: "For leadership teams",
+    title: "AI Masterclass for Executives",
+    description:
+      "An executive session on Digital Leadership: enough insight to lead where digital, AI and cyber risk shape the business. It leads into the AI Catalyst Journey, a six-session programme for teams.",
+    forLine: "Corporates and skills development foundations, buying for their executives and management teams",
+    cta: "Ask about the masterclass",
+    href: "/contact?offering=ai-for-leaders",
+  },
+];
+
+const tiers = [
   {
     icon: Zap,
     name: "Focused Session",
-    subtitle: "Single Intervention",
-    price: "Custom",
-    duration: "1-2 days",
-    description: "A targeted workshop or session focused on a specific framework or business challenge.",
-    features: [
-      "Single framework deep-dive",
-      "BMC workshop OR design sprint OR pitch prep",
-      "Hands-on tool access during session",
-      "Exported deliverables",
-      "Follow-up resources",
-    ],
-    ideal: "Entrepreneurs needing quick clarity on a specific area, or teams wanting a focused intervention.",
-    cta: "Book a Session",
-    popular: false,
+    description: "A single targeted intervention, for example a BMC workshop, a design sprint or pitch prep.",
+    points: ["One targeted intervention", "A clear, scoped outcome", "A usable output from the session"],
+    inverted: false,
   },
   {
     icon: Star,
-    name: "Mid-Tier Journey",
-    subtitle: "Targeted Interventions",
-    price: "Custom",
-    duration: "4-8 weeks",
-    description: "A structured series of 4-5 interventions covering key business frameworks and tools.",
-    features: [
-      "4-5 targeted framework sessions",
-      "Full platform access during engagement",
-      "AI-assisted tool guidance",
-      "Progress tracking",
-      "Pitch deck development",
-      "Email support",
-    ],
-    ideal: "Entrepreneurs building their first business model and investor pitch, or programmes running intensive bootcamps.",
-    cta: "Learn More",
-    popular: true,
+    name: "Mid-Tier",
+    description: "4 to 5 targeted interventions, scoped outcomes, measurable participant progression.",
+    points: ["4 to 5 targeted interventions", "Scoped outcomes", "Measurable participant progression"],
+    inverted: false,
   },
   {
     icon: Crown,
     name: "Full Journey",
-    subtitle: "Comprehensive Partnership",
-    price: "Custom",
-    duration: "6-12 months",
-    description: "End-to-end entrepreneurial support from ideation to investor-ready, with comprehensive tooling.",
-    features: [
-      "Complete framework library access",
-      "Unlimited platform usage",
-      "AI-powered tools and suggestions",
-      "Baseline-to-outcome tracking",
-      "Regular coaching sessions",
-      "Priority support",
-      "White-label options for programmes",
-      "M&E reporting and dashboards",
+    description:
+      "A 12-month partnership with comprehensive tooling, multiple touchpoints, and baseline-to-outcome impact reporting.",
+    points: [
+      "12-month partnership",
+      "Comprehensive tooling",
+      "Multiple touchpoints",
+      "Baseline-to-outcome impact reporting",
+      "Studio access after the programme",
     ],
-    ideal: "Serious entrepreneurs building investable businesses, or development programmes seeking scalable, measurable interventions.",
-    cta: "Talk to Our Team",
-    popular: false,
+    inverted: true,
   },
 ];
 
 const faq = [
   {
-    question: "How do I know which tier is right for me?",
-    answer: "It depends on your goals and timeline. If you need quick clarity on one area, start with a Focused Session. If you're building a complete business case, the Mid-Tier Journey gives you everything you need. For long-term support and comprehensive tooling, the Full Journey is ideal.",
+    question: "How do we choose the right engagement?",
+    answer:
+      "Start from the outcome you need. A Focused Session solves one scoped problem, a Mid-Tier engagement builds measurable progression over 4 to 5 interventions, and a Full Journey is a 12-month partnership with impact reporting from baseline to outcome. If you need evidence first, start with Impact Reporting on its own. We agree the fit on a discovery call.",
   },
   {
-    question: "Can programmes get custom pricing?",
-    answer: "Absolutely. We work with enterprise development programmes, incubators, and accelerators on custom engagements that include multi-cohort access, M&E reporting, and white-label options. Contact us for a tailored proposal.",
+    question: "How is pricing set?",
+    answer:
+      "Pricing is built from a component catalogue and a rate card by client type, and any discounts are stated upfront. A proposal follows within five working days of a discovery call.",
   },
   {
-    question: "What kind of support is included?",
-    answer: "All tiers include access to our help resources and community. Mid-Tier includes email support, and Full Journey includes priority support with dedicated check-ins.",
+    question: "Can the programme carry our brand?",
+    answer: "We deliver under the EdMeCa brand, co-branded with your programme where that helps.",
+  },
+  {
+    question: "How do you measure results?",
+    answer:
+      "We take a baseline, a mid-point and a post-programme assessment. Where a client needs financial growth and job creation reported, we define the measure, the timeframe and the attribution method before the programme starts.",
+  },
+  {
+    question: "What happens after the programme?",
+    answer: "Participants keep working in the AI Business Studio, which is offered as post-programme access, not a subscription.",
   },
 ];
 
@@ -102,77 +92,40 @@ export default function Engagement() {
   return (
     <MarketingLayout>
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
-              Engagement Options
-            </h1>
-            <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-              Choose the level of support that matches your needs, from focused sessions 
-              to comprehensive entrepreneurial partnerships.
-            </p>
-          </div>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+        <div className="max-w-3xl">
+          <p className="eyebrow">Engagement</p>
+          <h1 className="mt-4 text-4xl sm:text-5xl font-bold tracking-tight leading-tight">Three ways to engage.</h1>
+          <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
+            Start with Impact Reporting or an executive masterclass, then choose the depth of engagement that fits your
+            programme. Every engagement is scoped with you and set out in a proposal within five working days of a
+            discovery call.
+          </p>
         </div>
       </section>
 
-      {/* Pricing Tiers */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8">
-          {tiers.map((tier) => (
-            <Card 
-              key={tier.name} 
-              className={`relative hover-elevate overflow-visible h-full flex flex-col ${tier.popular ? 'ring-2 ring-accent' : ''}`}
-            >
-              {tier.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
-                  Most Popular
-                </div>
-              )}
-              <CardHeader className="pb-4">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${tier.popular ? 'bg-secondary text-primary' : 'bg-primary/10 text-primary dark:bg-accent/10 dark:text-accent'}`}>
-                    <tier.icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">{tier.name}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{tier.subtitle}</p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col">
-                <div className="mb-4">
-                  <p className="text-2xl font-bold">{tier.price}</p>
-                  <p className="text-sm text-muted-foreground">{tier.duration}</p>
-                </div>
-                
-                <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
-                  {tier.description}
+      {/* Entry points */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 lg:pb-20">
+        <p className="eyebrow mb-6">Where to start</p>
+        <div className="grid md:grid-cols-2 gap-6">
+          {entryPoints.map((entry) => (
+            <Card key={entry.title} className="rounded-2xl flex flex-col">
+              <CardContent className="p-6 lg:p-8 flex flex-1 flex-col">
+                <entry.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                <p className="eyebrow mt-4">{entry.eyebrow}</p>
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-primary">{entry.title}</h2>
+                <p className="mt-3 text-muted-foreground leading-relaxed">{entry.description}</p>
+                <p className="mt-4 text-sm">
+                  <span className="font-semibold">For: </span>
+                  <span className="text-muted-foreground">{entry.forLine}</span>
                 </p>
-                
-                <ul className="space-y-2 mb-6 flex-1">
-                  {tier.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-sm">
-                      <CheckCircle2 className="h-4 w-4 text-brand-green-deep mt-0.5 flex-shrink-0" />
-                      <span className="text-muted-foreground">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <div className="pt-4 border-t">
-                  <p className="text-xs text-muted-foreground mb-4">
-                    <strong>Ideal for:</strong> {tier.ideal}
-                  </p>
-                  <Link href="/contact" asChild>
-                    <Button 
-                      className="w-full" 
-                      variant={tier.popular ? "default" : "outline"}
-                      data-testid={`button-tier-${tier.name.toLowerCase().replace(/\s+/g, "-")}`}
-                    >
-                      {tier.cta}
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
+                <div className="mt-auto pt-8">
+                  <Link
+                    href={entry.href}
+                    className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+                  >
+                    {entry.cta}
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
                 </div>
               </CardContent>
@@ -181,38 +134,77 @@ export default function Engagement() {
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* The three tiers */}
       <section className="bg-card border-y">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Frequently Asked Questions</h2>
-          </div>
-          
-          <div className="space-y-6">
-            {faq.map((item) => (
-              <div key={item.question} className="border-b pb-6 last:border-0">
-                <h3 className="font-semibold mb-2">{item.question}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.answer}</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+          <p className="eyebrow">Three ways to engage</p>
+          <h2 className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight mb-10">Choose the depth that fits.</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {tiers.map((tier) => (
+              <div
+                key={tier.name}
+                className={`rounded-2xl border p-6 lg:p-8 flex flex-col shadow-sm ${
+                  tier.inverted ? "bg-brand-blue-deep text-white border-brand-blue-deep" : "bg-background"
+                }`}
+              >
+                <tier.icon className={`h-6 w-6 ${tier.inverted ? "text-accent" : "text-primary"}`} aria-hidden="true" />
+                <h3 className={`mt-4 text-xl font-semibold ${tier.inverted ? "text-white" : "text-primary"}`}>{tier.name}</h3>
+                <p className={`mt-3 leading-relaxed ${tier.inverted ? "text-white/85" : "text-muted-foreground"}`}>
+                  {tier.description}
+                </p>
+                <ul className="mt-6 space-y-2 flex-1">
+                  {tier.points.map((point) => (
+                    <li key={point} className="flex items-start gap-2 text-sm">
+                      <CheckCircle2
+                        className={`h-4 w-4 mt-0.5 shrink-0 ${tier.inverted ? "text-accent" : "text-primary"}`}
+                        aria-hidden="true"
+                      />
+                      <span className={tier.inverted ? "text-white/90" : "text-muted-foreground"}>{point}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-8">
+                  <Link href="/contact" asChild>
+                    <Button
+                      variant={tier.inverted ? "cta" : "outline-brand"}
+                      className="w-full"
+                      data-testid={`button-tier-${tier.name.toLowerCase().replace(/\s+/g, "-")}`}
+                    >
+                      Book a discovery call
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-        <div className="relative overflow-hidden bg-secondary border border-border rounded-2xl p-8 lg:p-16 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-            Let's Find the Right Fit
-          </h2>
-          <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
-            Book a free consultation call and we'll help you identify the engagement 
-            option that best matches your goals and budget.
+      {/* FAQ */}
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
+        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-10">Questions we are asked</h2>
+        <div className="space-y-6">
+          {faq.map((item) => (
+            <div key={item.question} className="border-b pb-6 last:border-0">
+              <h3 className="font-semibold text-primary mb-2">{item.question}</h3>
+              <p className="text-muted-foreground leading-relaxed">{item.answer}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Closing CTA */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 lg:pb-24">
+        <div className="rounded-2xl border bg-secondary p-8 lg:p-16 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Let's talk about your programme.</h2>
+          <p className="mt-4 max-w-xl mx-auto text-muted-foreground">
+            A proposal follows within five working days of a discovery call.
           </p>
           <div className="mt-8">
             <Link href="/contact" asChild>
-              <Button size="lg" data-testid="button-engagement-consult">
-                Book a Consultation
+              <Button variant="cta" size="lg" data-testid="button-engagement-consult">
+                Book a discovery call
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
