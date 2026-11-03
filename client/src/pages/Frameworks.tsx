@@ -31,15 +31,14 @@ export default function Frameworks() {
     <MarketingLayout>
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-[#f7ede4] text-gray-800 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+            <div className="inline-flex items-center gap-2 bg-secondary text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-6">
               <Sparkles className="w-4 h-4" />
               AI-Enhanced Frameworks
             </div>
-            <h1 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight">
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
               Proven Frameworks, Powered by AI
             </h1>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
@@ -54,11 +53,11 @@ export default function Frameworks() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div>
-            <div className="inline-flex items-center gap-2 bg-accent/10 text-orange-700 dark:text-accent px-3 py-1 rounded-full text-sm font-medium mb-4">
+            <div className="inline-flex items-center gap-2 bg-secondary text-primary dark:text-accent px-3 py-1 rounded-full text-sm font-medium mb-4">
               <Sparkles className="w-4 h-4" />
               AI-Powered
             </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
               Intelligent Assistance, Your Control
             </h2>
             <p className="mt-4 text-muted-foreground leading-relaxed">
@@ -80,18 +79,18 @@ export default function Frameworks() {
           </div>
           
           <div className="relative">
-            <div className="aspect-[4/3] rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border p-6 lg:p-8">
+            <div className="aspect-[4/3] rounded-xl bg-secondary border p-6 lg:p-8">
               <div className="bg-card rounded-lg shadow-lg p-4 h-full flex flex-col">
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                  <div className="w-3 h-3 rounded-full bg-green-400" />
+                  <div className="w-3 h-3 rounded-full bg-border" />
+                  <div className="w-3 h-3 rounded-full bg-border" />
+                  <div className="w-3 h-3 rounded-full bg-border" />
                 </div>
                 <div className="flex-1 space-y-3">
                   <div className="h-3 bg-muted rounded w-3/4" />
                   <div className="h-3 bg-muted rounded w-1/2" />
                   <div className="mt-4 p-3 bg-accent/10 rounded-lg border border-accent/20">
-                    <div className="flex items-center gap-2 text-xs font-medium text-orange-700 dark:text-accent">
+                    <div className="flex items-center gap-2 text-xs font-medium text-primary dark:text-accent">
                       <Sparkles className="w-3 h-3" />
                       AI Suggestion
                     </div>
@@ -112,9 +111,9 @@ export default function Frameworks() {
       </section>
 
       {/* CTA */}
-      <section className="bg-primary dark:bg-primary/90 text-primary-foreground">
+      <section className="bg-brand-blue-deep text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 text-center">
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
             Ready to Apply These Frameworks?
           </h2>
           <p className="mt-4 max-w-xl mx-auto opacity-90">

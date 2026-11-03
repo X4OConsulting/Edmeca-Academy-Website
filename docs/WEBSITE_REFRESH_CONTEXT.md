@@ -34,7 +34,7 @@ Non-gating, still open (answer any time):
 ## Phase checklist
 
 - [x] Phase 0: setup (README, this file, baseline checks)
-- [ ] Phase 1: tokens and type
+- [x] Phase 1: tokens and type
 - [ ] Phase 2: brand assets
 - [ ] Phase 3: global chrome and naming
 - [ ] Stop for Raymond's review of the Phase 3 preview
@@ -51,8 +51,14 @@ Non-gating, still open (answer any time):
 - Evidence figures (TODO, Raymond): the two programme-type case tiles (an enterprise and supplier development cohort; an entrepreneur bootcamp run with an accelerator) are not built until the figures are supplied. Nothing goes on the page meanwhile.
 - README branch table (Phase 0, needs a decision): the plan says origin has only `main`, but on 3 November 2026 origin still has `staging`, `development` and many feature branches, and recent releases went through `staging` (PRs 22 to 27). The README was therefore not rewritten to say "only `main`"; it keeps the `staging` row and adds that Vercel previews are the review surface, with the `strategy-updates` preview named. Raymond to confirm whether `staging` should be dropped from the README.
 
+- Phase 1, `font-serif` in the portal: the plan says replace every `font-serif` class and delete the serif alias, but five of the sixteen files are portal pages (`Admin`, `BMCTool`, `Dashboard`, `PitchBuilderTool`, `Profile`), which CLAUDE.md puts out of scope. Marketing pages, legal pages, `not-found` and `AIReadiness` were converted; the portal keeps its classes and `fontFamily.serif` stays as an alias of Inter, so nothing renders in a serif and Playfair is no longer requested. Drop the alias in the portal pass.
+- Phase 1, ink-10: the plan table gives `227 13% 14%`, the brand file gives `#2A2B30` (`230 7% 18%`). The brand book wins on visuals, so `--accent-foreground` uses `#2A2B30`. It still passes AA on brand green.
+- Phase 1, shared tokens: `:root` is shared with the portal, so the portal's light theme also moves from navy and orange to the brand palette. The `.dark` block and the `.diagnostic-page` overrides are untouched.
+- Phase 1, Lighthouse CI was not run locally (no `lhci` in the project dependencies); it runs in Phase 10. The diagnostic routes (`/ai-map`, `/ai-readiness`, `/execution-gap`) keep their own colours; only the serif class changed in `AIReadiness.tsx`.
+
 ## Change log
 
 | Date | Phase | Commit | Change |
 | --- | --- | --- | --- |
 | 3 Nov 2026 | 0 | see git log | Baseline on `strategy-updates`: `npm ci`, `npm run check`, `npm test` (24 files, 297 tests) and `npm run build` pass. README renamed to EdMeCa and given the review-surface note. This file created. Baseline screenshots in `docs/refresh-screenshots/phase-0/`. |
+| 3 Nov 2026 | 1 | see git log | Tokens and type. `:root` mapped to the Section 3 table with hex comments; brand tokens, `--shadow-1` to `--shadow-3`, `--shadow-ring`, motion tokens and the `.eyebrow` / `.eyebrow-on-dark` utilities added; `.dark` untouched. Tailwind: `brand-*` and `ink-*` colours, `rounded-xl` 12 px and `rounded-2xl` 16 px, brand shadows, motion durations and easings; serif aliased to Inter. Button gains `cta` (green fill, ink-10 text) and `outline-brand` variants for Phase 3. `index.html`: Playfair removed, Inter 400 to 800, JetBrains Mono kept, theme-color `#454F7E`. Marketing pages: `font-serif` replaced, gradient washes and blur blobs removed (flat cream hero, sage CTA panels with hairline), navy bands now blue-deep with green eyebrows, Tailwind green, orange and traffic-light colours replaced with brand tokens. Copy unchanged. Network log: only Inter and JetBrains Mono requested. Screenshots in `docs/refresh-screenshots/phase-1/`. |

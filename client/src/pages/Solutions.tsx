@@ -62,11 +62,10 @@ export default function Solutions() {
     <MarketingLayout>
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight">
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
               Solutions That Deliver Results
             </h1>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
@@ -86,7 +85,7 @@ export default function Solutions() {
                 <Lightbulb className="w-4 h-4" />
                 For Entrepreneurs
               </div>
-              <h2 className="font-serif text-3xl sm:text-4xl font-bold">
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
                 From Idea to Investor-Ready
               </h2>
               <p className="mt-4 text-muted-foreground leading-relaxed">
@@ -138,11 +137,11 @@ export default function Solutions() {
       </section>
 
       {/* For Programmes */}
-      <section className="bg-primary text-primary-foreground">
+      <section className="bg-brand-blue-deep text-white">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-12 sm:flex-row sm:items-center sm:px-6 lg:px-8">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Free baseline. Eight minutes.</p>
-            <h2 className="mt-2 font-serif text-3xl font-bold">Where are you on the AI Enablement Map?</h2>
+            <p className="eyebrow eyebrow-on-dark">Free baseline. Eight minutes.</p>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight">Where are you on the AI Enablement Map?</h2>
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-primary-foreground/70">Capability is what you can do with AI. Readiness is whether it will stick. Take it on your own, then retake it after an intervention to see the dot move.</p>
           </div>
           <Link href="/ai-map" asChild>
@@ -174,7 +173,7 @@ export default function Solutions() {
               <Users className="w-4 h-4" />
               For Programmes
             </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
               Scale Impact, Measure Outcomes
             </h2>
             <p className="mt-4 text-muted-foreground leading-relaxed">
@@ -191,7 +190,7 @@ export default function Solutions() {
                 "White-label options available",
               ].map((item) => (
                 <li key={item} className="flex items-center gap-3 text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 text-brand-green-deep flex-shrink-0" />
                   <span className="text-muted-foreground">{item}</span>
                 </li>
               ))}
@@ -210,9 +209,9 @@ export default function Solutions() {
       </section>
 
       {/* CTA */}
-      <section className="bg-primary dark:bg-primary/90 text-primary-foreground">
+      <section className="bg-brand-blue-deep text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 text-center">
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
             Not Sure Which Solution Fits?
           </h2>
           <p className="mt-4 max-w-xl mx-auto opacity-90">

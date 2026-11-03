@@ -6,7 +6,7 @@ const UPDATED = "15 October 2026";
 export default function Terms() {
   return (
     <MarketingLayout>
-      <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 prose prose-slate dark:prose-invert prose-headings:font-serif">
+      <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 prose prose-slate dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight">
         <h1>Terms of Service</h1>
         <p className="lead">
           These terms apply when you use edmeca.co.za and the EDMECA Academy portal, provided by Edmeca (Pty) Ltd

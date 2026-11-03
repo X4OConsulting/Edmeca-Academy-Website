@@ -9,6 +9,28 @@ export default {
         lg: ".5625rem", /* 9px */
         md: ".375rem", /* 6px */
         sm: ".1875rem", /* 3px */
+        xl: "12px", /* hero and programme cards */
+        "2xl": "16px", /* hero and programme cards */
+      },
+      boxShadow: {
+        sm: "var(--shadow-1)",
+        DEFAULT: "var(--shadow-2)",
+        md: "var(--shadow-2)",
+        lg: "var(--shadow-3)",
+        xl: "var(--shadow-3)",
+        "brand-1": "var(--shadow-1)",
+        "brand-2": "var(--shadow-2)",
+        "brand-3": "var(--shadow-3)",
+        ring: "var(--shadow-ring)",
+      },
+      transitionDuration: {
+        fast: "120ms",
+        base: "200ms",
+        slow: "320ms",
+      },
+      transitionTimingFunction: {
+        "brand-out": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "brand-standard": "cubic-bezier(0.2, 0, 0, 1)",
       },
       colors: {
         // Flat / base colors (regular buttons)
@@ -52,6 +74,22 @@ export default {
           border: "var(--destructive-border)",
         },
         ring: "hsl(var(--ring) / <alpha-value>)",
+        brand: {
+          green: "hsl(var(--brand-green) / <alpha-value>)",
+          "green-deep": "hsl(var(--brand-green-deep) / <alpha-value>)",
+          "green-soft": "hsl(var(--brand-green-soft) / <alpha-value>)",
+          "green-tint": "hsl(var(--brand-green-tint) / <alpha-value>)",
+          blue: "hsl(var(--brand-blue) / <alpha-value>)",
+          "blue-deep": "hsl(var(--brand-blue-deep) / <alpha-value>)",
+          coral: "hsl(var(--brand-coral) / <alpha-value>)",
+          gray: "hsl(var(--brand-gray) / <alpha-value>)",
+          cream: "hsl(var(--cream) / <alpha-value>)",
+        },
+        ink: {
+          "10": "hsl(var(--ink-10) / <alpha-value>)",
+          "40": "hsl(var(--ink-40) / <alpha-value>)",
+          "80": "hsl(var(--ink-80) / <alpha-value>)",
+        },
         chart: {
           "1": "hsl(var(--chart-1) / <alpha-value>)",
           "2": "hsl(var(--chart-2) / <alpha-value>)",
@@ -97,7 +135,8 @@ export default {
       },
       fontFamily: {
         sans: ["var(--font-sans)"],
-        serif: ["var(--font-serif)"],
+        // Playfair Display is removed; serif aliases Inter until the portal pass drops its font-serif classes
+        serif: ["var(--font-sans)"],
         mono: ["var(--font-mono)"],
       },
       keyframes: {

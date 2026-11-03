@@ -104,18 +104,15 @@ export default function Home() {
     <MarketingLayout>
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-        <div className="absolute top-20 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-[#f7ede4] text-black px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+            <div className="inline-flex items-center gap-2 bg-secondary text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-6">
               <Sparkles className="w-4 h-4" />
               AI-Powered Business Tools
             </div>
             
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
               Turning Strategy into{" "}
               <span className="text-primary dark:text-accent">Execution</span>{" "}
               - Backed by Evidence
@@ -141,11 +138,11 @@ export default function Home() {
             
             <div className="mt-8 flex items-center justify-center gap-6 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <CheckCircle2 className="h-4 w-4 text-brand-green-deep" />
                 Free to start
               </span>
               <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <CheckCircle2 className="h-4 w-4 text-brand-green-deep" />
                 No credit card required
               </span>
             </div>
@@ -153,11 +150,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-primary text-primary-foreground">
+      <section className="bg-brand-blue-deep text-white">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-12 sm:flex-row sm:items-center sm:px-6 lg:px-8">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Free baseline. Eight minutes.</p>
-            <h2 className="mt-2 font-serif text-3xl font-bold">Where are you on the AI Enablement Map?</h2>
+            <p className="eyebrow eyebrow-on-dark">Free baseline. Eight minutes.</p>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight">Where are you on the AI Enablement Map?</h2>
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-primary-foreground/70">Capability is what you can do with AI. Readiness is whether it will stick. Most businesses have one without the other. Find out which, and what moves you.</p>
           </div>
           <div className="flex shrink-0 flex-wrap gap-3">
@@ -175,7 +172,7 @@ export default function Home() {
       <section className="bg-card border-y">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
           <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold">Who We Serve</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Who We Serve</h2>
             <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
               From bold entrepreneurs to enterprise leaders with a founder's mindset; we craft solutions that match your ambition.
             </p>
@@ -190,7 +187,7 @@ export default function Home() {
                       <track.icon className="h-6 w-6" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-serif text-xl font-semibold">{track.title}</h3>
+                      <h3 className="text-xl font-semibold text-primary">{track.title}</h3>
                       <p className="text-sm text-muted-foreground mt-1">{track.subtitle}</p>
                     </div>
                   </div>
@@ -198,7 +195,7 @@ export default function Home() {
                   <ul className="mt-6 space-y-3">
                     {track.outcomes.map((outcome) => (
                       <li key={outcome} className="flex items-start gap-3 text-sm">
-                        <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="h-4 w-4 text-brand-green-deep mt-0.5 flex-shrink-0" />
                         <span className="text-muted-foreground">{outcome}</span>
                       </li>
                     ))}
@@ -220,7 +217,7 @@ export default function Home() {
       {/* Features Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
         <div className="text-center mb-12">
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold">AI-Powered Business Tools</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">AI-Powered Business Tools</h2>
           <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
             Everything you need to transform business ideas into actionable plans, 
             guided by proven frameworks and enhanced by AI.
@@ -254,17 +251,17 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      <section className="bg-primary dark:bg-primary/90 text-primary-foreground">
+      <section className="bg-brand-blue-deep text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
           <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold">Trusted by Entrepreneurs & Programmes</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Trusted by Entrepreneurs & Programmes</h2>
           </div>
           
           <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
             {testimonials.map((testimonial, index) => (
               <div
                 key={index}
-                className="bg-white/10 backdrop-blur-sm rounded-lg p-6 lg:p-8"
+                className="bg-white/10 rounded-lg p-6 lg:p-8"
               >
                 <blockquote className="text-sm leading-relaxed opacity-90">
                   "{testimonial.quote}"
@@ -286,12 +283,10 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-        <div className="relative overflow-hidden bg-gradient-to-br from-accent/10 via-primary/5 to-accent/10 rounded-2xl p-8 lg:p-16 text-center">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary/20 rounded-full blur-3xl" />
+        <div className="relative overflow-hidden bg-secondary border border-border rounded-2xl p-8 lg:p-16 text-center">
           
           <div className="relative">
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
               Ready to Transform Your Ideas?
             </h2>
             <p className="mt-4 text-muted-foreground max-w-xl mx-auto">

@@ -85,11 +85,10 @@ export default function Engagement() {
     <MarketingLayout>
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight">
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
               Engagement Options
             </h1>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
@@ -109,13 +108,13 @@ export default function Engagement() {
               className={`relative hover-elevate overflow-visible h-full flex flex-col ${tier.popular ? 'ring-2 ring-accent' : ''}`}
             >
               {tier.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-700 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
                   Most Popular
                 </div>
               )}
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${tier.popular ? 'bg-accent/10 text-accent' : 'bg-primary/10 text-primary dark:bg-accent/10 dark:text-accent'}`}>
+                  <div className={`p-2 rounded-lg ${tier.popular ? 'bg-secondary text-primary' : 'bg-primary/10 text-primary dark:bg-accent/10 dark:text-accent'}`}>
                     <tier.icon className="h-5 w-5" />
                   </div>
                   <div>
@@ -137,7 +136,7 @@ export default function Engagement() {
                 <ul className="space-y-2 mb-6 flex-1">
                   {tier.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2 text-sm">
-                      <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                      <CheckCircle2 className="h-4 w-4 text-brand-green-deep mt-0.5 flex-shrink-0" />
                       <span className="text-muted-foreground">{feature}</span>
                     </li>
                   ))}
@@ -168,7 +167,7 @@ export default function Engagement() {
       <section className="bg-card border-y">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
           <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold">Frequently Asked Questions</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Frequently Asked Questions</h2>
           </div>
           
           <div className="space-y-6">
@@ -184,8 +183,8 @@ export default function Engagement() {
 
       {/* CTA */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-        <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10 rounded-2xl p-8 lg:p-16 text-center">
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold">
+        <div className="relative overflow-hidden bg-secondary border border-border rounded-2xl p-8 lg:p-16 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
             Let's Find the Right Fit
           </h2>
           <p className="mt-4 text-muted-foreground max-w-xl mx-auto">

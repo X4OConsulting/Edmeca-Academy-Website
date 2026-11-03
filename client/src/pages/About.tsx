@@ -50,11 +50,10 @@ export default function About() {
     <MarketingLayout>
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
           <div className="max-w-3xl">
-            <h1 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight">
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
               Making Business Frameworks Work for Everyone
             </h1>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
@@ -71,7 +70,7 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div>
-              <h2 className="font-serif text-3xl sm:text-4xl font-bold">Our Story</h2>
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Our Story</h2>
               <div className="mt-6 space-y-4 text-muted-foreground leading-relaxed">
                 <p>
                   EdMeCa was born from a simple observation: entrepreneurs across Africa and emerging 
@@ -102,11 +101,10 @@ export default function About() {
                   decoding="async"
                   className="absolute inset-0 h-full w-full object-cover"
                 />
-                {/* Darkens the lower part so the caption reads on any part of the photo. */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" aria-hidden="true" />
-                <figcaption className="absolute inset-x-0 bottom-0 p-8 text-white">
+                {/* Flat brand panel so the caption reads on any part of the photo (no gradients). */}
+                <figcaption className="absolute inset-x-0 bottom-0 p-8 bg-brand-blue-deep text-white">
                   <Heart className="h-8 w-8 text-white/90" aria-hidden="true" />
-                  <p className="mt-3 font-serif text-xl font-semibold">Built with Purpose</p>
+                  <p className="mt-3 text-xl font-semibold">Built with Purpose</p>
                   <p className="mt-1 text-sm text-white/85">For entrepreneurs, by entrepreneurs</p>
                 </figcaption>
               </figure>
@@ -118,7 +116,7 @@ export default function About() {
       {/* Approach */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
         <div className="text-center mb-12">
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold">Our Approach</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Our Approach</h2>
           <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
             A systematic journey from understanding to action to measurable results.
           </p>
@@ -127,7 +125,7 @@ export default function About() {
         <div className="grid md:grid-cols-3 gap-8">
           {approach.map((item) => (
             <div key={item.step} className="relative">
-              <div className="absolute -top-2 -left-2 w-12 h-12 rounded-full bg-primary/10 text-primary dark:bg-accent/10 dark:text-accent flex items-center justify-center font-serif text-xl font-bold">
+              <div className="absolute -top-2 -left-2 w-12 h-12 rounded-full bg-primary/10 text-primary dark:bg-accent/10 dark:text-accent flex items-center justify-center text-xl font-bold">
                 {item.step}
               </div>
               <Card className="pt-8 h-full">
@@ -147,7 +145,7 @@ export default function About() {
       <section className="bg-card border-y">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
           <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold">Our Values</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Our Values</h2>
             <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
               The principles that guide everything we build and deliver.
             </p>
@@ -174,7 +172,7 @@ export default function About() {
       {/* Team Placeholder */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
         <div className="text-center mb-12">
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold">The Team</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">The Team</h2>
           <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
             A diverse team of consultants, technologists, and entrepreneurs committed to 
             democratizing business excellence.
@@ -185,7 +183,7 @@ export default function About() {
           {[1, 2, 3].map((i) => (
             <Card key={i} className="hover-elevate overflow-visible">
               <CardContent className="p-6 text-center">
-                <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                <div className="w-24 h-24 mx-auto rounded-full bg-secondary flex items-center justify-center">
                   <Award className="h-10 w-10 text-muted-foreground/50" />
                 </div>
                 <h3 className="mt-4 font-semibold">Team Member</h3>
@@ -197,9 +195,9 @@ export default function About() {
       </section>
 
       {/* CTA */}
-      <section className="bg-primary dark:bg-primary/90 text-primary-foreground">
+      <section className="bg-brand-blue-deep text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 text-center">
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
             Ready to Work With Us?
           </h2>
           <p className="mt-4 max-w-xl mx-auto opacity-90">

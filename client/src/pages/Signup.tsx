@@ -74,10 +74,9 @@ export default function Signup() {
     <MarketingLayout>
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
           <div className="max-w-3xl">
-            <h1 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight">
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
               Apply for Access
             </h1>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
@@ -97,10 +96,10 @@ export default function Signup() {
             {submitted ? (
               <Card>
                 <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 mx-auto rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
-                    <CheckCircle2 className="h-8 w-8 text-green-600" />
+                  <div className="w-16 h-16 mx-auto rounded-full bg-secondary flex items-center justify-center mb-4">
+                    <CheckCircle2 className="h-8 w-8 text-brand-green-deep" />
                   </div>
-                  <h2 className="font-serif text-2xl font-bold">
+                  <h2 className="text-2xl font-bold tracking-tight">
                     Application Submitted!
                   </h2>
                   <p className="mt-3 text-muted-foreground">
@@ -117,7 +116,7 @@ export default function Signup() {
             ) : (
               <Card>
                 <CardContent className="p-6 lg:p-8">
-                  <h2 className="font-serif text-2xl font-bold mb-2">
+                  <h2 className="text-2xl font-bold mb-2 tracking-tight">
                     Access Application
                   </h2>
                   <p className="text-sm text-muted-foreground mb-6">
@@ -368,7 +367,7 @@ export default function Signup() {
               </CardContent>
             </Card>
 
-            <div className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl">
+            <div className="p-6 bg-secondary border border-border rounded-xl">
               <h3 className="font-semibold mb-2">Review Time</h3>
               <p className="text-sm text-muted-foreground">
                 Applications are reviewed within 2–3 business days. If you have

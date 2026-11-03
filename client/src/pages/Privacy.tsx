@@ -18,7 +18,7 @@ const PROCESSORS: { name: string; purpose: string; data: string; where: string }
 export default function Privacy() {
   return (
     <MarketingLayout>
-      <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 prose prose-slate dark:prose-invert prose-headings:font-serif">
+      <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 prose prose-slate dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight">
         <h1>Privacy Policy</h1>
         <p className="lead">
           This policy explains what personal information Edmeca (Pty) Ltd ("EDMECA", "we") collects through edmeca.co.za,
