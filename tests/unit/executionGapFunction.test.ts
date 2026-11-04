@@ -219,7 +219,7 @@ describe("execution gap function — DeepSeek elaboration", () => {
       return { ok: true, json: async () => ({ ok: true }) };
     }) as never;
   }
-  const ok = (content: string) => () => ({ ok: true, json: async () => ({ choices: [{ message: { content } }] }) });
+  const ok = (content: string) => () => ({ ok: true, text: async () => JSON.stringify({ choices: [{ message: { content } }] }) });
   const LONG = "Expanded report. ".repeat(80);
 
   const unlock = (extra: Record<string, unknown> = {}) => post({
@@ -268,11 +268,24 @@ describe("execution gap function — DeepSeek elaboration", () => {
   });
 
   it("falls back to the template when DeepSeek errors", async () => {
-    route(() => ({ ok: false, status: 429, json: async () => ({}) }));
+    route(() => ({ ok: false, status: 429, text: async () => "rate limited" }));
     const res = await unlock();
     expect(res.statusCode).toBe(200);
     expect(sheetCall.reportText).toContain("GAP LEDGER");
-    expect(sheetCall.reportSource).toBe("template");
+    expect(sheetCall.reportSource).toBe("template (DeepSeek 429: rate limited)");
+  });
+
+  it("retries DeepSeek once in the background before settling for the template", async () => {
+    let calls = 0;
+    route(() => (++calls === 1 ? { ok: false, status: 503, text: async () => "busy" } : ok(LONG)()));
+    const { deliverUnlock } = await import("../../server/lib/executionGapDelivery");
+    const outcome = await deliverUnlock({
+      respondentId: RESPONDENT, cells: CELLS, stage: "idea", stageBand: "pre", aiMultiplier: 3, sector: "Manufacturing",
+      programmeStatus: "Not currently", name: "Test Person", email: "test@example.com", business: "Test Business", wantsCall: false,
+    });
+    expect(calls).toBe(2);
+    expect(outcome.reportSource).toBe("deepseek:deepseek-flash");
+    expect(sheetCall.reportText).toBe(LONG.trim());
   });
 
   it("falls back when DeepSeek throws (timeout or abort)", async () => {
@@ -280,14 +293,14 @@ describe("execution gap function — DeepSeek elaboration", () => {
     const res = await unlock();
     expect(res.statusCode).toBe(200);
     expect(sheetCall.reportText).toContain("YOUR TWO WIDEST GAPS");
-    expect(sheetCall.reportSource).toBe("template");
+    expect(sheetCall.reportSource).toMatch(/^template \(/);
   });
 
   it("falls back when DeepSeek returns a stub instead of a report", async () => {
     route(ok("Sorry, I cannot help."));
     await unlock();
     expect(sheetCall.reportText).toContain("GAP LEDGER");
-    expect(sheetCall.reportSource).toBe("template");
+    expect(sheetCall.reportSource).toMatch(/^template \(/);
   });
 
   it("falls back to the template when no API key is configured", async () => {
@@ -296,7 +309,7 @@ describe("execution gap function — DeepSeek elaboration", () => {
     await unlock();
     expect(deepseekCall).toBeNull();
     expect(sheetCall.reportText).toContain("GAP LEDGER");
-    expect(sheetCall.reportSource).toBe("template");
+    expect(sheetCall.reportSource).toBe("template (no model key)");
   });
 
   it("strips prompt injection from respondent free text", async () => {

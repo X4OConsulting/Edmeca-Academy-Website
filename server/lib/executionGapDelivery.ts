@@ -113,7 +113,7 @@ export function buildReport(body: { stageBand?: string; aiMultiplier?: number },
  */
 export async function elaborate(template: string, body: { business?: string; sector?: string }, timeoutMs: number): Promise<{ text: string; source: string }> {
   const key = process.env.EDMECA_DEEPSEEK_API || process.env.DEEPSEEK_API_KEY;
-  if (!key) return { text: template, source: "template" };
+  if (!key) return { text: template, source: "template (no model key)" };
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -157,17 +157,21 @@ export async function elaborate(template: string, body: { business?: string; sec
         ],
       }),
     });
-    if (!upstream.ok) throw new Error(`DeepSeek ${upstream.status}`);
-    const payload = await upstream.json() as { choices?: { finish_reason?: string; message?: { content?: string } }[] };
+    const raw = await upstream.text();
+    if (!upstream.ok) throw new Error(`DeepSeek ${upstream.status}: ${raw.slice(0, 200)}`);
+    const payload = JSON.parse(raw) as { choices?: { finish_reason?: string; message?: { content?: string; reasoning_content?: string } }[] };
     const choice = payload.choices?.[0];
     const text = choice?.message?.content?.trim();
     // A suspiciously short answer means the model refused or drifted, and a
     // cut-off one ends mid-sentence; the template is more useful than either.
-    if (!text || text.length < template.length / 2 || choice?.finish_reason === "length") throw new Error(`DeepSeek returned no usable report (finish ${choice?.finish_reason ?? "?"}, ${text?.length ?? 0} chars)`);
+    if (!text || text.length < template.length / 2 || choice?.finish_reason === "length") throw new Error(`DeepSeek returned no usable report (model ${DEEPSEEK_MODEL}, finish ${choice?.finish_reason ?? "?"}, content ${text?.length ?? 0} chars, reasoning ${choice?.message?.reasoning_content?.length ?? 0} chars, template ${template.length} chars): ${raw.slice(0, 200)}`);
     return { text, source: `deepseek:${DEEPSEEK_MODEL}` };
   } catch (error) {
-    console.error("DeepSeek elaboration failed, sending template report", error instanceof Error ? error.message : "unknown error");
-    return { text: template, source: "template" };
+    // The reason travels with the row (reportSource column): background
+    // function logs are not readable from the CLI, the sheet always is.
+    const reason = error instanceof Error ? (error.name === "AbortError" ? `timed out after ${timeoutMs} ms` : error.message) : "unknown error";
+    console.error("DeepSeek elaboration failed, sending template report", reason);
+    return { text: template, source: `template (${reason.replace(/\s+/g, " ").slice(0, 180)})` };
   } finally {
     clearTimeout(timer);
   }
@@ -211,10 +215,16 @@ export async function deliverMap(job: MapJob, timeoutMs = 60000): Promise<void> 
 }
 
 /** The whole unlock: score, write the report, forward once (the script emails). Throws when the sheet refuses. */
-export async function deliverUnlock(job: UnlockJob, timeouts = { script: 60000, model: 60000 }): Promise<{ result: Computed; reportSource: string }> {
+export async function deliverUnlock(job: UnlockJob, timeouts: { script: number; model: number; attempts?: number } = { script: 60000, model: 60000, attempts: 2 }): Promise<{ result: Computed; reportSource: string }> {
   const { kind: _kind, ...row } = job as UnlockJob & { kind?: string };
   const result = compute(job.cells);
-  const report = await elaborate(buildReport(job, result), job, timeouts.model);
+  const template = buildReport(job, result);
+  // DeepSeek fails intermittently; the background path has minutes to spare, so
+  // it tries again before settling for the template. No key means no retry.
+  let report = await elaborate(template, job, timeouts.model);
+  for (let attempt = 1; attempt < (timeouts.attempts ?? 1) && report.source.startsWith("template (") && !report.source.includes("no model key"); attempt++) {
+    report = await elaborate(template, job, timeouts.model);
+  }
   await forward({ action: "unlock", ...row }, result, report.text, report.source, timeouts.script);
   return { result, reportSource: report.source };
 }
