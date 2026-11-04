@@ -133,7 +133,7 @@ test.describe('TC-A01 – Axe-core: marketing pages', () => {
     { name: 'Home',        path: '/' },
     { name: 'About',       path: '/about' },
     { name: 'Solutions',   path: '/solutions' },
-    { name: 'Frameworks',  path: '/frameworks' },
+    { name: 'Studio',      path: '/studio' },
     { name: 'Engagement',  path: '/engagement' },
     { name: 'Contact',     path: '/contact' },
   ];
@@ -228,6 +228,8 @@ test.describe('TC-A03 – Keyboard navigation', () => {
 
   test('TC-A03-4: Login form has correct Tab order (email → password → submit)', async ({ page }) => {
     await page.goto('/login', { waitUntil: 'networkidle' });
+    // Sign-in opens on the emailed code; the password form is one click away.
+    await page.locator('[data-testid="button-switch-mode"]').click();
 
     // Verify both inputs exist, are visible, and are focusable via DOM order
     const emailInput    = page.locator('[data-testid="input-signin-email"]');

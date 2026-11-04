@@ -15,8 +15,8 @@ const walk = (dir: string): string[] => readdirSync(dir).flatMap((name) => {
 });
 
 const serverFiles = [...walk('api'), ...walk('server')];
-// Client modules the server imports (AI Map scoring and report copy).
-const sharedClientFiles = ['client/src/lib/aiMap.ts', 'client/src/lib/aiMapCopy.ts', 'client/src/data/aiMap.ts', 'client/src/data/executionGap.ts'];
+// Client modules the server imports (AI Map scoring and report copy, contact form options).
+const sharedClientFiles = ['client/src/lib/aiMap.ts', 'client/src/lib/aiMapCopy.ts', 'client/src/data/aiMap.ts', 'client/src/data/executionGap.ts', 'client/src/data/offerings.ts'];
 
 function badImports(file: string): string[] {
   const source = readFileSync(file, 'utf8');

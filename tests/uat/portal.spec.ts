@@ -152,7 +152,7 @@ test.describe('TC-001 Marketing smoke tests', () => {
     { path: '/',           label: 'Home page' },
     { path: '/about',      label: 'About page' },
     { path: '/solutions',  label: 'Solutions page' },
-    { path: '/frameworks', label: 'Frameworks page' },
+    { path: '/studio', label: 'AI Business Studio page' },
     { path: '/engagement', label: 'Engagement page' },
     { path: '/contact',    label: 'Contact page' },
   ];

@@ -130,7 +130,7 @@ test.describe('Marketing pages — cross-browser smoke', () => {
     { path: '/',            label: 'Home' },
     { path: '/about',       label: 'About' },
     { path: '/solutions',   label: 'Solutions' },
-    { path: '/frameworks',  label: 'Frameworks' },
+    { path: '/studio',      label: 'AI Business Studio' },
     { path: '/engagement',  label: 'Engagement' },
     { path: '/contact',     label: 'Contact' },
   ];

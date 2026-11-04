@@ -1,84 +1,94 @@
 import { Link } from "wouter";
 import logoImage from "@assets/logo.png";
 
+// The offering groups from the plan's Phase 5; the anchors are created on /solutions in Phase 5.
+// Impact is an anchor to the home page evidence section, so it renders as a plain <a>.
 const footerLinks = {
-  solutions: [
-    { href: "/solutions/entrepreneurs", label: "For Entrepreneurs" },
-    { href: "/solutions/programmes", label: "For Programmes" },
-    { href: "/frameworks", label: "Frameworks" },
-    { href: "/engagement", label: "Engagement Options" },
+  whatWeDo: [
+    { href: "/solutions#programmes", label: "Programmes", anchor: true },
+    { href: "/solutions#evidence", label: "Evidence services", anchor: true },
+    { href: "/solutions#pathways", label: "Accredited pathways", anchor: true },
+    { href: "/solutions#studio", label: "Digital tools", anchor: true },
   ],
   company: [
-    { href: "/about", label: "About Us" },
+    { href: "/about", label: "About" },
+    { href: "/#impact", label: "Impact", anchor: true },
+    { href: "/engagement", label: "Engagement" },
     { href: "/contact", label: "Contact" },
   ],
+  studio: [{ href: "/login", label: "Sign in to the AI Business Studio", anchor: true }],
 };
+
+type FooterLink = { href: string; label: string; anchor?: boolean };
+
+const linkClass = "text-sm text-muted-foreground hover:text-foreground transition-colors";
+
+function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) {
+  return (
+    <div>
+      <h2 className="eyebrow mb-4">{title}</h2>
+      <ul className="space-y-3">
+        {links.map((link) => {
+          const testId = `link-footer-${link.label.toLowerCase().replace(/\s+/g, "-")}`;
+          return (
+            <li key={link.href}>
+              {link.anchor ? (
+                <a href={link.href} className={linkClass} data-testid={testId}>
+                  {link.label}
+                </a>
+              ) : (
+                <Link href={link.href} className={linkClass} data-testid={testId}>
+                  {link.label}
+                </Link>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
 
 export function Footer() {
   return (
     <footer className="bg-card border-t">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
-          <div className="md:col-span-2">
-            <Link href="/" data-testid="link-footer-home">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
+          <div className="sm:col-span-2">
+            <Link href="/" className="inline-block py-5" data-testid="link-footer-home">
               <img
                 src={logoImage}
                 alt="EdMeCa"
-                width="100"
-                height="56"
-                className="h-14 w-auto dark:brightness-0 dark:invert"
+                width="157"
+                height="40"
+                className="h-10 w-auto dark:brightness-0 dark:invert"
               />
             </Link>
-            <p className="mt-4 text-muted-foreground max-w-md text-sm leading-relaxed">
-              From Framework to Execution to Evidence. Business-ready frameworks
-              made accessible through hands-on delivery and AI-enabled tooling.
+            <p className="mt-2 text-muted-foreground max-w-md text-sm leading-relaxed">
+              Research-backed AI capability that turns learning into earning.
             </p>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Turn frameworks into action, prototypes into products, ideas into investor-ready pitches.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="font-semibold text-sm uppercase tracking-wider mb-4">Solutions</h3>
-            <ul className="space-y-3">
-              {footerLinks.solutions.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    data-testid={`link-footer-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+            <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
+              <li>
+                <a href="mailto:info@edmeca.co.za" className="hover:text-foreground transition-colors" data-testid="link-footer-email">
+                  info@edmeca.co.za
+                </a>
+              </li>
+              <li>@Edmeca Pty Ltd</li>
+              <li>Level One B-BBEE contributor</li>
             </ul>
           </div>
 
-          <div>
-            <h3 className="font-semibold text-sm uppercase tracking-wider mb-4">Company</h3>
-            <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    data-testid={`link-footer-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <FooterColumn title="What we do" links={footerLinks.whatWeDo} />
+          <FooterColumn title="Company" links={footerLinks.company} />
+          <FooterColumn title="Studio" links={footerLinks.studio} />
         </div>
 
         <div className="border-t mt-12 pt-8">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} EdMeCa Digital Academy. All rights reserved.
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-4 text-center lg:text-left">
+            <p className="text-sm text-muted-foreground" data-testid="text-legal-line">
+              &copy; {new Date().getFullYear()} Edmeca (Pty) Ltd, trading as EdMeCa. All rights reserved.
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Powered by{" "}
               <a
                 href="https://x4o.co.za"
@@ -90,11 +100,11 @@ export function Footer() {
               </a>
             </p>
             <div className="flex gap-6">
-              <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-privacy">
-                Privacy Policy
+              <Link href="/privacy" className={linkClass} data-testid="link-footer-privacy">
+                Privacy
               </Link>
-              <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-terms">
-                Terms of Service
+              <Link href="/terms" className={linkClass} data-testid="link-footer-terms">
+                Terms
               </Link>
             </div>
           </div>

@@ -83,7 +83,7 @@ function markdownToDocxElements(markdown: string): Array<Paragraph | Table> {
   };
 
   for (const line of lines) {
-    // Table row — buffer until non-table line
+    // Table row: buffer until non-table line
     if (line.trimStart().startsWith("|")) {
       tableBuffer.push(line);
       continue;
@@ -190,7 +190,7 @@ export async function exportToWord(markdown: string, companyName: string): Promi
             spacing: { after: 120 },
           }),
           new Paragraph({
-            children: [new TextRun({ text: `Generated: ${date} · Powered by EdMeCa Academy`, size: 20, color: "999999" })],
+            children: [new TextRun({ text: `Generated: ${date} · Powered by EdMeCa`, size: 20, color: "999999" })],
             alignment: AlignmentType.CENTER,
             spacing: { after: 400 },
           }),
@@ -207,7 +207,7 @@ export async function exportToWord(markdown: string, companyName: string): Promi
           new Paragraph({ text: "", spacing: { before: 480 } }),
           new Paragraph({
             border: { top: { style: BorderStyle.SINGLE, size: 4, color: "dddddd", space: 1 } },
-            children: [new TextRun({ text: `EdMeCa Academy  ·  Financial Analysis Tool  ·  ${date}`, size: 18, color: "bbbbbb" })],
+            children: [new TextRun({ text: `EdMeCa AI Business Studio  ·  Financial Analysis Tool  ·  ${date}`, size: 18, color: "bbbbbb" })],
             alignment: AlignmentType.CENTER,
           }),
         ],
@@ -229,7 +229,7 @@ export function exportToPDF(markdown: string, companyName: string): void {
   // Build the full HTML document as a string.
   // All user-supplied values (companyName, date) are passed through escapeHtml()
   // before injection. htmlBody is produced by markdownToHTML() which runs every
-  // line through inlineToHTML() — escaping &, <, > before wrapping in tags.
+  // line through inlineToHTML(): escaping &, <, > before wrapping in tags.
   // The string is rendered via a Blob URL (see below) rather than the deprecated
   // document-write API, preventing DOM-injection XSS vectors.
   const safeCompany = escapeHtml(companyName || "Business");
@@ -270,12 +270,12 @@ export function exportToPDF(markdown: string, companyName: string): void {
     <div class="cover-date">Generated: ${escapeHtml(date)}</div>
   </div>
   ${htmlBody}
-  <div class="footer">EdMeCa Academy &nbsp;\u00b7&nbsp; Financial Analysis Tool &nbsp;\u00b7&nbsp; ${escapeHtml(date)}</div>
+  <div class="footer">EdMeCa AI Business Studio &nbsp;\u00b7&nbsp; Financial Analysis Tool &nbsp;\u00b7&nbsp; ${escapeHtml(date)}</div>
   <script>window.onload = function () { window.print(); };<\/script>
 </body>
 </html>`;
 
-  // Create a Blob URL and navigate a new window to it — the modern, safe alternative
+  // Create a Blob URL and navigate a new window to it: the modern, safe alternative
   // to the deprecated DOM-write API. Blob URLs have a unique origin, preventing
   // cross-origin access from other pages.
   const blob = new Blob([html], { type: "text/html;charset=utf-8" });

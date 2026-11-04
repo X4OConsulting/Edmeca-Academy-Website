@@ -2,316 +2,301 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
+import { useScrollToHash } from "@/hooks/use-scroll-to-hash";
 
 import {
   ArrowRight,
-  Lightbulb,
-  Target,
-  TrendingUp,
-  Users,
   BarChart3,
-  FileText,
-  Layers,
+  Building2,
   CheckCircle2,
-  Sparkles,
+  GraduationCap,
+  Layers,
+  LineChart,
+  Rocket,
+  Sprout,
+  Users,
+  Wrench,
 } from "lucide-react";
 
-const features = [
-  {
-    icon: Lightbulb,
-    title: "Design Thinking",
-    description: "Human-centered approach to innovation that integrates user needs with business viability.",
-  },
-  {
-    icon: Layers,
-    title: "Business Model Canvas",
-    description: "Visual framework for developing and documenting your business model systematically.",
-  },
-  {
-    icon: BarChart3,
-    title: "Strategic Analysis",
-    description: "SWOT and PESTLE frameworks for comprehensive market and competitive positioning.",
-  },
-  {
-    icon: Target,
-    title: "Value Proposition",
-    description: "Craft compelling value propositions that resonate with your target customers.",
-  },
-  {
-    icon: FileText,
-    title: "Pitch Builder",
-    description: "Structure investor-ready pitch decks with proven narrative frameworks.",
-  },
-  {
-    icon: TrendingUp,
-    title: "Progress Tracking",
-    description: "Measure baseline-to-outcome progression with evidence-based milestones.",
-  },
-];
+// Copy approved in docs/WEBSITE_REFRESH_CONTEXT.md (Phase 4 draft, 3 November 2026).
 
-const audienceTracks = [
+const beneficiaries = [
   {
-    icon: Lightbulb,
-    title: "For Entrepreneurs",
-    subtitle: "Clarity, Speed, Confidence",
-    outcomes: [
-      "Business clarity through proven frameworks",
-      "Faster MVP development with AI assistance",
-      "Pitch-ready confidence for investors",
-      "From idea to investor-ready in weeks",
-    ],
-    cta: "Start Your Journey",
-    href: "/solutions/entrepreneurs",
+    icon: Sprout,
+    title: "Young people",
+    description: "Made work-ready through Youthpreneur and accredited pathways.",
+    tag: "Youthpreneur, in development",
+  },
+  {
+    icon: Rocket,
+    title: "Entrepreneurs and SMEs",
+    description: "Businesses that last, with a usable output from every session.",
   },
   {
     icon: Users,
-    title: "For Programmes",
-    subtitle: "Scale, Measure, Report",
-    outcomes: [
-      "Measurable participant progression",
-      "Streamlined M&E reporting",
-      "Scalable interventions across cohorts",
-      "Evidence-based impact documentation",
-    ],
-    cta: "Explore Programme Solutions",
-    href: "/solutions/programmes",
+    title: "Leaders in corporates and ecosystems",
+    description:
+      "Digital Leadership means leading, and digital: enough insight to lead where digital, AI and cyber risk shape the business.",
   },
 ];
 
-const testimonials = [
-  {
-    quote: "EdMeCa transformed how we deliver our accelerator program. The tools made complex frameworks accessible to all participants.",
-    author: "Naledi Mokoena",
-    role: "Programme Director",
-    company: "Tech Incubation",
-  },
-  {
-    quote: "Within 3 weeks, I went from a vague idea to a structured business model and a pitch deck that landed my first meeting with investors.",
-    author: "Sipho Ndlovu",
-    role: "Founder",
-    company: "AgriTech",
-  },
-  {
-    quote: "The progress tracking and M&E reporting saved our team hundreds of hours. We can now demonstrate impact with real evidence.",
-    author: "Dr. Zanele Mthembu",
-    role: "Development Lead",
-    company: "Social Enterprise",
-  },
+const commissioners = [
+  "Corporates and skills development foundations",
+  "ESD and supplier development programme owners",
+  "Learning institutions and TVET colleges",
+  "SETAs and training authorities",
+  "Funders and foundations",
 ];
+
+const offeringGroups = [
+  {
+    icon: Layers,
+    title: "Programmes",
+    offerings: [
+      "Digital Leader Module",
+      "AI for Leaders and the AI Catalyst Journey",
+      "AI and digital module inside an SMME cohort",
+      "Youthpreneur (in development)",
+    ],
+  },
+  { icon: BarChart3, title: "Evidence services", offerings: ["Impact Reporting", "Research offering"] },
+  {
+    icon: GraduationCap,
+    title: "Accredited pathways",
+    offerings: ["Accredited skills programmes (QCTO-aligned)", "Staff capacitation"],
+  },
+  { icon: Wrench, title: "Digital tools", offerings: ["AI Business Studio, offered as post-programme access"] },
+];
+
+const steps = [
+  { title: "AI onboarding first", description: "Participants get comfortable with AI before any framework is introduced." },
+  { title: "Frameworks and a tools refresh", description: "Proven frameworks, worked through practical digital tools." },
+  { title: "Sprint to a usable output", description: "Every session ends with something the business can use." },
+  { title: "Measure and report", description: "A baseline, a mid-point and a post-programme assessment (PRE, MID, POST)." },
+];
+
+const evidenceClaims = [
+  "A measurable maturity shift per participant.",
+  "Tools adopted.",
+  "A usable business output from every session.",
+  "Funder-ready evidence.",
+];
+
+// Text tiles until each logo is cleared (decision 4.3).
+const workedWith = [
+  "Attacq",
+  "Green Seeds",
+  "Property Point",
+  "Growthpoint",
+  "EM Lyon",
+  "Stellenbosch Business School",
+  "Social Enterprise Academy",
+  "Nedbank",
+  "University of the Western Cape",
+  "Serosoft (Academia)",
+  "First Mutual Insurance",
+];
+
+// The contact form with the offering and subject preset (Phase 8).
+const impactSampleHref = "/contact?offering=impact-reporting&subject=Impact%20reporting%20sample";
+
+function SectionHeading({ eyebrow, title, id }: { eyebrow: string; title: string; id?: string }) {
+  return (
+    <div className="max-w-2xl mb-10 lg:mb-12">
+      <p className="eyebrow">{eyebrow}</p>
+      <h2 id={id} className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight">{title}</h2>
+    </div>
+  );
+}
 
 export default function Home() {
+  useScrollToHash();
+
   return (
     <MarketingLayout>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-        <div className="absolute top-20 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-[#f7ede4] text-black px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-              <Sparkles className="w-4 h-4" />
-              AI-Powered Business Tools
-            </div>
-            
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-              Turning Strategy into{" "}
-              <span className="text-primary dark:text-accent">Execution</span>{" "}
-              - Backed by Evidence
+      {/* 1. Hero */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          <div>
+            <p className="eyebrow">From Framework to Execution to Evidence</p>
+            <h1 className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+              We develop people into future tech leaders.
             </h1>
-            
-            <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Practical, business-ready frameworks delivered through AI-powered tools to support enterprise strategy, innovation, and capability development. From leadership alignment and operational clarity to impact reporting and execution readiness.
+            <p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-xl">
+              Proven business frameworks, delivered through AI-enabled, practical digital tools, with evidence of the
+              shift from baseline to outcome.
             </p>
-            
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/diagnostic" asChild>
-                <Button size="lg" className="min-w-40" data-testid="button-hero-cta">
-                  Get Started
+            <div className="mt-10 flex flex-col sm:flex-row gap-4">
+              <Link href="/contact" asChild>
+                <Button variant="cta" size="lg" data-testid="button-hero-cta">
+                  Book a discovery call
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="/frameworks" asChild>
-                <Button variant="outline" size="lg" className="min-w-40" data-testid="button-hero-learn">
-                  Explore Frameworks
+              <Link href="/diagnostic" asChild>
+                <Button variant="outline-brand" size="lg" data-testid="button-hero-baseline">
+                  Take the free baseline
                 </Button>
               </Link>
             </div>
-            
-            <div className="mt-8 flex items-center justify-center gap-6 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                Free to start
-              </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                No credit card required
-              </span>
-            </div>
+          </div>
+          <div className="rounded-2xl border bg-secondary flex items-center justify-center aspect-[4/3] lg:aspect-square">
+            <img src="/brand/edmeca-mark.png" alt="" role="presentation" width="490" height="512" className="w-2/5 h-auto" />
           </div>
         </div>
       </section>
 
-      <section className="bg-primary text-primary-foreground">
-        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-12 sm:flex-row sm:items-center sm:px-6 lg:px-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Free baseline. Eight minutes.</p>
-            <h2 className="mt-2 font-serif text-3xl font-bold">Where are you on the AI Enablement Map?</h2>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-primary-foreground/70">Capability is what you can do with AI. Readiness is whether it will stick. Most businesses have one without the other. Find out which, and what moves you.</p>
-          </div>
-          <div className="flex shrink-0 flex-wrap gap-3">
-            <Link href="/ai-map" asChild>
-              <Button variant="secondary" size="lg">Place my dot <ArrowRight className="ml-2 h-4 w-4" /></Button>
-            </Link>
-            <Link href="/execution-gap" asChild>
-              <Button variant="ghost" size="lg" className="text-primary-foreground hover:text-primary-foreground">Execution Gap diagnostic</Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Audience Tracks */}
-      <section className="bg-card border-y">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-          <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold">Who We Serve</h2>
-            <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-              From bold entrepreneurs to enterprise leaders with a founder's mindset; we craft solutions that match your ambition.
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
-            {audienceTracks.map((track) => (
-              <Card key={track.title} className="group hover-elevate overflow-visible">
-                <CardContent className="p-6 lg:p-8">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 rounded-lg bg-primary/10 text-primary dark:bg-accent/10 dark:text-accent">
-                      <track.icon className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-serif text-xl font-semibold">{track.title}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">{track.subtitle}</p>
-                    </div>
-                  </div>
-                  
-                  <ul className="mt-6 space-y-3">
-                    {track.outcomes.map((outcome) => (
-                      <li key={outcome} className="flex items-start gap-3 text-sm">
-                        <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-muted-foreground">{outcome}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  <Link href={track.href} asChild>
-                    <Button variant="outline" className="mt-6 w-full" data-testid={`button-${track.title.toLowerCase().replace(/\s+/g, "-")}`}>
-                      {track.cta}
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-        <div className="text-center mb-12">
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold">AI-Powered Business Tools</h2>
-          <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-            Everything you need to transform business ideas into actionable plans, 
-            guided by proven frameworks and enhanced by AI.
+      {/* 2. Statement band: the long-form value statement, once per page */}
+      <section className="bg-brand-blue-deep text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 text-center">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+            EdMeCa turns learning into <span className="text-accent">earning.</span>
+          </h2>
+          <p className="mt-6 text-lg leading-relaxed text-white/85">
+            Our research-backed, AI-enabled programmes make young people work-ready, help entrepreneurs build businesses
+            that last, and equip leaders to grow capability across their teams. We measure what changes and share it.
           </p>
         </div>
-        
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature) => (
-            <Card key={feature.title} className="group hover-elevate overflow-visible">
-              <CardContent className="p-6">
-                <div className="p-2 rounded-lg bg-primary/10 text-primary dark:bg-accent/10 dark:text-accent w-fit">
-                  <feature.icon className="h-5 w-5" />
-                </div>
-                <h3 className="mt-4 font-semibold text-lg">{feature.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                  {feature.description}
-                </p>
+      </section>
+
+      {/* 3. Who we develop */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
+        <SectionHeading eyebrow="Who we develop" title="Three groups, one playbook." />
+        <div className="grid md:grid-cols-3 gap-6">
+          {beneficiaries.map((group) => (
+            <Card key={group.title} className="rounded-2xl">
+              <CardContent className="p-6 lg:p-8">
+                <group.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                <h3 className="mt-4 text-xl font-semibold text-primary">{group.title}</h3>
+                <p className="mt-2 text-muted-foreground leading-relaxed">{group.description}</p>
+                {group.tag && (
+                  <span className="mt-4 inline-block rounded-full bg-secondary px-3 py-1 text-xs font-medium text-primary">
+                    {group.tag}
+                  </span>
+                )}
               </CardContent>
             </Card>
           ))}
         </div>
-        
-        <div className="mt-12 text-center">
-          <Link href="/frameworks" asChild>
-            <Button variant="outline" size="lg" data-testid="button-view-frameworks">
-              View All Frameworks
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="bg-primary dark:bg-primary/90 text-primary-foreground">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-          <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold">Trusted by Entrepreneurs & Programmes</h2>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div
-                key={index}
-                className="bg-white/10 backdrop-blur-sm rounded-lg p-6 lg:p-8"
-              >
-                <blockquote className="text-sm leading-relaxed opacity-90">
-                  "{testimonial.quote}"
-                </blockquote>
-                <div className="mt-6 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-semibold">
-                    {testimonial.author.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm">{testimonial.author}</p>
-                    <p className="text-xs opacity-70">{testimonial.role}, {testimonial.company}</p>
-                  </div>
-                </div>
-              </div>
+      {/* 4. Who commissions our programmes */}
+      <section className="bg-card border-y">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+          <p className="eyebrow mb-8">Who commissions our programmes</p>
+          <ul className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {commissioners.map((name) => (
+              <li key={name} className="flex items-start gap-3 rounded-lg border bg-background p-4 text-sm font-medium">
+                <Building2 className="h-4 w-4 mt-0.5 shrink-0 text-primary" aria-hidden="true" />
+                {name}
+              </li>
             ))}
-          </div>
+          </ul>
+          <p className="mt-6 text-muted-foreground">
+            Delivered under the EdMeCa brand, co-branded with your programme where that helps.
+          </p>
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* 5. What we do */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-        <div className="relative overflow-hidden bg-gradient-to-br from-accent/10 via-primary/5 to-accent/10 rounded-2xl p-8 lg:p-16 text-center">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary/20 rounded-full blur-3xl" />
-          
-          <div className="relative">
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold">
-              Ready to Transform Your Ideas?
-            </h2>
-            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
-              Join hundreds of entrepreneurs and programmes using EdMeCa to turn 
-              frameworks into action, prototypes into products.
-            </p>
-            
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/contact" asChild>
-                <Button size="lg" data-testid="button-final-cta">
-                  Book a Call
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+        <SectionHeading eyebrow="What we do" title="Programmes, evidence, pathways and tools." />
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {offeringGroups.map((group) => (
+            <Card key={group.title} className="rounded-2xl">
+              <CardContent className="p-6">
+                <group.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                <h3 className="mt-4 text-lg font-semibold text-primary">{group.title}</h3>
+                <ul className="mt-3 space-y-2">
+                  {group.offerings.map((offering) => (
+                    <li key={offering} className="text-sm text-muted-foreground leading-relaxed">{offering}</li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <Link href="/solutions" className="mt-8 inline-flex items-center gap-2 font-medium text-primary hover:underline" data-testid="link-full-offering">
+          See the full offering
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </Link>
+      </section>
+
+      {/* 6. How we work */}
+      <section className="bg-card border-y">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
+          <SectionHeading eyebrow="How we work" title="Onboard, refresh, sprint, measure." />
+          <ol className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {steps.map((step, index) => (
+              <li key={step.title} className="rounded-lg border bg-background p-6">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-sm font-bold text-primary">
+                  {index + 1}
+                </span>
+                <h3 className="mt-4 font-semibold text-primary">{step.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{step.description}</p>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-10 rounded-2xl bg-brand-blue-deep text-white p-8 lg:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="flex items-start gap-4">
+              <LineChart className="h-8 w-8 shrink-0 text-accent" aria-hidden="true" />
+              <div>
+                <h3 className="text-2xl font-bold tracking-tight">Where are you on the AI Enablement Map?</h3>
+                <p className="mt-2 text-white/80">Eight minutes, free, no account.</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-3 shrink-0">
+              <Link href="/ai-map" asChild>
+                <Button variant="cta" size="lg">Place my dot <ArrowRight className="ml-2 h-4 w-4" /></Button>
               </Link>
-              <Link href="/signup" asChild>
-                <Button variant="outline" size="lg" data-testid="button-final-register">
-                  Register Free
-                </Button>
+              <Link href="/execution-gap" asChild>
+                <Button variant="ghost" size="lg" className="text-white hover:text-white">Execution Gap diagnostic</Button>
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Evidence: the four claims only, no figures and no case tiles until supplied */}
+      <section id="impact" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24 scroll-mt-20">
+        <SectionHeading eyebrow="Impact" title="What the evidence shows" />
+        <ul className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {evidenceClaims.map((claim) => (
+            <li key={claim} className="flex items-start gap-3 rounded-lg border bg-card p-6 shadow-sm">
+              <CheckCircle2 className="h-5 w-5 mt-0.5 shrink-0 text-primary" aria-hidden="true" />
+              <span className="font-medium">{claim}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-6 max-w-3xl text-muted-foreground leading-relaxed">
+          Where a client needs financial growth and job creation reported, we define the measure, the timeframe and the
+          attribution method before the programme starts.
+        </p>
+
+        <h3 className="mt-16 text-2xl font-bold tracking-tight">Who we have worked with</h3>
+        <ul className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {workedWith.map((name) => (
+            <li key={name} className="flex min-h-20 items-center justify-center rounded-lg border bg-card p-4 text-center text-sm font-semibold text-primary">
+              {name}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* 8. Closing CTA */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 lg:pb-24">
+        <div className="rounded-2xl border bg-secondary p-8 lg:p-16 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Let's talk about your programme.</h2>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/contact" asChild>
+              <Button variant="cta" size="lg" data-testid="button-final-cta">
+                Book a discovery call
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Button variant="outline-brand" size="lg" asChild data-testid="button-impact-sample">
+              <Link href={impactSampleHref}>Request an impact reporting sample</Link>
+            </Button>
           </div>
         </div>
       </section>

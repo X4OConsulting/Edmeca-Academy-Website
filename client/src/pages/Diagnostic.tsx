@@ -10,7 +10,7 @@ import { MarketingLayout } from "@/components/marketing/MarketingLayout";
  */
 export default function Diagnostic() {
   useEffect(() => {
-    document.title = "Diagnostic | Edmeca";
+    document.title = "Diagnostic | EdMeCa";
     document.documentElement.classList.add("diagnostic-mode");
     return () => document.documentElement.classList.remove("diagnostic-mode");
   }, []);
@@ -24,11 +24,12 @@ export default function Diagnostic() {
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-edmeca-purple">Free diagnostics. No account.</p>
           <h1 className="mt-5 max-w-3xl text-4xl font-bold leading-tight text-edmeca-purple sm:text-5xl">Who are you answering as?</h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-edmeca-grey">Two short instruments, two different questions. Pick the one that fits and we will take you straight there.</p>
+          <p className="mt-4 max-w-2xl leading-relaxed text-edmeca-grey" data-testid="text-diagnostic-baseline">Both instruments are the baseline we use inside the Digital Leader Module and in Impact Reporting. Take one now, retake it after an intervention, and see the dot move.</p>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             <Link href="/ai-map?for=individual" className={tile}>
               <span className="inline-flex w-fit rounded-lg bg-edmeca-green-tint p-3 text-edmeca-green"><User className="h-6 w-6" /></span>
-              <span className="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-edmeca-green">I am an individual</span>
+              <span className="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-edmeca-purple">I am an individual</span>
               <span className="mt-2 text-2xl font-bold text-edmeca-purple">Where am I on the AI Enablement Map?</span>
               <span className="mt-3 flex-1 text-sm leading-relaxed text-edmeca-grey">A founder, a professional or a team member answering for yourself. Eight minutes, and a dot that moves as you answer. You leave with your position, your two priorities and a report.</span>
               <span className="mt-6 inline-flex items-center gap-2 font-semibold text-edmeca-purple">Place my dot <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>

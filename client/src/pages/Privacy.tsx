@@ -7,7 +7,7 @@ const PROCESSORS: { name: string; purpose: string; data: string; where: string }
   { name: "Vercel", purpose: "Hosts the website and runs its server functions", data: "All requests to the site, including IP address", where: "EU (Frankfurt) for processing; global network for delivery" },
   { name: "Neon", purpose: "Database", data: "Your account, profile, saved work, form submissions", where: "EU (Frankfurt)" },
   { name: "Anthropic (Claude)", purpose: "AI analysis in the Financial Analysis and Business Model Canvas tools, and the readiness assessment report", data: "The financial data, canvas or answers you submit to that tool", where: "United States" },
-  { name: "Groq", purpose: "The portal chat assistant", data: "Your chat messages and a summary of your saved business tools", where: "United States" },
+  { name: "Groq", purpose: "The AI Business Studio chat assistant", data: "Your chat messages and a summary of your saved business tools", where: "United States" },
   { name: "DeepSeek", purpose: "Writing the fuller AI Map and Execution Gap reports", data: "Business name, sector, your diagnostic answers and scores, and context you type. Not your name or email", where: "China" },
   { name: "Google (Apps Script and Sheets)", purpose: "Recording diagnostic results and emailing your report", data: "Your diagnostic answers and, when you request the report, your name, email and organisation", where: "Global" },
   { name: "Google (sign-in)", purpose: "Sign in with Google, if you choose it", data: "Your Google name, email and profile picture", where: "Global" },
@@ -18,10 +18,10 @@ const PROCESSORS: { name: string; purpose: string; data: string; where: string }
 export default function Privacy() {
   return (
     <MarketingLayout>
-      <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 prose prose-slate dark:prose-invert prose-headings:font-serif">
+      <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 prose prose-slate dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight">
         <h1>Privacy Policy</h1>
         <p className="lead">
-          This policy explains what personal information Edmeca (Pty) Ltd ("EDMECA", "we") collects through edmeca.co.za,
+          This policy explains what personal information Edmeca (Pty) Ltd, trading as EdMeCa ("EdMeCa", "we") collects through edmeca.co.za,
           why, who we share it with, and the rights you have under the Protection of Personal Information Act, 2013 (POPIA).
         </p>
         <p><strong>Last updated:</strong> {UPDATED}</p>
@@ -35,7 +35,7 @@ export default function Privacy() {
         <h2>2. What we collect</h2>
         <ul>
           <li><strong>Account details:</strong> your name, email address and, if you use Google sign-in, your Google profile picture. If you set a password, we store only a one-way hash of it.</li>
-          <li><strong>What you create in the portal:</strong> your business profile, Business Model Canvas, SWOT/PESTLE, value proposition, pitch and progress entries.</li>
+          <li><strong>What you create in the AI Business Studio:</strong> your business profile, Business Model Canvas, SWOT/PESTLE, value proposition, pitch and progress entries.</li>
           <li><strong>Financial information you upload or paste</strong> into the Financial Analysis tool, and the reports it produces.</li>
           <li><strong>Diagnostic answers</strong> (AI Enablement Map, Execution Gap, readiness assessment) and, if you ask for your report, your name, email, organisation and whether you would like a call.</li>
           <li><strong>Messages you send us</strong> through the Contact and Signup forms.</li>
@@ -45,7 +45,7 @@ export default function Privacy() {
         <h2>3. Why we use it</h2>
         <ul>
           <li>To create and secure your account and sign you in (including emailing sign-in codes).</li>
-          <li>To provide the portal tools and save your work.</li>
+          <li>To provide the AI Business Studio tools and save your work.</li>
           <li>To produce AI-assisted analyses and reports you ask for.</li>
           <li>To answer your enquiries and applications, and to contact you if you asked us to.</li>
           <li>To protect the service against misuse and to fix problems.</li>
@@ -131,7 +131,7 @@ export default function Privacy() {
         <h2>11. Changes</h2>
         <p>
           We will update this page if our practices change and show the new date above. If a change is significant, we will
-          tell signed-in users by email or in the portal.
+          tell signed-in users by email or in the AI Business Studio.
         </p>
       </article>
     </MarketingLayout>

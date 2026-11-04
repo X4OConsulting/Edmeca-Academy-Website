@@ -82,7 +82,7 @@ export default function Admin() {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <div>
           <h1 className="font-serif text-2xl font-bold">Access</h1>
-          <p className="text-sm text-muted-foreground">EDMECA Academy is invite-only. Only people invited here can sign in.</p>
+          <p className="text-sm text-muted-foreground">The AI Business Studio is invite-only. Only people invited here can sign in.</p>
         </div>
 
         {/* Invite */}

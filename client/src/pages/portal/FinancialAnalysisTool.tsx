@@ -484,7 +484,7 @@ export default function FinancialAnalysisTool() {
               <div>
                 <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Company / Business Name</label>
                 <Input
-                  placeholder={profile?.businessName ?? "e.g. EdMeCa Academy"}
+                  placeholder={profile?.businessName ?? "e.g. Green Valley Farms"}
                   value={companyNameOverride}
                   onChange={e => setCompanyNameOverride(e.target.value)}
                   className="max-w-sm"

@@ -1,4 +1,4 @@
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, Redirect, useLocation } from "wouter";
 import { useEffect, lazy, Suspense } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -18,7 +18,7 @@ function ScrollToTop() {
 const Home = lazy(() => import("@/pages/Home"));
 const About = lazy(() => import("@/pages/About"));
 const Solutions = lazy(() => import("@/pages/Solutions"));
-const Frameworks = lazy(() => import("@/pages/Frameworks"));
+const Studio = lazy(() => import("@/pages/Studio"));
 const Engagement = lazy(() => import("@/pages/Engagement"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const Privacy = lazy(() => import("@/pages/Privacy"));
@@ -29,7 +29,6 @@ const AIMap = lazy(() => import("@/pages/AIMap"));
 const Diagnostic = lazy(() => import("@/pages/Diagnostic"));
 const Login = lazy(() => import("@/pages/Login"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
-const Signup = lazy(() => import("@/pages/Signup"));
 const Dashboard = lazy(() => import("@/pages/portal/Dashboard"));
 const BMCTool = lazy(() => import("@/pages/portal/BMCTool"));
 const SWOTPestleTool = lazy(() => import("@/pages/portal/SWOTPestleTool"));
@@ -94,9 +93,10 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/about" component={About} />
       <Route path="/solutions" component={Solutions} />
-      <Route path="/solutions/entrepreneurs" component={Solutions} />
-      <Route path="/solutions/programmes" component={Solutions} />
-      <Route path="/frameworks" component={Frameworks} />
+      <Route path="/solutions/entrepreneurs"><Redirect to="/solutions#programmes" replace /></Route>
+      <Route path="/solutions/programmes"><Redirect to="/solutions#programmes" replace /></Route>
+      <Route path="/studio" component={Studio} />
+      <Route path="/frameworks"><Redirect to="/studio" replace /></Route>
       <Route path="/engagement" component={Engagement} />
       <Route path="/contact" component={Contact} />
       <Route path="/privacy" component={Privacy} />
@@ -106,7 +106,8 @@ function Router() {
       <Route path="/diagnostic" component={Diagnostic} />
       <Route path="/execution-gap" component={ExecutionGap} />
       <Route path="/ai-map" component={AIMap} />
-      <Route path="/signup" component={Signup} />
+      {/* The public application form is retired (decision 4.2); applications come through Contact. */}
+      <Route path="/signup"><Redirect to="/contact?offering=ai-business-studio&subject=Apply%20for%20access" replace /></Route>
       <Route path="/login" component={Login} />
       <Route path="/reset-password" component={ResetPassword} />
 

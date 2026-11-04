@@ -102,7 +102,7 @@ export default function AIMap() {
   const items = useMemo(() => itemsForWave(wave), [wave]);
 
   useEffect(() => {
-    document.title = "AI Enablement Map | Edmeca";
+    document.title = "AI Enablement Map | EdMeCa";
     document.documentElement.classList.add("diagnostic-mode");
     return () => document.documentElement.classList.remove("diagnostic-mode");
   }, []);

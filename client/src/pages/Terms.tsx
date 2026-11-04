@@ -6,17 +6,17 @@ const UPDATED = "15 October 2026";
 export default function Terms() {
   return (
     <MarketingLayout>
-      <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 prose prose-slate dark:prose-invert prose-headings:font-serif">
+      <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 prose prose-slate dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight">
         <h1>Terms of Service</h1>
         <p className="lead">
-          These terms apply when you use edmeca.co.za and the EDMECA Academy portal, provided by Edmeca (Pty) Ltd
-          ("EDMECA", "we"). By creating an account or using the site, you agree to them.
+          These terms apply when you use edmeca.co.za and the AI Business Studio, provided by Edmeca (Pty) Ltd, trading as EdMeCa
+          ("EdMeCa", "we"). By creating an account or using the site, you agree to them.
         </p>
         <p><strong>Last updated:</strong> {UPDATED}</p>
 
         <h2>1. The service</h2>
         <p>
-          EDMECA provides business frameworks and tools (such as the Business Model Canvas, SWOT/PESTLE, value proposition,
+          EdMeCa provides business frameworks and tools (such as the Business Model Canvas, SWOT/PESTLE, value proposition,
           pitch builder, progress tracker and financial analysis), AI-assisted guidance, and diagnostics such as the AI
           Enablement Map and Execution Gap. We may change, add or remove features over time.
         </p>
@@ -54,7 +54,7 @@ export default function Terms() {
 
         <h2>6. Our content</h2>
         <p>
-          The website, frameworks, templates, wording and software belong to EDMECA or its licensors. You may use them for
+          The website, frameworks, templates, wording and software belong to EdMeCa or its licensors. You may use them for
           your own business while you use the service.
         </p>
 
@@ -72,7 +72,7 @@ export default function Terms() {
 
         <h2>9. Liability</h2>
         <p>
-          To the extent the law allows, EDMECA is not liable for indirect or consequential loss, or for decisions you make based
+          To the extent the law allows, EdMeCa is not liable for indirect or consequential loss, or for decisions you make based
           on the AI tools' output. Nothing in these terms limits rights you have under the Consumer Protection Act, 2008, or
           liability that cannot be limited by law.
         </p>

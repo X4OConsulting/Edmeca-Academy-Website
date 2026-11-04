@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* LIGHT MODE - Professional consulting/SaaS aesthetic with deep navy and warm accents */
+/* LIGHT MODE: EdMeCa design system tokens (brand/colors_and_type.css). Hex in comments is the value of record. */
 :root {
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
@@ -14,80 +14,109 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  --background: 210 20% 98%;
+  --background: 80 18% 97%; /* cream #F7F8F5 */
 
-  --foreground: 222 47% 11%;
+  --foreground: 228 6% 32%; /* brand gray #4C4E56 */
 
-  --border: 214 20% 90%;
+  --border: 75 7% 84%; /* ink-80 #D8D9D3 */
 
-  --card: 0 0% 100%;
+  --card: 0 0% 100%; /* white */
 
-  --card-foreground: 222 47% 11%;
+  --card-foreground: 228 6% 32%; /* brand gray #4C4E56 */
 
-  --card-border: 214 20% 92%;
+  --card-border: 75 7% 84%; /* ink-80 #D8D9D3 */
 
-  --sidebar: 220 25% 97%;
+  --sidebar: 75 10% 93%; /* ink-90 #EFF0EC */
 
-  --sidebar-foreground: 222 47% 11%;
+  --sidebar-foreground: 228 6% 32%; /* brand gray #4C4E56 */
 
-  --sidebar-border: 214 20% 90%;
+  --sidebar-border: 75 7% 84%; /* ink-80 #D8D9D3 */
 
-  --sidebar-primary: 222 47% 24%;
+  --sidebar-primary: 229 29% 38%; /* brand blue #454F7E */
 
   --sidebar-primary-foreground: 0 0% 100%;
 
-  --sidebar-accent: 214 20% 94%;
+  --sidebar-accent: 73 63% 92%; /* green-tint #F1F7DC */
 
-  --sidebar-accent-foreground: 222 47% 11%;
+  --sidebar-accent-foreground: 229 29% 38%; /* brand blue #454F7E */
 
-  --sidebar-ring: 222 47% 24%;
+  --sidebar-ring: 229 29% 38%; /* brand blue #454F7E */
 
   --popover: 0 0% 100%;
 
-  --popover-foreground: 222 47% 11%;
+  --popover-foreground: 228 6% 32%; /* brand gray #4C4E56 */
 
-  --popover-border: 214 20% 90%;
+  --popover-border: 75 7% 84%; /* ink-80 #D8D9D3 */
 
-  --primary: 222 47% 24%;
+  --primary: 229 29% 38%; /* brand blue #454F7E */
 
-  --primary-foreground: 0 0% 100%;
+  --primary-foreground: 0 0% 100%; /* white, 7.9:1 on brand blue */
 
-  --secondary: 214 20% 94%;
+  --secondary: 73 63% 92%; /* green-tint #F1F7DC */
 
-  --secondary-foreground: 222 47% 24%;
+  --secondary-foreground: 229 29% 38%; /* brand blue #454F7E */
 
-  --muted: 214 20% 96%;
+  --muted: 75 10% 93%; /* ink-90 #EFF0EC */
 
-  --muted-foreground: 215 16% 40%;
+  --muted-foreground: 229 5% 44%; /* ink-40 #6A6C75 */
 
-  --accent: 31 97% 52%;
+  --accent: 75 71% 45%; /* brand green #99C221: fills only, never small text */
 
-  --accent-foreground: 0 0% 100%;
+  --accent-foreground: 230 7% 18%; /* ink-10 #2A2B30, the only text colour on green */
 
-  --destructive: 0 84% 60%;
+  --destructive: 4 70% 61%; /* coral #E15F55 */
 
   --destructive-foreground: 0 0% 100%;
 
-  --input: 214 20% 88%;
-  --ring: 222 47% 24%;
-  --chart-1: 222 47% 24%;
-  --chart-2: 31 97% 52%;
-  --chart-3: 173 58% 39%;
-  --chart-4: 280 65% 60%;
-  --chart-5: 340 75% 55%;
+  --input: 228 4% 73%; /* ink-70 #B7B8BC */
+  --ring: 75 71% 45%; /* brand green #99C221, used at 20 percent alpha via --shadow-ring */
+  --chart-1: 229 29% 38%; /* brand blue #454F7E */
+  --chart-2: 75 71% 45%; /* brand green #99C221 */
+  --chart-3: 76 73% 36%; /* green-deep #7DA019 */
+  --chart-4: 228 27% 28%; /* blue-deep #353D5C */
+  --chart-5: 4 70% 61%; /* coral #E15F55 */
 
-  --font-sans: 'Inter', sans-serif;
-  --font-serif: 'Playfair Display', Georgia, serif;
+  /* Brand tokens */
+  --brand-green: 75 71% 45%; /* #99C221 */
+  --brand-green-deep: 76 73% 36%; /* #7DA019 */
+  --brand-green-soft: 72 63% 77%; /* #DAE99F */
+  --brand-green-tint: 73 63% 92%; /* #F1F7DC */
+  --brand-blue: 229 29% 38%; /* #454F7E */
+  --brand-blue-deep: 228 27% 28%; /* #353D5C */
+  --brand-coral: 4 70% 61%; /* #E15F55, accent only */
+  --brand-gray: 228 6% 32%; /* #4C4E56 */
+  --ink-10: 230 7% 18%; /* #2A2B30 */
+  --ink-40: 229 5% 44%; /* #6A6C75 */
+  --ink-80: 75 7% 84%; /* #D8D9D3 */
+  --cream: 80 18% 97%; /* #F7F8F5 */
+
+  --font-sans: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-serif: var(--font-sans); /* Playfair Display removed; alias kept for the portal */
   --font-mono: 'JetBrains Mono', Menlo, monospace;
   --radius: .5rem; /* 8px */
-  --shadow-2xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-  --shadow-xs: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+
+  /* Brand shadow scale: soft and paper-like */
+  --shadow-1: 0 1px 2px rgba(28, 28, 28, 0.04), 0 1px 1px rgba(28, 28, 28, 0.03);
+  --shadow-2: 0 2px 6px rgba(28, 28, 28, 0.06), 0 1px 2px rgba(28, 28, 28, 0.04);
+  --shadow-3: 0 8px 24px rgba(28, 28, 28, 0.08), 0 2px 6px rgba(28, 28, 28, 0.04);
+  --shadow-ring: 0 0 0 4px rgba(153, 194, 33, 0.20);
+
+  --shadow-2xs: var(--shadow-1);
+  --shadow-xs: var(--shadow-1);
+  --shadow-sm: var(--shadow-1);
+  --shadow: var(--shadow-2);
+  --shadow-md: var(--shadow-2);
+  --shadow-lg: var(--shadow-3);
+  --shadow-xl: var(--shadow-3);
+  --shadow-2xl: var(--shadow-3);
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 
@@ -257,6 +286,20 @@
  * need to be distinguished from eachother visually.
  */
 @layer utilities {
+
+  /* Eyebrow label: brand blue on light surfaces; .eyebrow-on-dark (brand green) on blue-deep */
+  .eyebrow {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: hsl(var(--brand-blue));
+  }
+
+  .eyebrow.eyebrow-on-dark {
+    color: hsl(var(--brand-green));
+  }
 
   /* Hide ugly search cancel button in Chrome until we can style it properly */
   input[type="search"]::-webkit-search-cancel-button {

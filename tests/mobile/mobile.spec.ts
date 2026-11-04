@@ -119,7 +119,7 @@ test.describe('TC-4.5.1  375px viewport — marketing pages', () => {
     { path: '/about',       label: 'About' },
     { path: '/solutions',   label: 'Solutions' },
     { path: '/contact',     label: 'Contact' },
-    { path: '/frameworks',  label: 'Frameworks' },
+    { path: '/studio',      label: 'AI Business Studio' },
     { path: '/engagement',  label: 'Engagement' },
   ];
 
@@ -173,50 +173,31 @@ test.describe('TC-4.5.2  375px viewport — portal tools', () => {
 // =============================================================================
 
 test.describe('TC-4.5.3  Header nav — viewport-appropriate controls visible', () => {
-  test('hamburger button is visible at 375px; hidden at 768px', async ({ page }, testInfo) => {
+  // The header fits six links, the Studio link and the CTA, so the inline nav starts at lg (1024px)
+  // and the menu button stays until xl (1280px). Both test viewports here are below lg.
+  test('hamburger button is visible at 375px and at 768px', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-
-    const viewport = page.viewportSize();
-    const isMobile = (viewport?.width ?? 0) < 768;
-
-    if (isMobile) {
-      // md:hidden → visible on mobile
-      await expect(page.getByTestId('button-menu')).toBeVisible();
-    } else {
-      // md:hidden → not visible at tablet (>=768px)
-      await expect(page.getByTestId('button-menu')).toBeHidden();
-    }
+    await expect(page.getByTestId('button-menu')).toBeVisible();
   });
 
-  test('desktop nav is hidden at 375px; visible at 768px', async ({ page }, testInfo) => {
+  test('desktop nav is hidden at 375px and at 768px', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-
-    const viewport = page.viewportSize();
-    const isMobile = (viewport?.width ?? 0) < 768;
-
-    // nav.hidden.md:flex — the hidden class makes it invisible below md breakpoint
-    const desktopNav = page.locator('nav.hidden');
-    if (isMobile) {
-      await expect(desktopNav).toBeHidden();
-    } else {
-      // At 768px the md:flex kicks in so it's rendered (Tailwind md breakpoint = 768px)
-      // Note: at exactly 768px the md: prefix applies, so nav should be visible
-      await expect(desktopNav).toBeVisible();
-    }
+    // nav.hidden.lg:flex: hidden below the lg breakpoint
+    await expect(page.locator('nav.hidden')).toBeHidden();
   });
 
   test('mobile nav drawer opens and shows CTA buttons', async ({ page }) => {
-    // Skip on any viewport >= 768px (hamburger is md:hidden there)
+    // The menu button is xl:hidden, so it is present on both test viewports.
     const width = page.viewportSize()?.width ?? 9999;
-    test.skip(width >= 768, 'Hamburger not accessible at viewport >= 768px');
+    test.skip(width >= 1280, 'Menu button not shown at viewport >= 1280px');
 
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
     await page.getByTestId('button-menu').click();
-    await expect(page.getByTestId('button-get-started-mobile')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('button-discovery-call-mobile')).toBeVisible({ timeout: 5000 });
   });
 });
 
@@ -232,7 +213,7 @@ test.describe('TC-4.5.4  768px tablet viewport audit', () => {
     { path: '/solutions',  label: 'Solutions' },
     { path: '/contact',    label: 'Contact' },
     { path: '/engagement', label: 'Engagement' },
-    { path: '/frameworks', label: 'Frameworks' },
+    { path: '/studio', label: 'AI Business Studio' },
   ];
 
   for (const { path, label } of auditPages) {

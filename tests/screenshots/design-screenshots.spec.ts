@@ -189,7 +189,7 @@ test.describe('EDMECA Website Design Documentation Screenshots', () => {
 
   test('2.4 - Frameworks Page - Desktop', async ({ page }) => {
     await page.setViewportSize(viewports.desktop);
-    await page.goto('/frameworks');
+    await page.goto('/studio');
     await page.waitForLoadState('networkidle');
     
     await page.screenshot({
@@ -403,7 +403,7 @@ test.describe('EDMECA Website Design Documentation Screenshots', () => {
   test('2.8 - Interactive - All Pages Overview', async ({ page }) => {
     await page.setViewportSize(viewports.desktop);
     
-    const pages = ['/', '/about', '/solutions', '/frameworks', '/engagement', '/contact'];
+    const pages = ['/', '/about', '/solutions', '/studio', '/engagement', '/contact'];
     
     for (const pagePath of pages) {
       await page.goto(pagePath);

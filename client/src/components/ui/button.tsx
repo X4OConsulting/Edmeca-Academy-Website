@@ -19,6 +19,10 @@ const buttonVariants = cva(
           // Inherits the current text color.
           " border [border-color:var(--button-outline)]  shadow-xs active:shadow-none ",
         secondary: "border bg-secondary text-secondary-foreground border border-secondary-border ",
+        // EdMeCa primary CTA: brand green fill with ink-10 text (7.7:1); never white text on green
+        cta: "bg-accent text-accent-foreground border border-accent-border font-semibold",
+        // EdMeCa secondary CTA: brand blue outline
+        "outline-brand": "border border-primary text-primary bg-transparent",
         // Add a transparent border so that when someone toggles a border on later, it doesn't shift layout/size.
         ghost: "border border-transparent",
       },

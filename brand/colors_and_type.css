@@ -1,0 +1,215 @@
+/* ============================================================
+   EdMeCa — Colors & Type
+   Source of truth: EdMeca Logo & Brand Identity Guidelines (Jan 2024)
+   stored at assets/EdMeca_Brand_Guide_2024.pdf.
+   ============================================================ */
+
+/* ---------- Webfonts ----------
+   Per the brand guide:
+     • Comfortaa — Regular — ONLY for the logo / wordmark.
+     • Helvetica Neue — Regular — for all body copy, web, brochures, etc.
+
+   Helvetica Neue is not freely web-licensable, so we substitute with
+   Inter (Rasmus Andersson) which is a near-twin grotesque on the web.
+   Comfortaa is available on Google Fonts and is kept loaded for any
+   text-based recreation of the wordmark.
+   ----------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  /* ===========================================================
+     PRIMARY COLOURS — from §5 of the brand guide
+     PANTONE                  RGB                HEX
+     Black 6 U    →  76 78 86            #4C4E56     (dark gray, text)
+     382 U        →  153 194 33          #99C221     (signature green)
+     179 U        →  225 95 85           #E15F55     (coral accent)
+     2757 U       →  69 79 126           #454F7E     (deep blue)
+     =========================================================== */
+
+  --brand-green:        #99C221;    /* Pantone 382 U — primary */
+  --brand-green-deep:   #7DA019;    /* hover / pressed */
+  --brand-green-soft:   #DAE99F;    /* sage tint, soft chip fills */
+  --brand-green-tint:   #F1F7DC;    /* sectional surface fill */
+
+  --brand-blue:         #454F7E;    /* Pantone 2757 U — secondary */
+  --brand-blue-deep:    #353D5C;    /* H3 / pressed */
+  --brand-blue-soft:    #E5E7EF;    /* tint surface */
+
+  --brand-coral:        #E15F55;    /* Pantone 179 U — accent only */
+  --brand-coral-soft:   #FAD9D6;
+  --brand-coral-deep:   #C44A41;
+
+  --brand-gray:         #4C4E56;    /* Pantone Black 6 U — primary text */
+
+  /* ---------- Neutrals (warm-cool slate, anchored to Black 6) ---------- */
+  --ink-100: #FFFFFF;
+  --ink-95:  #F7F8F5;    /* cream — page background */
+  --ink-90:  #EFF0EC;    /* surface */
+  --ink-80:  #D8D9D3;    /* hairline border */
+  --ink-70:  #B7B8BC;    /* divider */
+  --ink-60:  #8A8C95;    /* meta / captions */
+  --ink-40:  #6A6C75;    /* body */
+  --ink-20:  #4C4E56;    /* primary text — = Black 6 */
+  --ink-10:  #2A2B30;    /* near-black for high contrast */
+
+  /* ---------- Foreground / background semantics ---------- */
+  --fg-1: var(--ink-20);
+  --fg-2: var(--ink-40);
+  --fg-3: var(--ink-60);
+  --fg-on-dark: #FFFFFF;
+
+  --bg-page:      var(--ink-95);
+  --bg-surface:   #FFFFFF;
+  --bg-surface-2: var(--ink-90);
+  --bg-tint:      var(--brand-green-tint);
+
+  --border-1: var(--ink-80);
+  --border-2: var(--ink-70);
+
+  /* ---------- Status colors (derived; brand-family safe) ---------- */
+  --success: #7DA019;            /* green deep */
+  --warning: #C68A2E;
+  --danger:  var(--brand-coral); /* use the brand coral */
+  --info:    var(--brand-blue);
+
+  /* ---------- Type families ----------
+     Per brand guide: Helvetica Neue Regular for body.
+     Inter is the web substitute.  Comfortaa is locked to the logo.
+     ----------------------------------- */
+  --font-body:    'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-display: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-logo:    'Comfortaa', 'Inter', sans-serif;     /* logo wordmark only */
+  --font-mono:    ui-monospace, 'JetBrains Mono', Menlo, monospace;
+
+  /* ---------- Type scale ---------- */
+  --fs-12: 0.75rem;
+  --fs-14: 0.875rem;
+  --fs-16: 1rem;
+  --fs-18: 1.125rem;
+  --fs-20: 1.25rem;
+  --fs-24: 1.5rem;
+  --fs-30: 1.875rem;
+  --fs-36: 2.25rem;
+  --fs-48: 3rem;
+  --fs-64: 4rem;
+
+  --fw-regular: 400; /* @kind font */
+  --fw-medium:  500; /* @kind font */
+  --fw-semi:    600; /* @kind font */
+  --fw-bold:    700; /* @kind font */
+  --fw-black:   800; /* @kind font */
+
+  --lh-tight: 1.1; /* @kind font */
+  --lh-snug:  1.25; /* @kind font */
+  --lh-body:  1.55; /* @kind font */
+  --lh-loose: 1.7; /* @kind font */
+
+  --ls-eyebrow: 0.14em; /* @kind font */
+  --ls-tight:   -0.015em; /* @kind font */
+  --ls-normal:  0; /* @kind font */
+
+  /* ---------- Radius ---------- */
+  --r-1: 4px;
+  --r-2: 8px;
+  --r-3: 12px;
+  --r-4: 16px;
+  --r-pill: 999px;
+
+  /* ---------- Elevation (soft, paper-like) ---------- */
+  --shadow-1: 0 1px 2px rgba(28, 28, 28, 0.04), 0 1px 1px rgba(28, 28, 28, 0.03);
+  --shadow-2: 0 2px 6px rgba(28, 28, 28, 0.06), 0 1px 2px rgba(28, 28, 28, 0.04);
+  --shadow-3: 0 8px 24px rgba(28, 28, 28, 0.08), 0 2px 6px rgba(28, 28, 28, 0.04);
+  --shadow-4: 0 24px 48px rgba(28, 28, 28, 0.12), 0 6px 12px rgba(28, 28, 28, 0.06);
+  --shadow-ring: 0 0 0 4px rgba(153, 194, 33, 0.20);
+
+  /* ---------- Spacing (4-px base) ---------- */
+  --s-1:  4px;
+  --s-2:  8px;
+  --s-3:  12px;
+  --s-4:  16px;
+  --s-5:  20px;
+  --s-6:  24px;
+  --s-8:  32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+  --s-20: 80px;
+  --s-24: 96px;
+
+  /* ---------- Motion ---------- */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1); /* @kind other */
+  --ease-out:      cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+  --dur-fast:      120ms; /* @kind other */
+  --dur-base:      200ms; /* @kind other */
+  --dur-slow:      320ms; /* @kind other */
+}
+
+/* ============================================================
+   Semantic element styles
+   ============================================================ */
+
+html { color: var(--fg-1); background: var(--bg-page); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+
+.eyebrow,
+.text-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--brand-green-deep);
+}
+
+h1, .h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-48);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--ink-20);
+}
+h2, .h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-36);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--ls-tight);
+  color: var(--ink-20);
+}
+h3, .h3 {
+  font-family: var(--font-display);
+  font-size: var(--fs-24);
+  font-weight: var(--fw-semi);
+  line-height: var(--lh-snug);
+  color: var(--brand-blue);
+}
+h4, .h4 {
+  font-family: var(--font-display);
+  font-size: var(--fs-20);
+  font-weight: var(--fw-semi);
+  line-height: var(--lh-snug);
+  color: var(--brand-blue);
+}
+h5, .h5 {
+  font-family: var(--font-body);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink-20);
+}
+
+p, .body { font-size: var(--fs-16); line-height: var(--lh-body); color: var(--fg-2); }
+.lead   { font-size: var(--fs-18); line-height: var(--lh-body); color: var(--fg-1); }
+.meta, small { font-size: var(--fs-12); color: var(--fg-3); }
+
+a { color: var(--brand-blue); text-underline-offset: 3px; text-decoration-thickness: 1.5px; }
+a:hover { color: var(--brand-blue-deep); }
+
+code, .mono {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  background: var(--ink-90);
+  padding: 0.1em 0.35em;
+  border-radius: var(--r-1);
+}

@@ -45,7 +45,7 @@ export default function ResetPassword() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Set a new password</CardTitle>
-            <CardDescription>Choose a new password for your EDMECA Academy account.</CardDescription>
+            <CardDescription>Choose a new password for your AI Business Studio account.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {status === 'expired' && (

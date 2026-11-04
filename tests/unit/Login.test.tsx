@@ -67,18 +67,18 @@ describe('Login – email code (default)', () => {
     expect(screen.getByTestId('alert-error')).toHaveTextContent(/valid email/i);
   });
 
-  it('signs in with the code and goes to the portal', async () => {
+  it('signs in with the code and goes to the AI Business Studio', async () => {
     await requestCode();
     await userEvent.type(await screen.findByTestId('input-code-otp'), '123456');
     await waitFor(() => expect(signInWithCode).toHaveBeenCalledWith('founder@example.com', '123456'));
-    expect(toast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Welcome to EDMECA Academy' }));
+    expect(toast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Welcome to the AI Business Studio' }));
     expect(navigate).toHaveBeenCalledWith('/portal');
   });
 
   it('says it is invite-only and links to the application form', () => {
     render(<Login />);
     expect(screen.getByTestId('text-invite-only')).toHaveTextContent(/invite-only/i);
-    expect(screen.getByRole('link', { name: /apply for access/i })).toHaveAttribute('href', '/signup');
+    expect(screen.getByRole('link', { name: /apply for access/i })).toHaveAttribute('href', '/contact?offering=ai-business-studio&subject=Studio%20access');
   });
 
   it('fills in the invited email from the invite link', () => {
@@ -92,11 +92,11 @@ describe('Login – email code (default)', () => {
     render(<Login />);
     const alert = screen.getByTestId('alert-error');
     expect(alert).toHaveTextContent(/has not been invited/i);
-    expect(within(alert).getByRole('link', { name: /apply for access/i })).toHaveAttribute('href', '/signup');
+    expect(within(alert).getByRole('link', { name: /apply for access/i })).toHaveAttribute('href', '/contact?offering=ai-business-studio&subject=Studio%20access');
   });
 
   it('shows the plain-language message for a wrong code', async () => {
-    signInWithCode.mockRejectedValue(new Error('That code is not right. Check the latest email from EDMECA and try again.'));
+    signInWithCode.mockRejectedValue(new Error('That code is not right. Check the latest email from EdMeCa and try again.'));
     await requestCode();
     await userEvent.type(await screen.findByTestId('input-code-otp'), '000000');
     expect(await screen.findByTestId('alert-error')).toHaveTextContent(/that code is not right/i);

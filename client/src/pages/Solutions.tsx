@@ -2,229 +2,238 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
-import { ArrowRight, Lightbulb, Users, CheckCircle2, Rocket, BarChart3, FileText, Target } from "lucide-react";
+import { useScrollToHash } from "@/hooks/use-scroll-to-hash";
+import { ArrowRight } from "lucide-react";
 
-const entrepreneurBenefits = [
-  {
-    icon: Lightbulb,
-    title: "Business Clarity",
-    description: "Transform vague ideas into structured business models using proven frameworks.",
-  },
-  {
-    icon: Rocket,
-    title: "Faster MVP Development",
-    description: "AI-guided tools help you move from concept to prototype in weeks, not months.",
-  },
-  {
-    icon: Target,
-    title: "Investor-Ready Pitches",
-    description: "Build compelling pitch decks backed by rigorous strategic analysis.",
-  },
-  {
-    icon: FileText,
-    title: "Documented Progress",
-    description: "Every step is tracked, creating a portfolio of your entrepreneurial journey.",
-  },
-];
+// The market offering stack from docs/STRATEGY_POSITIONS_2026-10.md, in the plan's four groups.
+// "For" lines are the Primary segments column. Each card links to the contact form with the offering
+// preset (`?offering=`); the form reads it from Phase 8.
 
-const programmeBenefits = [
-  {
-    icon: Users,
-    title: "Scalable Interventions",
-    description: "Deliver consistent, high-quality training across multiple cohorts simultaneously.",
-  },
-  {
-    icon: BarChart3,
-    title: "Measurable Progression",
-    description: "Track participant progress from baseline to outcome with real evidence.",
-  },
-  {
-    icon: FileText,
-    title: "Streamlined M&E",
-    description: "Generate comprehensive impact reports automatically for funders and stakeholders.",
-  },
-  {
-    icon: Target,
-    title: "Cohort Management",
-    description: "Organize participants, track milestones, and manage the entire journey in one place.",
-  },
-];
+type Offering = {
+  slug: string;
+  title: string;
+  description: string;
+  forLine: string;
+  tag?: string;
+  extraLink?: { href: string; label: string };
+};
 
-const entrepreneurJourney = [
-  { step: "1", title: "Onboard", description: "Create your profile and tell us about your business idea" },
-  { step: "2", title: "Explore", description: "Work through frameworks with AI-guided assistance" },
-  { step: "3", title: "Build", description: "Create your BMC, value proposition, and strategic analysis" },
-  { step: "4", title: "Pitch", description: "Compile everything into an investor-ready presentation" },
+type OfferingGroup = { id: string; title: string; offerings: Offering[] };
+
+const groups: OfferingGroup[] = [
+  {
+    id: "programmes",
+    title: "Programmes",
+    offerings: [
+      {
+        slug: "digital-leader-module",
+        title: "Digital Leader Module",
+        description:
+          "Our signature opener: a 10-dimension baseline on a maturity scale of 1 to 4, with cohort profiling and an AI opportunity map. It is the PRE in PRE and POST.",
+        forLine: "Every client type",
+      },
+      {
+        slug: "ai-for-leaders",
+        title: "AI for Leaders and the AI Catalyst Journey",
+        description: "An executive session, then a six-session programme for teams.",
+        forLine: "Corporates and learning institutions",
+      },
+      {
+        slug: "smme-cohort-module",
+        title: "AI and digital module inside an SMME cohort",
+        description:
+          "Delivered under the EdMeCa brand, co-branded with the programme owner where that helps, with an impact report.",
+        forLine: "ESD programme owners",
+      },
+      {
+        slug: "youthpreneur",
+        title: "Youthpreneur",
+        description: "A youth variant for TVET incubators and youth programmes, QCTO-aligned.",
+        forLine: "Learning institutions, SETAs and funders",
+        tag: "In development",
+      },
+    ],
+  },
+  {
+    id: "evidence",
+    title: "Evidence services",
+    offerings: [
+      {
+        slug: "impact-reporting",
+        title: "Impact Reporting",
+        description:
+          "Our entry product, offered on its own: baseline, mid and post assessments, with a consolidated report within 10 business days, formatted for funder reporting.",
+        forLine: "ESD programme owners, funders and learning institutions",
+      },
+      {
+        slug: "research",
+        title: "Research offering",
+        description:
+          "Sector and trend research for programme owners and institutions, produced by funded researchers who also build our content.",
+        forLine: "Learning institutions and funders",
+      },
+    ],
+  },
+  {
+    id: "pathways",
+    title: "Accredited pathways",
+    offerings: [
+      {
+        slug: "accredited-skills-programmes",
+        title: "Accredited skills programmes",
+        description:
+          "QCTO-aligned, starting with AI and Automation User and related unit standards, assembled toward a higher certificate pathway with work-integrated learning and RPL entry.",
+        forLine: "SETAs and learning institutions",
+      },
+      {
+        slug: "staff-capacitation",
+        title: "Staff capacitation",
+        description: "Lecturer, research and operations staff capability, including train-the-trainer.",
+        forLine: "Learning institutions",
+      },
+    ],
+  },
+  {
+    id: "studio",
+    title: "Digital tools",
+    offerings: [
+      {
+        slug: "ai-business-studio",
+        title: "AI Business Studio",
+        description:
+          "BMC and other templates, prompt building, the leadership tool and progress tracking, in one studio with business, individual and leader contexts. Offered as post-programme access, not a subscription.",
+        forLine: "Every client type",
+        extraLink: { href: "/studio", label: "About the Studio" },
+      },
+    ],
+  },
 ];
 
 export default function Solutions() {
+  useScrollToHash();
+
   return (
     <MarketingLayout>
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight">
-              Solutions That Deliver Results
-            </h1>
-            <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-              Whether you're an individual entrepreneur or leading a development programme, 
-              EdMeCa provides the tools and frameworks you need to succeed.
-            </p>
+      {/* Hero: the proposition */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+        <div className="max-w-3xl">
+          <p className="eyebrow">What we do</p>
+          <h1 className="mt-4 text-4xl sm:text-5xl font-bold tracking-tight leading-tight">
+            Programmes, evidence, pathways and tools.
+          </h1>
+          <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
+            A unique blend of industry insight, academic rigour and practical digital tools, delivered by facilitators
+            working from one playbook. We develop people to become future tech leaders. We measure the shift and share
+            the evidence.
+          </p>
+          <div className="mt-10 flex flex-col sm:flex-row gap-4">
+            <Link href="/contact" asChild>
+              <Button variant="cta" size="lg" data-testid="button-solutions-cta">
+                Book a discovery call
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link href="/diagnostic" asChild>
+              <Button variant="outline-brand" size="lg">Take the free baseline</Button>
+            </Link>
           </div>
+          <nav aria-label="Offering groups" className="mt-10 flex flex-wrap gap-2">
+            {groups.map((group) => (
+              <a
+                key={group.id}
+                href={`#${group.id}`}
+                className="rounded-full border bg-card px-4 py-1.5 text-sm font-medium text-primary hover:bg-secondary transition-colors"
+              >
+                {group.title}
+              </a>
+            ))}
+          </nav>
         </div>
       </section>
 
-      {/* For Entrepreneurs */}
-      <section id="entrepreneurs" className="bg-card border-y">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-            <div>
-              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary dark:bg-accent/10 dark:text-accent px-3 py-1 rounded-full text-sm font-medium mb-4">
-                <Lightbulb className="w-4 h-4" />
-                For Entrepreneurs
-              </div>
-              <h2 className="font-serif text-3xl sm:text-4xl font-bold">
-                From Idea to Investor-Ready
-              </h2>
-              <p className="mt-4 text-muted-foreground leading-relaxed">
-                Access the same strategic frameworks used by top consulting firms, enhanced 
-                with AI guidance and practical tools designed for entrepreneurs.
-              </p>
-              
-              <div className="mt-8 space-y-4">
-                {entrepreneurJourney.map((item) => (
-                  <div key={item.step} className="flex items-start gap-4">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary dark:bg-accent/10 dark:text-accent flex items-center justify-center font-semibold text-sm flex-shrink-0">
-                      {item.step}
+      {/* Digital Leadership, once on this page */}
+      <section className="bg-brand-blue-deep text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+          <p className="eyebrow eyebrow-on-dark">Our positioning</p>
+          <h2 className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight">
+            Digital <span className="text-accent">Leadership</span>
+          </h2>
+          <p className="mt-6 text-lg leading-relaxed text-white/85">
+            Digital Leadership means leading, and digital. Leaders do not need to be digital experts, but they need
+            enough insight to lead where digital, AI and cyber risk shape the business, together with established
+            leadership competencies. Cyber security sits inside Digital Leadership. This is the natural overlap we
+            position on, for corporates, ecosystems and institutions alike.
+          </p>
+        </div>
+      </section>
+
+      {/* The offering stack */}
+      {groups.map((group, index) => (
+        <section
+          key={group.id}
+          id={group.id}
+          className={`scroll-mt-20 ${index % 2 === 1 ? "bg-card border-y" : ""}`}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-10">{group.title}</h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              {group.offerings.map((offering) => (
+                <Card key={offering.slug} className="rounded-2xl flex flex-col">
+                  <CardContent className="p-6 lg:p-8 flex flex-1 flex-col">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="eyebrow">{group.title}</p>
+                      {offering.tag && (
+                        <span className="rounded-full bg-secondary px-3 py-0.5 text-xs font-medium text-primary">
+                          {offering.tag}
+                        </span>
+                      )}
                     </div>
-                    <div>
-                      <h3 className="font-semibold">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground">{item.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="mt-8">
-                <Link href="/signup" asChild>
-                  <Button size="lg" data-testid="button-entrepreneur-start">
-                    Start Free
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-            
-            <div className="grid sm:grid-cols-2 gap-4">
-              {entrepreneurBenefits.map((benefit) => (
-                <Card key={benefit.title} className="hover-elevate overflow-visible">
-                  <CardContent className="p-5">
-                    <div className="p-2 rounded-lg bg-primary/10 text-primary dark:bg-accent/10 dark:text-accent w-fit">
-                      <benefit.icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="mt-3 font-semibold">{benefit.title}</h3>
-                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                      {benefit.description}
+                    <h3 className="mt-3 text-xl font-semibold text-primary">{offering.title}</h3>
+                    <p className="mt-3 text-muted-foreground leading-relaxed">{offering.description}</p>
+                    <p className="mt-4 text-sm">
+                      <span className="font-semibold">For: </span>
+                      <span className="text-muted-foreground">{offering.forLine}</span>
                     </p>
+                    <div className="mt-auto pt-10 flex flex-wrap gap-x-6 gap-y-2">
+                      <Link
+                        href={`/contact?offering=${offering.slug}`}
+                        className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+                        data-testid={`link-offering-${offering.slug}`}
+                      >
+                        Ask about this offering
+                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                      </Link>
+                      {offering.extraLink && (
+                        <Link href={offering.extraLink.href} className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
+                          {offering.extraLink.label}
+                          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                        </Link>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ))}
 
-      {/* For Programmes */}
-      <section className="bg-primary text-primary-foreground">
-        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-12 sm:flex-row sm:items-center sm:px-6 lg:px-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Free baseline. Eight minutes.</p>
-            <h2 className="mt-2 font-serif text-3xl font-bold">Where are you on the AI Enablement Map?</h2>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-primary-foreground/70">Capability is what you can do with AI. Readiness is whether it will stick. Take it on your own, then retake it after an intervention to see the dot move.</p>
-          </div>
-          <Link href="/ai-map" asChild>
-            <Button variant="secondary" size="lg" className="shrink-0">Place my dot <ArrowRight className="ml-2 h-4 w-4" /></Button>
-          </Link>
-        </div>
-      </section>
-
-      <section id="programmes" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-          <div className="order-2 lg:order-1 grid sm:grid-cols-2 gap-4">
-            {programmeBenefits.map((benefit) => (
-              <Card key={benefit.title} className="hover-elevate overflow-visible">
-                <CardContent className="p-5">
-                  <div className="p-2 rounded-lg bg-primary/10 text-primary dark:bg-accent/10 dark:text-accent w-fit">
-                    <benefit.icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="mt-3 font-semibold">{benefit.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                    {benefit.description}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          
-          <div className="order-1 lg:order-2">
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary dark:bg-accent/10 dark:text-accent px-3 py-1 rounded-full text-sm font-medium mb-4">
-              <Users className="w-4 h-4" />
-              For Programmes
-            </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold">
-              Scale Impact, Measure Outcomes
-            </h2>
-            <p className="mt-4 text-muted-foreground leading-relaxed">
-              Enterprise development programmes, incubators, and accelerators trust EdMeCa 
-              to deliver consistent interventions and demonstrate measurable impact.
-            </p>
-            
-            <ul className="mt-6 space-y-3">
-              {[
-                "Multi-cohort management dashboard",
-                "Participant progress tracking",
-                "Automated M&E reporting",
-                "Evidence-based impact documentation",
-                "White-label options available",
-              ].map((item) => (
-                <li key={item} className="flex items-center gap-3 text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
-                  <span className="text-muted-foreground">{item}</span>
-                </li>
-              ))}
-            </ul>
-            
-            <div className="mt-8">
-              <Link href="/contact" asChild>
-                <Button size="lg" data-testid="button-programme-contact">
-                  Talk to Our Team
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="bg-primary dark:bg-primary/90 text-primary-foreground">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 text-center">
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold">
-            Not Sure Which Solution Fits?
-          </h2>
-          <p className="mt-4 max-w-xl mx-auto opacity-90">
-            Book a free consultation call and we'll help you identify the right approach 
-            for your needs.
+      {/* Closing CTA */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
+        <div className="rounded-2xl border bg-secondary p-8 lg:p-16 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Let's talk about your programme.</h2>
+          <p className="mt-4 max-w-xl mx-auto text-muted-foreground">
+            A proposal follows within five working days of a discovery call.
           </p>
-          <div className="mt-8">
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/contact" asChild>
-              <Button size="lg" variant="secondary" data-testid="button-solutions-consult">
-                Book a Consultation
+              <Button variant="cta" size="lg">
+                Book a discovery call
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
+            </Link>
+            <Link href="/engagement" asChild>
+              <Button variant="outline-brand" size="lg">See how we engage</Button>
             </Link>
           </div>
         </div>

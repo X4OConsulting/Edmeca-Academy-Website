@@ -24,7 +24,7 @@ function buildBusinessContext(profile: any, artifacts: any[]): string {
     return lines.join("\n");
   }
 
-  // Deduplicate by tool_type — latest only
+  // Deduplicate by tool_type: latest only
   const typeMap: Record<string, any> = {};
   for (const a of artifacts) {
     const key = (a as any).tool_type ?? a.toolType;
@@ -119,7 +119,7 @@ export function FloatingChat() {
         // Greet based on data
         const businessName = (profile as any)?.business_name;
         const greeting = businessName
-          ? `Hi! I'm EdMeCa AI. I can see you're working on **${businessName}**. Ask me anything about your business model, strategy, or any tool in your portal.`
+          ? `Hi! I'm EdMeCa AI. I can see you're working on **${businessName}**. Ask me anything about your business model, strategy, or any tool in the AI Business Studio.`
           : `Hi! I'm EdMeCa AI, your business advisor. I can see your business data and help you improve your strategy. What would you like to know?`;
         setMessages([{ role: "assistant", content: greeting }]);
       } catch {
@@ -293,7 +293,7 @@ export function FloatingChat() {
                 <div ref={bottomRef} />
               </div>
 
-              {/* Suggested questions — only when empty */}
+              {/* Suggested questions: only when empty */}
               {messages.length <= 1 && contextReady && (
                 <div className="px-3 py-2 border-t bg-muted/20 flex flex-wrap gap-1.5">
                   {[
